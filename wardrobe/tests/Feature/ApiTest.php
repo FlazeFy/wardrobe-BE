@@ -28,11 +28,9 @@ class ApiTest extends TestCase
     public function test_post_login()
     {
         // Exec
+        $param = ['username' => 'flazefy', 'password' => 'nopass123'];
         $response = $this->httpClient->post("/api/v1/login", [
-            'json' => [
-                'username' => 'flazefy',
-                'password' => 'nopass123',
-            ]
+            'json' => $param
         ]);
 
         $data = json_decode($response->getBody(), true);
@@ -42,7 +40,8 @@ class ApiTest extends TestCase
         $this->assertArrayHasKey('token', $data);
         $this->assertArrayHasKey('role', $data);
 
-        Audit::auditRecord("Test - Returned Data", "TC-001", "Token : ".$data['token']);
+        Audit::auditRecordText("Test - Post Login", "TC-001", "Token : ".$data['token']);
+        Audit::auditRecordSheet("Test - Post Login", "TC-001", json_encode($param), $data['token']);
         return $data['token'];
     }
 
@@ -62,5 +61,8 @@ class ApiTest extends TestCase
         // Test Parameter
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertArrayHasKey('message', $data);
+
+        Audit::auditRecordText("Test - Sign Out", "TC-002", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Sign Out", "TC-002", 'TC-001 test_post_login', json_encode($data));
     }
 }

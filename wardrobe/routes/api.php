@@ -23,6 +23,8 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/header/{category}/{order}', [QueriesClothesApi::class, 'get_all_clothes_header']);
     Route::get('/detail/{category}/{order}', [QueriesClothesApi::class, 'get_all_clothes_detail']);
     Route::get('/history/{clothes_id}/{order}', [QueriesClothesApi::class, 'get_clothes_used_history']);
+    Route::get('/similiar/{ctx}/{val}/{exc}', [QueriesClothesApi::class, 'get_clothes_similiar_by']);
+    Route::get('/check_wash/{clothes_id}', [QueriesClothesApi::class, 'get_clothes_wash_status_by_clothes_id']);
 
     Route::delete('/destroy/{id}', [CommandClothesApi::class, 'hard_del_clothes_by_id']);
     Route::delete('/delete/{id}', [CommandClothesApi::class, 'soft_del_clothes_by_id']);

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\ClothesModel;
 use App\Models\ClothesUsedModel;
 
+use App\Helpers\Generator;
+
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -71,7 +73,8 @@ class Commands extends Controller
         try{
             $user_id = $request->user()->id;
 
-            $rows = ClothesUsedModel::create([
+            $res = ClothesUsedModel::create([
+                'id' => Generator::get_uuid(),
                 'clothes_id' => $request->clothes_id,
                 'clothes_note' => $request->clothes_note,
                 'used_context' => $request->used_context,

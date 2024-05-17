@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 
 use App\Models\ClothesModel;
 use App\Models\ClothesUsedModel;
+use App\Models\WashModel;
 
 use App\Helpers\Generator;
 
@@ -16,7 +17,6 @@ class Commands extends Controller
     public function hard_del_clothes_by_id($id)
     {
         $user_id = $request->user()->id;
-        $clothes = ClothesModel::select('clothes_name')->where('id',$id)->first();
 
         $rows = ClothesModel::destroy($id);
 
@@ -24,7 +24,7 @@ class Commands extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'clothes permentally deleted',
-                'data' => $res
+                'data' => $rows
             ], Response::HTTP_OK);
         } else {
             return response()->json([
@@ -39,7 +39,6 @@ class Commands extends Controller
     {
         try{
             $user_id = $request->user()->id;
-            $clothes = ClothesModel::select('clothes_name')->where('id',$id)->first();
 
             $rows = ClothesModel::where('id', $id)
                 ->where('created_by', $user_id)
@@ -51,7 +50,7 @@ class Commands extends Controller
                 return response()->json([
                     'status' => 'success',
                     'message' => 'clothes deleted',
-                    'data' => $res
+                    'data' => $rows
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
@@ -92,6 +91,50 @@ class Commands extends Controller
                 'status' => 'error',
                 'message' => 'something wrong. Please contact admin',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function update_wash_by_clothes_id(Request $request, $id)
+    {
+        try{
+            $user_id = $request->user()->id;
+
+            $res = WashModel::where('clothes_id',$id)
+            ->where('created_by',$user_id)
+            ->whereNull('finished_at')
+            ->update([
+                'wash_checkpoint' => $request->wash_checkpoint,
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'clothes update',
+            ], Response::HTTP_OK);
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'something wrong. Please contact admin',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function hard_del_wash_by_id($id)
+    {
+        $user_id = $request->user()->id;
+        $rows = WashModel::destroy($id);
+
+        if($rows > 0){
+            return response()->json([
+                'status' => 'success',
+                'message' => 'clothes wash permentally deleted',
+                'data' => $rows
+            ], Response::HTTP_OK);
+        } else {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'clothes wash failed to permentally deleted',
+                'data' => null
+            ], Response::HTTP_NOT_FOUND);
         }
     }
 }

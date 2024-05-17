@@ -191,4 +191,35 @@ class Queries extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    public function get_wash_checkpoint_by_clothes_id(Request $request, $id)
+    {
+        try{
+            $user_id = $request->user()->id;
+
+            $res = WashModel::select('wash_note','wash_type','wash_checkpoint')
+                ->where('clothes_id',$id)
+                ->whereNull('finished_at')
+                ->first();
+                
+            if ($res) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'wash checkpoint fetched',
+                    'data' => $res
+                ], Response::HTTP_OK);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'wash checkpoint failed to fetched',
+                    'data' => null
+                ], Response::HTTP_NOT_FOUND);
+            }
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'something wrong. Please contact admin',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

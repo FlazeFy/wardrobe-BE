@@ -13,5 +13,9 @@ class WashModel extends Model
 
     protected $table = 'wash';
     protected $primaryKey = 'id';
-    protected $fillable = ['id', 'wash_notes', 'clothes_id', 'wash_type', 'wash_checkpoint', 'created_at', 'created_by', 'finished_at'];
+    protected $fillable = ['id', 'wash_note', 'clothes_id', 'wash_type', 'wash_checkpoint', 'created_at', 'created_by', 'finished_at'];
+
+    protected $casts = [
+        'wash_checkpoint' => 'array'
+    ];
 }

@@ -12,6 +12,21 @@ use Illuminate\Support\Facades\Hash;
 
 class Queries extends Controller
 {
+     /**
+     * @OA\GET(
+     *     path="/api/v1/logout",
+     *     summary="Sign out from Apps",
+     *     tags={"Auth"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Logout success"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error"
+     *     ),
+     * )
+     */
     public function logout(Request $request)
     {
         $user_id = $request->user()->id;

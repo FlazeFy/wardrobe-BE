@@ -13,6 +13,25 @@ use Illuminate\Http\Response;
 
 class Queries extends Controller
 {
+    /**
+     * @OA\GET(
+     *     path="/api/v1/clothes/header/{category}/{order}",
+     *     summary="Show all clothes (header)",
+     *     tags={"Clothes"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="clothes found"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="clothes failed to fetch"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error"
+     *     ),
+     * )
+     */
     public function get_all_clothes_header(Request $request, $category, $order)
     {
         try{
@@ -47,6 +66,25 @@ class Queries extends Controller
         }
     }
 
+    /**
+     * @OA\GET(
+     *     path="/api/v1/clothes/similiar/{ctx}/{val}/{exc}",
+     *     summary="Show similiar clothes by context",
+     *     tags={"Clothes"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="clothes found"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="clothes failed to fetch"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error"
+     *     ),
+     * )
+     */
     public function get_clothes_similiar_by(Request $request, $ctx, $val,$exc)
     {
         try{
@@ -83,6 +121,25 @@ class Queries extends Controller
         }
     }
 
+    /**
+     * @OA\GET(
+     *     path="/api/v1/clothes/detail/{category}/{order}",
+     *     summary="Show clothes detail",
+     *     tags={"Clothes"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="clothes found"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="clothes failed to fetch"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error"
+     *     ),
+     * )
+     */
     public function get_all_clothes_detail(Request $request, $category, $order)
     {
         try{
@@ -117,6 +174,25 @@ class Queries extends Controller
         }
     }
 
+    /**
+     * @OA\GET(
+     *     path="/api/v1/clothes/history/{clothes_id}/{order}",
+     *     summary="Show clothes used history",
+     *     tags={"Clothes"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="clothes found"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="clothes failed to fetch"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error"
+     *     ),
+     * )
+     */
     public function get_clothes_used_history(Request $request, $clothes_id, $order)
     {
         try{
@@ -150,6 +226,25 @@ class Queries extends Controller
         }
     }
 
+     /**
+     * @OA\GET(
+     *     path="/api/v1/clothes/check_wash/{clothes_id}",
+     *     summary="Show clothes wash status",
+     *     tags={"Clothes"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="clothes found"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="clothes failed to fetch"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error"
+     *     ),
+     * )
+     */
     public function get_clothes_wash_status_by_clothes_id(Request $request, $clothes_id)
     {
         try{
@@ -192,6 +287,25 @@ class Queries extends Controller
         }
     }
 
+     /**
+     * @OA\GET(
+     *     path="/api/v1/clothes/wash_checkpoint/{id}",
+     *     summary="Show clothes wash checkpoint",
+     *     tags={"Clothes"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="clothes found"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="clothes failed to fetch"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error"
+     *     ),
+     * )
+     */
     public function get_wash_checkpoint_by_clothes_id(Request $request, $id)
     {
         try{

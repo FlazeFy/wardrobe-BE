@@ -11,6 +11,25 @@ use Illuminate\Http\Response;
 
 class Queries extends Controller
 {
+    /**
+     * @OA\GET(
+     *     path="/api/v1/dct/{type}",
+     *     summary="Show dictionary by type",
+     *     tags={"Dictionary"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="dictionary found"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="dictionary failed to fetch"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error"
+     *     ),
+     * )
+     */
     public function get_dct_by_type(Request $request, $type)
     {
         try{

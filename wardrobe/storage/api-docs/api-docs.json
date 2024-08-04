@@ -1,0 +1,207 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Wardrobe API",
+        "description": "API Documentation for Wardrobe BE",
+        "contact": {
+            "email": "flazen.edu@gmail.com"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/v1/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Sign in to the Apps",
+                "operationId": "26ae6f7a2668f358293a502309985206",
+                "responses": {
+                    "200": {
+                        "description": "{user_data}"
+                    },
+                    "422": {
+                        "description": "{validation_msg}"
+                    },
+                    "401": {
+                        "description": "Wrong username or password"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/v1/logout": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Sign out from Apps",
+                "operationId": "8859fad6cbeb2081a7611f5b944b4630",
+                "responses": {
+                    "200": {
+                        "description": "Logout success"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/v1/clothes/header/{category}/{order}": {
+            "get": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Show all clothes (header)",
+                "operationId": "209636ff5dbe8b35e433b43170b08d1d",
+                "responses": {
+                    "200": {
+                        "description": "clothes found"
+                    },
+                    "404": {
+                        "description": "clothes failed to fetch"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/v1/clothes/similiar/{ctx}/{val}/{exc}": {
+            "get": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Show similiar clothes by context",
+                "operationId": "299297db15a3e9926ba3fe8ae892dda1",
+                "responses": {
+                    "200": {
+                        "description": "clothes found"
+                    },
+                    "404": {
+                        "description": "clothes failed to fetch"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/v1/clothes/detail/{category}/{order}": {
+            "get": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Show clothes detail",
+                "operationId": "e4448ea35cc8c45b2d767640b0f9d1c9",
+                "responses": {
+                    "200": {
+                        "description": "clothes found"
+                    },
+                    "404": {
+                        "description": "clothes failed to fetch"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/v1/clothes/history/{clothes_id}/{order}": {
+            "get": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Show clothes used history",
+                "operationId": "55864516c737c97943acb74f110fd2e8",
+                "responses": {
+                    "200": {
+                        "description": "clothes found"
+                    },
+                    "404": {
+                        "description": "clothes failed to fetch"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/v1/clothes/check_wash/{clothes_id}": {
+            "get": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Show clothes wash status",
+                "operationId": "d6ae1e3fc93572167d31e754b12adee0",
+                "responses": {
+                    "200": {
+                        "description": "clothes found"
+                    },
+                    "404": {
+                        "description": "clothes failed to fetch"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/v1/clothes/wash_checkpoint/{id}": {
+            "get": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Show clothes wash checkpoint",
+                "operationId": "5c6e2b7b97b591fa7334b213ffaea40b",
+                "responses": {
+                    "200": {
+                        "description": "clothes found"
+                    },
+                    "404": {
+                        "description": "clothes failed to fetch"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/v1/dct/{type}": {
+            "get": {
+                "tags": [
+                    "Dictionary"
+                ],
+                "summary": "Show dictionary by type",
+                "operationId": "0635b54e376376f26f000098c180b486",
+                "responses": {
+                    "200": {
+                        "description": "dictionary found"
+                    },
+                    "404": {
+                        "description": "dictionary failed to fetch"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "Clothes",
+            "description": "Clothes"
+        },
+        {
+            "name": "Dictionary",
+            "description": "Dictionary"
+        }
+    ]
+}

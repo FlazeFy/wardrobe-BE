@@ -14,6 +14,25 @@ use Illuminate\Http\Response;
 
 class Commands extends Controller
 {
+    /**
+     * @OA\DELETE(
+     *     path="/api/v1/clothes/destroy/{id}",
+     *     summary="Permentally delete clothes by id",
+     *     tags={"Clothes"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="clothes permentally deleted"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="clothes failed to permentally deleted"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error"
+     *     ),
+     * )
+     */
     public function hard_del_clothes_by_id($id)
     {
         $user_id = $request->user()->id;
@@ -35,6 +54,25 @@ class Commands extends Controller
         }
     }
 
+    /**
+     * @OA\DELETE(
+     *     path="/api/v1/clothes/destroy/{id}",
+     *     summary="Delete clothes by id",
+     *     tags={"Clothes"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="clothes deleted"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="clothes failed to deleted"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error"
+     *     ),
+     * )
+     */
     public function soft_del_clothes_by_id($id)
     {
         try{
@@ -67,6 +105,25 @@ class Commands extends Controller
         }
     }
 
+    /**
+     * @OA\POST(
+     *     path="/api/v1/clothes/history",
+     *     summary="Add clothes history",
+     *     tags={"Clothes"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="clothes deleted"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="clothes failed to deleted"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error"
+     *     ),
+     * )
+     */
     public function post_history_clothes(Request $request)
     {
         try{
@@ -94,6 +151,25 @@ class Commands extends Controller
         }
     }
 
+    /**
+     * @OA\PUT(
+     *     path="/api/v1/clothes/update_checkpoint/{id}",
+     *     summary="Update clothes by id",
+     *     tags={"Clothes"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="clothes deleted"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="clothes failed to deleted"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error"
+     *     ),
+     * )
+     */
     public function update_wash_by_clothes_id(Request $request, $id)
     {
         try{
@@ -118,6 +194,25 @@ class Commands extends Controller
         }
     }
 
+     /**
+     * @OA\DELETE(
+     *     path="/api/v1/clothes/destroy/{id}",
+     *     summary="Permentally delete clothes by id",
+     *     tags={"Clothes"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="clothes permentally deleted"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="clothes failed to permentally deleted"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error"
+     *     ),
+     * )
+     */
     public function hard_del_wash_by_id($id)
     {
         $user_id = $request->user()->id;

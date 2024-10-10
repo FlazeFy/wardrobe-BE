@@ -36,6 +36,12 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::post('/history', [CommandClothesApi::class, 'post_history_clothes']);
 });
 
+Route::prefix('/v1/history')->middleware(['auth:sanctum'])->group(function () {
+    Route::get('/', [QueriesHistoryController::class, 'get_all_history']);
+    
+    Route::delete('/destroy/{id}', [CommandsHistoryController::class, 'hard_delete_history_by_id']);
+});
+
 Route::prefix('/v1/dct')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/{type}', [QueriesDictionaryApi::class, 'get_dct_by_type']);
 });

@@ -313,4 +313,52 @@ class ClothesTest extends TestCase
         Audit::auditRecordText("Test - Soft Delete Clothes By ID", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Soft Delete Clothes By ID", "TC-XXX", 'TC-XXX test_soft_delete_clothes_by_id', json_encode($data));
     }
+
+    public function test_hard_delete_clothes_by_id(): void
+    {
+        // Exec
+        $token = $this->login_trait("user");
+        $clothes_id = "2d98f524-de02-11ed-b5ea-0242ac120002";
+        $response = $this->httpClient->delete("destroy/$clothes_id", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertEquals('clothes permentally deleted',$data['message']);
+
+        Audit::auditRecordText("Test - Hard Delete Clothes By ID", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Hard Delete Clothes By ID", "TC-XXX", 'TC-XXX test_hard_delete_clothes_by_id', json_encode($data));
+    }
+
+    public function test_hard_delete_wash_clothes_by_id(): void
+    {
+        // Exec
+        $token = $this->login_trait("user");
+        $clothes_id = "2599322c-a232-11ee-8c90-0242ac120002";
+        $response = $this->httpClient->delete("destroy_wash/$clothes_id", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertEquals('clothes wash permentally deleted',$data['message']);
+
+        Audit::auditRecordText("Test - Hard Delete Wash By ID", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Hard Delete Wash By ID", "TC-XXX", 'TC-XXX test_hard_delete_wash_by_id', json_encode($data));
+    }
 }

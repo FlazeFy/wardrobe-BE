@@ -216,7 +216,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function hard_del_wash_by_id($id)
+    public function hard_delete_wash_by_id(Request $request, $id)
     {
         $user_id = $request->user()->id;
         $rows = WashModel::destroy($id);
@@ -225,7 +225,6 @@ class Commands extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'clothes wash permentally deleted',
-                'data' => $rows
             ], Response::HTTP_OK);
         } else {
             return response()->json([

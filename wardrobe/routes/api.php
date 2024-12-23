@@ -29,9 +29,9 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
 
     Route::put('/update_checkpoint/{id}', [CommandClothesApi::class, 'update_wash_by_clothes_id']);
 
-    Route::delete('/destroy/{id}', [CommandClothesApi::class, 'hard_del_clothes_by_id']);
+    Route::delete('/destroy/{id}', [CommandClothesApi::class, 'hard_delete_clothes_by_id']);
     Route::delete('/destroy_wash/{id}', [CommandClothesApi::class, 'hard_del_wash_by_id']);
-    Route::delete('/delete/{id}', [CommandClothesApi::class, 'soft_del_clothes_by_id']);
+    Route::delete('/delete/{id}', [CommandClothesApi::class, 'soft_delete_clothes_by_id']);
 
     Route::post('/history', [CommandClothesApi::class, 'post_history_clothes']);
 });

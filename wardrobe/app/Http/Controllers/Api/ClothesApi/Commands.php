@@ -33,24 +33,29 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function hard_del_clothes_by_id($id)
+    public function hard_delete_clothes_by_id(Request $request, $id)
     {
-        $user_id = $request->user()->id;
+        try {
+            $user_id = $request->user()->id;
 
-        $rows = ClothesModel::destroy($id);
+            $rows = ClothesModel::destroy($id);
 
-        if($rows > 0){
+            if($rows > 0){
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'clothes permentally deleted',
+                ], Response::HTTP_OK);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'clothes failed to permentally deleted',
+                ], Response::HTTP_NOT_FOUND);
+            }
+        } catch(\Exception $e) {
             return response()->json([
-                'status' => 'success',
-                'message' => 'clothes permentally deleted',
-                'data' => $rows
-            ], Response::HTTP_OK);
-        } else {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'clothes failed to permentally deleted',
-                'data' => null
-            ], Response::HTTP_NOT_FOUND);
+                'status' => 'error',
+                'message' => 'something wrong. Please contact admin',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -73,7 +78,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function soft_del_clothes_by_id($id)
+    public function soft_delete_clothes_by_id(Request $request, $id)
     {
         try{
             $user_id = $request->user()->id;
@@ -88,13 +93,11 @@ class Commands extends Controller
                 return response()->json([
                     'status' => 'success',
                     'message' => 'clothes deleted',
-                    'data' => $rows
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
                     'message' => 'clothes failed to deleted',
-                    'data' => null
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {

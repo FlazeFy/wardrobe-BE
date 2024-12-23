@@ -91,8 +91,7 @@ class Queries extends Controller
             $user_id = $request->user()->id;
 
             $res = ClothesModel::select('id', 'clothes_name', 'clothes_category', 'clothes_type')
-                ->where($ctx,$val)
-                ->where('created_by',$user_id)
+                ->where($ctx, 'like', "%$val%")                ->where('created_by',$user_id)
                 ->whereNot('id',$exc)
                 ->orderBy('is_favorite', 'desc')
                 ->orderBy('clothes_name', 'desc')
@@ -115,7 +114,7 @@ class Queries extends Controller
             }
         } catch(\Exception $e) {
             return response()->json([
-                'status' => 'error'.$e->getMessage(),
+                'status' => 'error',
                 'message' => 'something wrong. Please contact admin',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }

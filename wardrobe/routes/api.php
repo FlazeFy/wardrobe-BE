@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ClothesApi\Commands as CommandClothesApi;
 use App\Http\Controllers\Api\ClothesApi\Queries as QueriesClothesApi;
 
 use App\Http\Controllers\Api\DictionaryApi\Queries as QueriesDictionaryApi;
+use App\Http\Controllers\Api\DictionaryApi\Commands as CommandDictionaryApi;
 
 use App\Http\Controllers\Api\HistoryApi\Queries as QueriesHistoryController;
 
@@ -46,4 +47,6 @@ Route::prefix('/v1/history')->middleware(['auth:sanctum'])->group(function () {
 
 Route::prefix('/v1/dct')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/{type}', [QueriesDictionaryApi::class, 'get_dct_by_type']);
+    Route::post('/', [CommandDictionaryApi::class, 'post_dct']);
+    Route::delete('/{id}', [CommandDictionaryApi::class, 'hard_delete_dct_by_id']);
 });

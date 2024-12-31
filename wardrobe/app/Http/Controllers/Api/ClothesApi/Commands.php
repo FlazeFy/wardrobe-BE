@@ -61,7 +61,7 @@ class Commands extends Controller
 
     /**
      * @OA\DELETE(
-     *     path="/api/v1/clothes/destroy/{id}",
+     *     path="/api/v1/clothes/delete/{id}",
      *     summary="Delete clothes by id",
      *     tags={"Clothes"},
      *     @OA\Response(
@@ -199,7 +199,7 @@ class Commands extends Controller
 
      /**
      * @OA\DELETE(
-     *     path="/api/v1/clothes/destroy/{id}",
+     *     path="/api/v1/clothes/destroy_wash/{id}",
      *     summary="Permentally delete clothes by id",
      *     tags={"Clothes"},
      *     @OA\Response(

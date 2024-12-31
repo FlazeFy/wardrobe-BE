@@ -49,6 +49,106 @@
                 }
             }
         },
+        "/api/v1/clothes/destroy/{id}": {
+            "delete": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Permentally delete clothes by id",
+                "operationId": "0be4ac99b269208881a230fccce5939a",
+                "responses": {
+                    "200": {
+                        "description": "clothes permentally deleted"
+                    },
+                    "404": {
+                        "description": "clothes failed to permentally deleted"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/v1/clothes/delete/{id}": {
+            "delete": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Delete clothes by id",
+                "operationId": "109f395a456cc540a30c9f11f01dae16",
+                "responses": {
+                    "200": {
+                        "description": "clothes deleted"
+                    },
+                    "404": {
+                        "description": "clothes failed to deleted"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/v1/clothes/history": {
+            "post": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Add clothes history",
+                "operationId": "a2ffabca51f9768a1b5dac23d6e802d3",
+                "responses": {
+                    "200": {
+                        "description": "clothes deleted"
+                    },
+                    "404": {
+                        "description": "clothes failed to deleted"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/v1/clothes/update_checkpoint/{id}": {
+            "put": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Update clothes by id",
+                "operationId": "d5bc63b91213ee363af934498d26679a",
+                "responses": {
+                    "200": {
+                        "description": "clothes deleted"
+                    },
+                    "404": {
+                        "description": "clothes failed to deleted"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/v1/clothes/destroy_wash/{id}": {
+            "delete": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Permentally delete clothes by id",
+                "operationId": "e20b948df0f84e247e136a5b2441e4eb",
+                "responses": {
+                    "200": {
+                        "description": "clothes permentally deleted"
+                    },
+                    "404": {
+                        "description": "clothes failed to permentally deleted"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
         "/api/v1/clothes/header/{category}/{order}": {
             "get": {
                 "tags": [
@@ -169,6 +269,238 @@
                 }
             }
         },
+        "/api/v1/dct/{id}": {
+            "delete": {
+                "tags": [
+                    "Dictionary"
+                ],
+                "summary": "Delete dictionary by id",
+                "operationId": "3d4883ecd167298247ae2a1ebb7f65cf",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "dictionary ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "dictionary permentally deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "dictionary permentally deleted"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "dictionary failed to permentally deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "dictionary not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/dct": {
+            "post": {
+                "tags": [
+                    "Dictionary"
+                ],
+                "summary": "Post dictionary",
+                "description": "Create a new dictionary using the given name and category. This request is using MySQL database.",
+                "operationId": "4351a4a30e558c17f9b0c59424325998",
+                "responses": {
+                    "201": {
+                        "description": "Dictionary created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/DictionaryResponse"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "dictionary created"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "oneOf": [
+                                        {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "failed"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "dictionary name must be at least 2 characters"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "failed"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "dictionary type must be one of the following values inventory_category, inventory_unit, inventory_room, reminder_type, reminder_context, report_category"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "failed"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "dictionary_name is a required field"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "failed"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "dictionary name has been used. try another"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/dct/{type}": {
             "get": {
                 "tags": [
@@ -188,6 +520,276 @@
                     }
                 }
             }
+        },
+        "/api/v1/history/destroy/{id}": {
+            "delete": {
+                "tags": [
+                    "History"
+                ],
+                "summary": "Delete history by id",
+                "operationId": "b777472bb6f3263bd117c26cfecd4dd4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "History ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "history permentally deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "history permentally deleted"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "history failed to permentally deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "history not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/history": {
+            "get": {
+                "tags": [
+                    "History"
+                ],
+                "summary": "Get all history",
+                "description": "This request is used to get all history when user use the App. This request is using MySql database, have a protected routes, and have template pagination.",
+                "operationId": "0f4b533e7eecea6a89a6388545c72dd8",
+                "responses": {
+                    "200": {
+                        "description": "history fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "history fetched"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string",
+                                                                "example": "6f59235e-c398-8a83-2f95-3f1fbe95ca6e"
+                                                            },
+                                                            "history_type": {
+                                                                "type": "string",
+                                                                "example": "Create"
+                                                            },
+                                                            "history_context": {
+                                                                "type": "string",
+                                                                "example": "New clothes"
+                                                            },
+                                                            "created_at": {
+                                                                "type": "string",
+                                                                "format": "date-time",
+                                                                "example": "2024-09-20 22:53:47"
+                                                            },
+                                                            "created_by": {
+                                                                "type": "string",
+                                                                "example": "2d98f524-de02-11ed-b5ea-0242ac120002"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "history failed to fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "history not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "DictionaryResponse": {
+                "properties": {
+                    "dictionary_name": {
+                        "type": "string",
+                        "example": "Check"
+                    },
+                    "dictionary_type": {
+                        "type": "string",
+                        "example": "inventory_category"
+                    },
+                    "_id": {
+                        "type": "string",
+                        "example": "674342a8b53aabe966070f3d"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-11-24T15:13:44.621Z"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-11-24T15:13:44.621Z"
+                    }
+                },
+                "type": "object"
+            }
         }
     },
     "tags": [
@@ -202,6 +804,10 @@
         {
             "name": "Dictionary",
             "description": "Dictionary"
+        },
+        {
+            "name": "History",
+            "description": "History"
         }
     ]
 }

@@ -5,14 +5,12 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\AuthApi\Commands as CommandAuthApi;
 use App\Http\Controllers\Api\AuthApi\Queries as QueryAuthApi;
-
 use App\Http\Controllers\Api\ClothesApi\Commands as CommandClothesApi;
 use App\Http\Controllers\Api\ClothesApi\Queries as QueriesClothesApi;
-
 use App\Http\Controllers\Api\DictionaryApi\Queries as QueriesDictionaryApi;
 use App\Http\Controllers\Api\DictionaryApi\Commands as CommandDictionaryApi;
-
 use App\Http\Controllers\Api\HistoryApi\Queries as QueriesHistoryController;
+use App\Http\Controllers\Api\ErrorApi\Queries as QueriesErrorController;
 
 ######################### Public Route #########################
 
@@ -37,6 +35,10 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::delete('/delete/{id}', [CommandClothesApi::class, 'soft_delete_clothes_by_id']);
 
     Route::post('/history', [CommandClothesApi::class, 'post_history_clothes']);
+});
+
+Route::prefix('/v1/error')->middleware(['auth:sanctum'])->group(function () {
+    Route::get('/', [QueriesErrorController::class, 'get_all_error']);
 });
 
 Route::prefix('/v1/history')->middleware(['auth:sanctum'])->group(function () {

@@ -13,7 +13,7 @@ class AdminModel extends Authenticatable
     use HasApiTokens;
     public $incrementing = false;
 
-    protected $table = 'users';
+    protected $table = 'admin';
     protected $primaryKey = 'id';
     protected $fillable = ['id', 'username', 'password', 'email', 'created_at', 'updated_at'];
 }

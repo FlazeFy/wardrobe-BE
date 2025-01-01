@@ -67,4 +67,20 @@ class Generator
         $timezone = "$select_symbol$hour:00";
         return $timezone;
     }
+
+    public static function getRandomSeed($type){
+        if($type == 'clothes_size'){
+            $seed = ['S','M','L','XL','XXL','XXL'];
+        } else if($type == 'clothes_gender'){
+            $seed = ['male','female','unisex'];
+        } else if($type == 'clothes_category'){
+            $seed = ['upper_body','bottom_body','head','foot','hand'];
+        } else if($type == 'wash_type'){
+            $seed = ['laundry','self'];
+        }
+
+        $ran = mt_rand(0, count($seed)-1);
+
+        return $seed[$ran];
+    }
 }

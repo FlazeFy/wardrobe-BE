@@ -37,7 +37,6 @@ return new class extends Migration
             // References
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('clothes_made_from')->references('dictionary_name')->on('dictionary')->onDelete('cascade');
-            $table->foreign('clothes_category')->references('dictionary_name')->on('dictionary')->onDelete('cascade');
             $table->foreign('clothes_type')->references('dictionary_name')->on('dictionary')->onDelete('cascade');
         });
     }

@@ -1,8 +1,9 @@
 <?php
 
 namespace Database\Factories;
-
 use Illuminate\Database\Eloquent\Factories\Factory;
+
+// Helpers
 use App\Helpers\Generator;
 
 class AdminModelFactory extends Factory
@@ -10,7 +11,6 @@ class AdminModelFactory extends Factory
     public function definition(): array
     {
         $ran = mt_rand(0, 1);
-        $ran2 = mt_rand(0, 1);
         
         return [
             'id' => Generator::getUUID(), 

@@ -16,4 +16,31 @@ class UserModel extends Authenticatable
     protected $table = 'users';
     protected $primaryKey = 'id';
     protected $fillable = ['id', 'username', 'password', 'email', 'created_at', 'updated_at'];
+
+    public static function getRandom($null){
+        if($null == 0){
+            $data = UserModel::inRandomOrder()->take(1)->first();
+            $res = $data->id;
+        } else {
+            $res = null;
+        }
+        
+        return $res;
+    }
+
+    public static function getRandomWhoHaveClothes($null){
+        if($null == 0){
+            $res = UserModel::inRandomOrder()
+                ->select('users.id')
+                ->join('clothes', 'clothes.created_by', '=', 'users.id')
+                ->whereNotNull('clothes.id')
+                ->first();
+            
+            $res = $res->id;
+        } else {
+            $res = null;
+        }
+        
+        return $res;
+    }
 }

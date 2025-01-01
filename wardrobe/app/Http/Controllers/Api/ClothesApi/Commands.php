@@ -202,7 +202,7 @@ class Commands extends Controller
             $user_id = $request->user()->id;
 
             $res = ClothesUsedModel::create([
-                'id' => Generator::get_uuid(),
+                'id' => Generator::getUUID(),
                 'clothes_id' => $request->clothes_id,
                 'clothes_note' => $request->clothes_note,
                 'used_context' => $request->used_context,

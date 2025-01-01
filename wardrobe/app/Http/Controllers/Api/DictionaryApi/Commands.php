@@ -193,7 +193,7 @@ class Commands extends Controller
                 } else {
                     // Service : Create
                     $rows = DictionaryModel::create([
-                        'id' => Generator::get_uuid(),
+                        'id' => Generator::getUUID(),
                         'dictionary_type' => $dictionary_type,
                         'dictionary_name' => $dictionary_name,
                     ]);

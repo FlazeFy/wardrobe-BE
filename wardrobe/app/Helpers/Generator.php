@@ -3,7 +3,7 @@ namespace App\Helpers;
 
 class Generator
 {
-    public static function get_uuid(){
+    public static function getUUID(){
         $result = '';
         $bytes = random_bytes(16);
         $hex = bin2hex($bytes);
@@ -39,5 +39,32 @@ class Generator
         }
 
         return $res;
+    }
+
+    public static function getRandomDate($null){
+        if($null == 0){
+            $start = strtotime('2023-01-01 00:00:00');
+            $end = strtotime(date("Y-m-d H:i:s"));
+            $random = mt_rand($start, $end); 
+            $res = date('Y-m-d H:i:s', $random);
+        } else {
+            $res = null;
+        }
+
+        return $res;
+    }
+
+    public static function getRandomTimezone(){
+        $symbol = ['+','-'];
+        $ran = mt_rand(0, 1);
+        $select_symbol = $symbol[$ran];
+        if($select_symbol == '+'){
+            $hour = mt_rand(0, 14);
+        } else {
+            $hour = mt_rand(0, 12);
+        }
+
+        $timezone = "$select_symbol$hour:00";
+        return $timezone;
     }
 }

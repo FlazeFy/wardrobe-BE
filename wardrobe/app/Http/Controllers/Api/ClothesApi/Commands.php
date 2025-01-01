@@ -19,9 +19,29 @@ class Commands extends Controller
      *     path="/api/v1/clothes/destroy/{id}",
      *     summary="Permentally delete clothes by id",
      *     tags={"Clothes"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="clothes ID",
+     *         example="e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9",
+     *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="clothes permentally deleted"
+     *         description="clothes permentally deleted",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="clothes permentally deleted")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=404,
@@ -29,7 +49,11 @@ class Commands extends Controller
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="Internal Server Error"
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
      *     ),
      * )
      */
@@ -64,9 +88,29 @@ class Commands extends Controller
      *     path="/api/v1/clothes/delete/{id}",
      *     summary="Delete clothes by id",
      *     tags={"Clothes"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="clothes ID",
+     *         example="e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9",
+     *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="clothes deleted"
+     *         description="clothes deleted",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="clothes deleted")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=404,
@@ -74,7 +118,11 @@ class Commands extends Controller
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="Internal Server Error"
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
      *     ),
      * )
      */
@@ -115,15 +163,27 @@ class Commands extends Controller
      *     tags={"Clothes"},
      *     @OA\Response(
      *         response=200,
-     *         description="clothes deleted"
+     *         description="clothes created",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="clothes created")
+     *         )
      *     ),
      *     @OA\Response(
-     *         response=404,
-     *         description="clothes failed to deleted"
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="Internal Server Error"
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
      *     ),
      * )
      */
@@ -159,17 +219,45 @@ class Commands extends Controller
      *     path="/api/v1/clothes/update_checkpoint/{id}",
      *     summary="Update clothes by id",
      *     tags={"Clothes"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="clothes ID",
+     *         example="e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9",
+     *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="clothes deleted"
+     *         description="clothes updated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="clothes updated")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="clothes failed to deleted"
+     *         description="clothes failed to updated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="clothes not found")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="Internal Server Error"
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
      *     ),
      * )
      */
@@ -179,16 +267,23 @@ class Commands extends Controller
             $user_id = $request->user()->id;
 
             $res = WashModel::where('clothes_id',$id)
-            ->where('created_by',$user_id)
-            ->whereNull('finished_at')
-            ->update([
-                'wash_checkpoint' => $request->wash_checkpoint,
-            ]);
+                ->where('created_by',$user_id)
+                ->whereNull('finished_at')
+                ->update([
+                    'wash_checkpoint' => $request->wash_checkpoint,
+                ]);
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'clothes update',
-            ], Response::HTTP_OK);
+            if($res > 0){ 
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'clothes update',
+                ], Response::HTTP_OK);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'clothes failed to deleted',
+                ], Response::HTTP_NOT_FOUND);
+            }
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -200,38 +295,72 @@ class Commands extends Controller
      /**
      * @OA\DELETE(
      *     path="/api/v1/clothes/destroy_wash/{id}",
-     *     summary="Permentally delete clothes by id",
+     *     summary="Permentally delete wash by id",
      *     tags={"Clothes"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="clothes wash ID",
+     *         example="e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9",
+     *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="clothes permentally deleted"
+     *         description="clothes wash permentally deleted",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="clothes wash permentally deleted")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="clothes failed to permentally deleted"
+     *         description="clothes wash not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="clothes wash not found")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="Internal Server Error"
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
      *     ),
      * )
      */
     public function hard_delete_wash_by_id(Request $request, $id)
     {
-        $user_id = $request->user()->id;
-        $rows = WashModel::destroy($id);
+        try {
+            $user_id = $request->user()->id;
+            $rows = WashModel::destroy($id);
 
-        if($rows > 0){
+            if($rows > 0){
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'clothes wash permentally deleted',
+                ], Response::HTTP_OK);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'clothes wash not found',
+                ], Response::HTTP_NOT_FOUND);
+            }
+        } catch(\Exception $e) {
             return response()->json([
-                'status' => 'success',
-                'message' => 'clothes wash permentally deleted',
-            ], Response::HTTP_OK);
-        } else {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'clothes wash failed to permentally deleted',
-                'data' => null
-            ], Response::HTTP_NOT_FOUND);
+                'status' => 'error',
+                'message' => 'something wrong. Please contact admin',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

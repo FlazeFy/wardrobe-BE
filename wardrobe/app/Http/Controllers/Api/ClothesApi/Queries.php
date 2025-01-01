@@ -18,17 +18,72 @@ class Queries extends Controller
      *     path="/api/v1/clothes/header/{category}/{order}",
      *     summary="Show all clothes (header)",
      *     tags={"Clothes"},
+     *     @OA\Parameter(
+     *         name="category",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="clothes category",
+     *         example="head",
+     *     ),
+     *     @OA\Parameter(
+     *         name="order",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="ordering type",
+     *         example="desc",
+     *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="clothes found"
+     *         description="clothes found",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="clothes fetched"),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="data", type="array",
+     *                     @OA\Items(type="object",
+     *                         @OA\Property(property="id", type="string", example="17963858-9771-11ee-8f4a-321642910r4w"),
+     *                         @OA\Property(property="clothes_name", type="string", example="Reebok Black Hatsss"),
+     *                         @OA\Property(property="clothes_size", type="string", example="L"),
+     *                         @OA\Property(property="clothes_gender", type="string", example="unisex"),
+     *                         @OA\Property(property="clothes_color", type="string", example="black"),
+     *                         @OA\Property(property="clothes_category", type="string", example="head"),
+     *                         @OA\Property(property="clothes_type", type="string", example="hat"),
+     *                         @OA\Property(property="clothes_qty", type="integer", example=1),
+     *                         @OA\Property(property="is_faded", type="integer", example=0),
+     *                         @OA\Property(property="has_washed", type="integer", example=1),
+     *                         @OA\Property(property="has_ironed", type="integer", example=0),
+     *                         @OA\Property(property="is_favorite", type="integer", example=0),
+     *                         @OA\Property(property="is_scheduled", type="integer", example=1),
+     *                     )
+     *                 ),
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="clothes failed to fetch"
+     *         description="clothes not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="clothes not found")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="Internal Server Error"
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
      *     ),
      * )
      */
@@ -43,7 +98,7 @@ class Queries extends Controller
                 ->orderBy('is_favorite', 'desc')
                 ->orderBy('clothes_name', $order)
                 ->orderBy('created_at', $order)
-                ->get();
+                ->paginate(14);
             
             if (count($res) > 0) {
                 return response()->json([
@@ -54,8 +109,92 @@ class Queries extends Controller
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'clothes failed to fetched',
-                    'data' => null
+                    'message' => 'clothes not found',
+                ], Response::HTTP_NOT_FOUND);
+            }
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'something wrong. Please contact admin',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @OA\GET(
+     *     path="/api/v1/clothes/trash",
+     *     summary="Show all deleted clothes",
+     *     tags={"Clothes"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="clothes found",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="clothes fetched"),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="data", type="array",
+     *                     @OA\Items(type="object",
+     *                         @OA\Property(property="id", type="string", example="17963858-9771-11ee-8f4a-321642910r4w"),
+     *                         @OA\Property(property="clothes_name", type="string", example="Reebok Black Hatsss"),
+     *                         @OA\Property(property="clothes_size", type="string", example="L"),
+     *                         @OA\Property(property="clothes_gender", type="string", example="unisex"),
+     *                         @OA\Property(property="clothes_color", type="string", example="black"),
+     *                         @OA\Property(property="clothes_category", type="string", example="head"),
+     *                         @OA\Property(property="clothes_type", type="string", example="hat"),
+     *                         @OA\Property(property="clothes_qty", type="integer", example=1),
+     *                         @OA\Property(property="deleted_at", type="string", format="date-time", example="2025-01-01 00:00:00")
+     *                     )
+     *                 ),
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="clothes not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="clothes not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function get_deleted_clothes(Request $request)
+    {
+        try{
+            $user_id = $request->user()->id;
+
+            $res = ClothesModel::select('id', 'clothes_name', 'clothes_size', 'clothes_gender', 'clothes_color', 'clothes_category', 'clothes_type', 'clothes_qty', 'deleted_at')
+                ->whereNotNull('deleted_at')
+                ->where('created_by',$user_id)
+                ->orderBy('deleted_at', 'desc')
+                ->paginate(14);
+            
+            if (count($res) > 0) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'clothes fetched',
+                    'data' => $res
+                ], Response::HTTP_OK);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'clothes not found',
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -73,15 +212,43 @@ class Queries extends Controller
      *     tags={"Clothes"},
      *     @OA\Response(
      *         response=200,
-     *         description="clothes found"
+     *         description="clothes found",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="clothes fetched"),
+     *             @OA\Property(property="data", type="array",
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="id", type="string", example="17963858-9771-11ee-8f4a-321642910r4w"),
+     *                      @OA\Property(property="clothes_name", type="string", example="Reebok Black Hatsss"),
+     *                      @OA\Property(property="clothes_category", type="string", example="head"),
+     *                      @OA\Property(property="clothes_type", type="string", example="hat"),
+     *                  )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="clothes failed to fetch"
+     *         description="clothes not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="clothes not found")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="Internal Server Error"
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
      *     ),
      * )
      */
@@ -91,7 +258,8 @@ class Queries extends Controller
             $user_id = $request->user()->id;
 
             $res = ClothesModel::select('id', 'clothes_name', 'clothes_category', 'clothes_type')
-                ->where($ctx, 'like', "%$val%")                ->where('created_by',$user_id)
+                ->where($ctx, 'like', "%$val%")                
+                ->where('created_by',$user_id)
                 ->whereNot('id',$exc)
                 ->orderBy('is_favorite', 'desc')
                 ->orderBy('clothes_name', 'desc')
@@ -108,8 +276,7 @@ class Queries extends Controller
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'clothes failed to fetched',
-                    'data' => null
+                    'message' => 'clothes not found',
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -125,17 +292,81 @@ class Queries extends Controller
      *     path="/api/v1/clothes/detail/{category}/{order}",
      *     summary="Show clothes detail",
      *     tags={"Clothes"},
+     *     @OA\Parameter(
+     *         name="order",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="ordering type",
+     *         example="desc",
+     *     ),
+     *     @OA\Parameter(
+     *         name="category",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="clothes category",
+     *         example="head",
+     *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="clothes found"
+     *         description="clothes found",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="clothes fetched"),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="data", type="array",
+     *                     @OA\Items(type="object",
+     *                         @OA\Property(property="id", type="string", example="17963858-9771-11ee-8f4a-321642910r4w"),
+     *                         @OA\Property(property="clothes_name", type="string", example="Reebok Black Hatsss"),
+     *                         @OA\Property(property="clothes_desc", type="string", nullable=true, example=null),
+     *                         @OA\Property(property="clothes_merk", type="string", example="Reebok"),
+     *                         @OA\Property(property="clothes_size", type="string", example="-"),
+     *                         @OA\Property(property="clothes_gender", type="string", example="unisex"),
+     *                         @OA\Property(property="clothes_made_from", type="string", example="cloth"),
+     *                         @OA\Property(property="clothes_color", type="string", example="black"),
+     *                         @OA\Property(property="clothes_category", type="string", example="head"),
+     *                         @OA\Property(property="clothes_type", type="string", example="hat"),
+     *                         @OA\Property(property="clothes_price", type="integer", example=210000),
+     *                         @OA\Property(property="clothes_buy_at", type="string", nullable=true, example=null),
+     *                         @OA\Property(property="clothes_qty", type="integer", example=1),
+     *                         @OA\Property(property="is_faded", type="integer", example=0),
+     *                         @OA\Property(property="has_washed", type="integer", example=1),
+     *                         @OA\Property(property="has_ironed", type="integer", example=0),
+     *                         @OA\Property(property="is_favorite", type="integer", example=0),
+     *                         @OA\Property(property="is_scheduled", type="integer", example=0),
+     *                         @OA\Property(property="created_at", type="string", format="date-time", example="2024-04-10 22:10:56"),
+     *                         @OA\Property(property="created_by", type="string", example="2d98f524-de02-11ed-b5ea-0242ac120002"),
+     *                         @OA\Property(property="updated_at", type="string", format="date-time", nullable=true, example=null),
+     *                         @OA\Property(property="deleted_at", type="string", format="date-time", nullable=true, example="2025-01-01 00:00:00")
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="clothes failed to fetch"
+     *         description="clothes not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="clothes not found")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="Internal Server Error"
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
      *     ),
      * )
      */
@@ -150,7 +381,7 @@ class Queries extends Controller
                 ->orderBy('is_favorite', 'desc')
                 ->orderBy('clothes_name', $order)
                 ->orderBy('created_at', $order)
-                ->get();
+                ->paginate(14);
             
             if (count($res) > 0) {
                 return response()->json([
@@ -161,8 +392,7 @@ class Queries extends Controller
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'clothes failed to fetched',
-                    'data' => null
+                    'message' => 'clothes not found',
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -178,17 +408,63 @@ class Queries extends Controller
      *     path="/api/v1/clothes/history/{clothes_id}/{order}",
      *     summary="Show clothes used history",
      *     tags={"Clothes"},
+     *     @OA\Parameter(
+     *         name="order",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="ordering type",
+     *         example="desc",
+     *     ),
+     *     @OA\Parameter(
+     *         name="clothes_id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="clothes id",
+     *         example="e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9",
+     *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="clothes found"
+     *         description="clothes found",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="clothes fetched"),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="data", type="array",
+     *                     @OA\Items(type="object",
+     *                          @OA\Property(property="clothes_name", type="string", example="Short Sleeves Oversized"),
+     *                          @OA\Property(property="clothes_note", type="string", example="for sunny day"),
+     *                          @OA\Property(property="used_context", type="string", example="Shopping"),
+     *                          @OA\Property(property="created_at", type="string", example="2024-04-10 22:10:56"),
+     *                      )
+     *                  )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="clothes failed to fetch"
+     *         description="clothes used not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="clothes used not found")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="Internal Server Error"
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
      *     ),
      * )
      */
@@ -202,7 +478,7 @@ class Queries extends Controller
                 ->where('clothes_id',$clothes_id)
                 ->orderBy('clothes_used.created_at', $order)
                 ->orderBy('clothes_name', $order)
-                ->get();
+                ->paginate(14);
             
             if (count($res) > 0) {
                 return response()->json([
@@ -213,8 +489,7 @@ class Queries extends Controller
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'clothes used failed to fetched',
-                    'data' => null
+                    'message' => 'clothes used not found',
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -230,17 +505,46 @@ class Queries extends Controller
      *     path="/api/v1/clothes/check_wash/{clothes_id}",
      *     summary="Show clothes wash status",
      *     tags={"Clothes"},
+     *     @OA\Parameter(
+     *         name="clothes_id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="clothes id",
+     *         example="e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9",
+     *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="clothes found"
+     *         description="clothes found",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="This clothes is washed right now | This clothes is ready to use"),
+     *             @OA\Property(property="data", type="bool", example=true)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="clothes failed to fetch"
+     *         description="clothes not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="clothes not found")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="Internal Server Error"
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
      *     ),
      * )
      */
@@ -274,8 +578,7 @@ class Queries extends Controller
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'This clothes is not exist',
-                    'data' => null
+                    'message' => 'clothes not found',
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -288,30 +591,71 @@ class Queries extends Controller
 
      /**
      * @OA\GET(
-     *     path="/api/v1/clothes/wash_checkpoint/{id}",
+     *     path="/api/v1/clothes/wash_checkpoint/{clothes_id}",
      *     summary="Show clothes wash checkpoint",
      *     tags={"Clothes"},
+     *     @OA\Parameter(
+     *         name="clothes_id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="clothes id",
+     *         example="e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9",
+     *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="clothes found"
+     *         description="clothes found",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="clothes fetched"),
+     *             @OA\Property(property="data", type="array",
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="wash_note", type="string", example="Finish at 18:00"),
+     *                      @OA\Property(property="wash_type", type="string", example="Laundry"),
+     *                      @OA\Property(property="wash_checkpoint", type="array",
+     *                          @OA\Items(type="object",
+     *                              @OA\Property(property="id", type="string", example="1"),
+     *                              @OA\Property(property="checkpoint_name", type="string", example="Rendam"),
+     *                              @OA\Property(property="is_finished", type="boolean", example=false),
+     *                          )
+     *                      )
+     *                  )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="clothes failed to fetch"
+     *         description="wash checkpoint not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="wash checkpoint not found")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="Internal Server Error"
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
      *     ),
      * )
      */
-    public function get_wash_checkpoint_by_clothes_id(Request $request, $id)
+    public function get_wash_checkpoint_by_clothes_id(Request $request, $clothes_id)
     {
         try{
             $user_id = $request->user()->id;
 
             $res = WashModel::select('wash_note','wash_type','wash_checkpoint')
-                ->where('clothes_id',$id)
+                ->where('clothes_id',$clothes_id)
                 ->whereNull('finished_at')
                 ->first();
                 
@@ -324,8 +668,7 @@ class Queries extends Controller
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'wash checkpoint failed to fetched',
-                    'data' => null
+                    'message' => 'wash checkpoint not found',
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {

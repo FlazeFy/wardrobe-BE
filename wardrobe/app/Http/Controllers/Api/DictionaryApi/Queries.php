@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Api\DictionaryApi;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 // Models
 use App\Models\DictionaryModel;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+// Helpers
+use App\Helpers\Generator;
 
 class Queries extends Controller
 {
@@ -16,9 +18,26 @@ class Queries extends Controller
      *     path="/api/v1/dct/{type}",
      *     summary="Show dictionary by type",
      *     tags={"Dictionary"},
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="dictionary type",
+     *         example="wash_type",
+     *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="dictionary found"
+     *         description="dictionary found",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="clothes fetched"),
+     *             @OA\Property(property="data", type="array",
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="dictionary_name", type="string", example="Laundry"),
+     *                  )
+     *             )
+     *         )
      *     ),
      *     @OA\Response(
      *         response=401,
@@ -59,19 +78,19 @@ class Queries extends Controller
             if (count($res) > 0) {
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'dictionary fetched',
+                    'message' => Generator::getMessageTemplate("fetch", 'dictionary'),
                     'data' => $res
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'dictionary not found',
+                    'message' => Generator::getMessageTemplate("not_found", 'dictionary'),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'something wrong. Please contact admin',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

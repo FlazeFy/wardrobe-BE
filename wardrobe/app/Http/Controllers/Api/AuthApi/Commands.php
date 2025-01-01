@@ -1,16 +1,19 @@
 <?php
 
 namespace App\Http\Controllers\Api\AuthApi;
-
-use App\Models\UserModel;
-use App\Models\AdminModel;
-use App\Helpers\Validation;
-
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+
+// Models
+use App\Models\UserModel;
+use App\Models\AdminModel;
+
+// Helpers
+use App\Helpers\Generator;
+use App\Helpers\Validation;
 
 /**
  * @OA\Info(
@@ -32,15 +35,35 @@ class Commands extends Controller
      *     tags={"Auth"},
      *     @OA\Response(
      *         response=200,
-     *         description="{user_data}"
+     *         description="login successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="token", type="string", example="286|L5fqrLCDDCzPRLKngtm2FM9wq1IU2xFZSVAm10yp874a1a85"),
+     *             @OA\Property(property="role", type="integer", example=1),
+     *             @OA\Property(property="result", type="object",
+     *                 @OA\Property(property="id", type="string", example="83ce75db-4016-d87c-2c3c-db1e222d0001"),
+     *                 @OA\Property(property="username", type="string", example="flazefy"),
+     *                 @OA\Property(property="email", type="string", example="flazen.edu@gmail.com"),
+     *                 @OA\Property(property="created_at", type="string", format="date-time", example="2024-03-14 02:28:37"),
+     *                 @OA\Property(property="updated_at", type="string", format="date-time", example="2024-10-25 09:37:20"),
+     *             ),
+     *         )
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="{validation_msg}"
+     *         description="{validation_msg}",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="{field validation message}")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=401,
-     *         description="Wrong username or password"
+     *         description="account is not found or have wrong password",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="wrong username or password")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=500,
@@ -77,11 +100,12 @@ class Commands extends Controller
                     //if (!$user || ($request->password != $user->password)) {
                     return response()->json([
                         'status' => 'failed',
-                        'result' => 'wrong username or password',
+                        'result' => Generator::getMessageTemplate("custom", 'logout success'),
                         'token' => null,                
                     ], Response::HTTP_UNAUTHORIZED);
                 } else {
                     $token = $user->createToken('login')->plainTextToken;
+                    unset($user->password);
 
                     return response()->json([
                         'status' => 'success',
@@ -94,7 +118,7 @@ class Commands extends Controller
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage(),
+                'message' => Generator::getMessageTemplate("unknown_error", null)
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Api\ClothesApi;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
+// Models
 use App\Models\ClothesModel;
 use App\Models\ClothesUsedModel;
 use App\Models\WashModel;
 
+// Helpers
 use App\Helpers\Generator;
-
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class Commands extends Controller
 {
@@ -45,7 +46,11 @@ class Commands extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="clothes failed to permentally deleted"
+     *         description="clothes not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="clothes not found")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=500,
@@ -67,18 +72,18 @@ class Commands extends Controller
             if($rows > 0){
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'clothes permentally deleted',
+                    'message' => Generator::getMessageTemplate("permentally delete", 'clothes'),
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'clothes failed to permentally deleted',
+                    'message' => Generator::getMessageTemplate("not_found", 'clothes'),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'something wrong. Please contact admin',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -114,7 +119,11 @@ class Commands extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="clothes failed to deleted"
+     *         description="clothes not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="clothes not found")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=500,
@@ -140,18 +149,18 @@ class Commands extends Controller
             if($rows > 0){                
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'clothes deleted',
+                    'message' => Generator::getMessageTemplate("delete", 'clothes'),
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'clothes failed to deleted',
+                    'message' => Generator::getMessageTemplate("not_found", 'clothes'),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'something wrong. Please contact admin',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -162,7 +171,7 @@ class Commands extends Controller
      *     summary="Add clothes history",
      *     tags={"Clothes"},
      *     @OA\Response(
-     *         response=200,
+     *         response=201,
      *         description="clothes created",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="success"),
@@ -201,15 +210,22 @@ class Commands extends Controller
                 'created_by' => $user_id
             ]);
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'clothes create',
-                'data' => $res
-            ], Response::HTTP_OK);
+            if($res){
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("create", "clothes"),
+                    'data' => $res
+                ], Response::HTTP_CREATED);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => Generator::getMessageTemplate("unknown_error", null),
+                ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }   
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'something wrong. Please contact admin',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -217,7 +233,7 @@ class Commands extends Controller
     /**
      * @OA\PUT(
      *     path="/api/v1/clothes/update_checkpoint/{id}",
-     *     summary="Update clothes by id",
+     *     summary="Update clothes wash by id",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="id",
@@ -229,10 +245,10 @@ class Commands extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="clothes updated",
+     *         description="clothes wash updated",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="message", type="string", example="clothes updated")
+     *             @OA\Property(property="message", type="string", example="clothes wash updated")
      *         )
      *     ),
      *     @OA\Response(
@@ -248,7 +264,7 @@ class Commands extends Controller
      *         description="clothes failed to updated",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="failed"),
-     *             @OA\Property(property="message", type="string", example="clothes not found")
+     *             @OA\Property(property="message", type="string", example="clothes wash not found")
      *         )
      *     ),
      *     @OA\Response(
@@ -276,18 +292,18 @@ class Commands extends Controller
             if($res > 0){ 
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'clothes update',
+                    'message' => Generator::getMessageTemplate("update", 'clothes wash'),
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'clothes failed to deleted',
+                    'message' => Generator::getMessageTemplate("not_found", 'clothes wash'),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'something wrong. Please contact admin',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -348,18 +364,18 @@ class Commands extends Controller
             if($rows > 0){
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'clothes wash permentally deleted',
+                    'message' => Generator::getMessageTemplate("permentally delete", 'clothes wash'),
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'clothes wash not found',
+                    'message' => Generator::getMessageTemplate("not_found", 'clothes wash'),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'something wrong. Please contact admin',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

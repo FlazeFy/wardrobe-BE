@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers\Api\ClothesApi;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 // Models
 use App\Models\ClothesModel;
 use App\Models\ClothesUsedModel;
 use App\Models\WashModel;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+// Helpers
+use App\Helpers\Generator;
 
 class Queries extends Controller
 {
@@ -103,19 +105,19 @@ class Queries extends Controller
             if (count($res) > 0) {
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'clothes fetched',
+                    'message' => Generator::getMessageTemplate("fetch", 'clothes'),
                     'data' => $res
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'clothes not found',
+                    'message' => Generator::getMessageTemplate("not_found", "clothes"),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'something wrong. Please contact admin',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -188,19 +190,19 @@ class Queries extends Controller
             if (count($res) > 0) {
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'clothes fetched',
+                    'message' => Generator::getMessageTemplate("fetch", 'clothes'),
                     'data' => $res
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'clothes not found',
+                    'message' => Generator::getMessageTemplate("not_found", "clothes"),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'something wrong. Please contact admin',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -270,19 +272,19 @@ class Queries extends Controller
             if (count($res) > 0) {
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'clothes fetched',
+                    'message' => Generator::getMessageTemplate("fetch", 'clothes'),
                     'data' => $res
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'clothes not found',
+                    'message' => Generator::getMessageTemplate("not_found", "clothes"),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'something wrong. Please contact admin',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -386,19 +388,19 @@ class Queries extends Controller
             if (count($res) > 0) {
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'clothes fetched',
+                    'message' => Generator::getMessageTemplate("fetch", 'clothes'),
                     'data' => $res
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'clothes not found',
+                    'message' => Generator::getMessageTemplate("not_found", "clothes"),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'something wrong. Please contact admin',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -483,19 +485,19 @@ class Queries extends Controller
             if (count($res) > 0) {
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'clothes used fetched',
+                    'message' => Generator::getMessageTemplate("fetch", 'clothes used'),
                     'data' => $res
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'clothes used not found',
+                    'message' => Generator::getMessageTemplate("not_found", "clothes used"),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'something wrong. Please contact admin',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -565,26 +567,26 @@ class Queries extends Controller
                 if ($res) {
                     return response()->json([
                         'status' => 'success',
-                        'message' => 'This clothes is washed right now',
+                        'message' => Generator::getMessageTemplate("custom", 'This clothes is washed right now'),
                         'data' => true
                     ], Response::HTTP_OK);
                 } else {
                     return response()->json([
                         'status' => 'success',
-                        'message' => 'This clothes is ready to use',
+                        'message' => Generator::getMessageTemplate("custom", 'This clothes is ready to use'),
                         'data' => false
                     ], Response::HTTP_OK);
                 }
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'clothes not found',
+                    'message' => Generator::getMessageTemplate("not_found", "clothes"),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'something wrong. Please contact admin',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -662,19 +664,19 @@ class Queries extends Controller
             if ($res) {
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'wash checkpoint fetched',
+                    'message' => Generator::getMessageTemplate("fetch", "wash checkpoint"),
                     'data' => $res
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'wash checkpoint not found',
+                    'message' => Generator::getMessageTemplate("not_found", "wash checkpoint"),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'something wrong. Please contact admin',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

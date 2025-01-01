@@ -1,14 +1,15 @@
 <?php
 
 namespace App\Http\Controllers\Api\HistoryApi;
-
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 
 // Models
 use App\Models\HistoryModel;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+// Helpers
+use App\Helpers\Generator;
 
 class Queries extends Controller
 {
@@ -72,24 +73,24 @@ class Queries extends Controller
             $res = HistoryModel::select('*')
                 ->where('created_by',$user_id)
                 ->orderby('created_at', 'DESC')
-                ->paginate(12);
+                ->paginate(14);
             
             if (count($res) > 0) {
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'history fetched',
+                    'message' => Generator::getMessageTemplate("fetch", 'history'),
                     'data' => $res
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'history not found',
+                    'message' => Generator::getMessageTemplate("not_found", 'history'),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'something wrong. please contact admin',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

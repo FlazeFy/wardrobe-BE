@@ -35,6 +35,6 @@ class ErrorModel extends Model
         $res = ErrorModel::select('*')
             ->orderby('created_at','DESC');
         
-        return $is_paginate ? $res->paginate(12) : $res->get();
+        return $is_paginate ? $res->paginate(14) : $res->get();
     }
 }

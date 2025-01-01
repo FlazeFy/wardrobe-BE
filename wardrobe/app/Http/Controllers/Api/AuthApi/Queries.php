@@ -1,14 +1,17 @@
 <?php
 
 namespace App\Http\Controllers\Api\AuthApi;
-
-use App\Models\UserModel;
-use App\Models\AdminModel;
-
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+
+// Models
+use App\Models\UserModel;
+use App\Models\AdminModel;
+
+// Helpers
+use App\Helpers\Generator;
 
 class Queries extends Controller
 {
@@ -19,7 +22,11 @@ class Queries extends Controller
      *     tags={"Auth"},
      *     @OA\Response(
      *         response=200,
-     *         description="Logout success"
+     *         description="Logout success",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Logout success"),
+     *         )
      *     ),
      *     @OA\Response(
      *         response=500,
@@ -33,20 +40,29 @@ class Queries extends Controller
      */
     public function logout(Request $request)
     {
-        $user_id = $request->user()->id;
-        $check = AdminModel::where('id', $user_id)->first();
+        try {
+            $user_id = $request->user()->id;
+            $check = AdminModel::where('id', $user_id)->first();
 
-        if($check == null){
-            $request->user()->currentAccessToken()->delete();
+            if($check == null){
+                $request->user()->currentAccessToken()->delete();
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("custom", 'logout success')
+                ], Response::HTTP_OK);
+            } else {
+                // Admin
+                $request->user()->currentAccessToken()->delete();
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("custom", 'logout success')
+                ], Response::HTTP_OK);
+            }
+        } catch(\Exception $e) {
             return response()->json([
-                'message' => 'logout success'
-            ], Response::HTTP_OK);
-        } else {
-            // Admin
-            $request->user()->currentAccessToken()->delete();
-            return response()->json([
-                'message' => 'logout success'
-            ], Response::HTTP_OK);
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null)
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

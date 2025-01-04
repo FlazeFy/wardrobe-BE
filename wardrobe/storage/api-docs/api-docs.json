@@ -396,7 +396,7 @@
                 "summary": "Add clothes history",
                 "operationId": "a2ffabca51f9768a1b5dac23d6e802d3",
                 "responses": {
-                    "200": {
+                    "201": {
                         "description": "clothes created",
                         "content": {
                             "application/json": {
@@ -464,7 +464,7 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Update clothes by id",
+                "summary": "Update clothes wash by id",
                 "operationId": "d5bc63b91213ee363af934498d26679a",
                 "parameters": [
                     {
@@ -480,7 +480,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "clothes updated",
+                        "description": "clothes wash updated",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -491,7 +491,7 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "clothes updated"
+                                            "example": "clothes wash updated"
                                         }
                                     },
                                     "type": "object"
@@ -531,7 +531,7 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "clothes not found"
+                                            "example": "clothes wash not found"
                                         }
                                     },
                                     "type": "object"
@@ -1967,9 +1967,50 @@
                 ],
                 "summary": "Show dictionary by type",
                 "operationId": "0635b54e376376f26f000098c180b486",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "path",
+                        "description": "dictionary type",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "wash_type"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "dictionary found"
+                        "description": "dictionary found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes fetched"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "dictionary_name": {
+                                                        "type": "string",
+                                                        "example": "Laundry"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "description": "protected route need to include sign in token as authorization bearer",
@@ -2415,6 +2456,130 @@
                     }
                 ]
             }
+        },
+        "/api/v1/stats/clothes/{ctx}": {
+            "post": {
+                "tags": [
+                    "Stats"
+                ],
+                "summary": "Get stats clothes by context (column)",
+                "operationId": "c7c4be0f4311db999a8ab9516a586f7d",
+                "parameters": [
+                    {
+                        "name": "ctx",
+                        "in": "path",
+                        "description": "Context / Column",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "clothes_merk"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "stats fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "stats fetched"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "context": {
+                                                        "type": "string",
+                                                        "example": "Main Room"
+                                                    },
+                                                    "total": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "stats failed to fetch",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "stats not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -2511,6 +2676,10 @@
         {
             "name": "History",
             "description": "History"
+        },
+        {
+            "name": "Stats",
+            "description": "Stats"
         }
     ]
 }

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Validator;
 
 // Rules
 use App\Rules\DictionaryType;
+use App\Rules\MostUsedContextColumn;
 
 class Validation
 {
@@ -25,5 +26,13 @@ class Validation
                 'id' => 'required|string|max:36',
             ]); 
         }
+    }
+
+    public static function getValidateStats($request,$type){
+        if($type == 'most_context'){
+            return Validator::make($request->all(), [
+                'context' => ['required', new MostUsedContextColumn],
+            ]);  
+        } 
     }
 }

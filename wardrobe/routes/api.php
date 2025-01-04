@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\DictionaryApi\Queries as QueriesDictionaryApi;
 use App\Http\Controllers\Api\DictionaryApi\Commands as CommandDictionaryApi;
 use App\Http\Controllers\Api\HistoryApi\Queries as QueriesHistoryController;
 use App\Http\Controllers\Api\ErrorApi\Queries as QueriesErrorController;
+use App\Http\Controllers\Api\StatsApi\Commands as CommandStatsApi;
 
 ######################### Public Route #########################
 
@@ -33,6 +34,10 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::delete('/destroy_wash/{id}', [CommandClothesApi::class, 'hard_delete_wash_by_id']);
     Route::delete('/delete/{id}', [CommandClothesApi::class, 'soft_delete_clothes_by_id']);
     Route::post('/history', [CommandClothesApi::class, 'post_history_clothes']);
+});
+
+Route::prefix('/v1/stats')->middleware(['auth:sanctum'])->group(function () {
+    Route::post('/clothes/{ctx}', [CommandStatsApi::class, 'get_stats_clothes_most_context']);
 });
 
 Route::prefix('/v1/error')->middleware(['auth:sanctum'])->group(function () {

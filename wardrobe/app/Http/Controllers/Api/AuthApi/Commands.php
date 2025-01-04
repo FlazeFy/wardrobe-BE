@@ -100,7 +100,7 @@ class Commands extends Controller
                     //if (!$user || ($request->password != $user->password)) {
                     return response()->json([
                         'status' => 'failed',
-                        'result' => Generator::getMessageTemplate("custom", 'logout success'),
+                        'result' => Generator::getMessageTemplate("custom", 'wrong password or username'),
                         'token' => null,                
                     ], Response::HTTP_UNAUTHORIZED);
                 } else {

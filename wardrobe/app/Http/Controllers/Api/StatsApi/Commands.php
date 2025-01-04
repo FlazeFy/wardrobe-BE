@@ -16,8 +16,9 @@ class Commands extends Controller
 {
     /**
      * @OA\POST(
-     *     path="/api/v1/stats/clothes/{ctx}",
+     *     path="/api/v1/stats/clothes/by/{ctx}",
      *     summary="Get stats clothes by context (column)",
+     *     description="This request is used to get summary stats. This request is using MySql database, have a protected routes",
      *     tags={"Stats"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -70,41 +71,67 @@ class Commands extends Controller
      */
     public function get_stats_clothes_most_context(Request $request, $ctx)
     {
-        try{
+        try {
             // Validator
-            $request->merge(['context' => $ctx]);
-            $validator = Validation::getValidateStats($request,'most_context');
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => $validator->errors()
-                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            if (strpos($ctx, ",") !== false) {
+                $list_ctx = explode(",", $ctx);
+                foreach ($list_ctx as $dt) {
+                    $request->merge(['context' => $dt]);
+                    $validator = Validation::getValidateStats($request, 'most_context');
+                    if ($validator->fails()) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => $validator->errors()
+                        ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                        break;
+                    }
+                }
             } else {
-                $user_id = $request->user()->id;
+                $request->merge(['context' => $ctx]);
+                $validator = Validation::getValidateStats($request, 'most_context');
+                if ($validator->fails()) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => $validator->errors()
+                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                } else {
+                    $list_ctx = [$ctx];
+                }
+            }
 
-                // Query
-                $rows = ClothesModel::selectRaw("$ctx as context, COUNT(1) as total")
+            $user_id = $request->user()->id;
+            $final_res = [];
+
+            // Query
+            foreach ($list_ctx as $ctx) {
+                $rows = ClothesModel::selectRaw("REPLACE(CONCAT(UPPER(SUBSTRING($ctx, 1, 1)), LOWER(SUBSTRING($ctx, 2))), '_', ' ') as context, COUNT(1) as total")
                     ->where('created_by', $user_id)
-                    ->groupby($ctx)
-                    ->orderby('total','desc')
+                    ->groupBy($ctx)
+                    ->orderBy('total', 'desc')
                     ->limit(7)
                     ->get();
 
-                // Response
-                if(count($rows) > 0){
-                    return response()->json([
-                        'status' => 'success',
-                        'message' => Generator::getMessageTemplate("fetch", 'stats'),
-                        'data' => $rows
-                    ], Response::HTTP_OK);
+                if (count($list_ctx) > 1) {
+                    $final_res[$ctx] = $rows;
                 } else {
-                    return response()->json([
-                        'status' => 'failed',
-                        'message' => Generator::getMessageTemplate("not_found", 'stats'),
-                    ], Response::HTTP_NOT_FOUND);
+                    $final_res = $rows;
                 }
             }
-        } catch(\Exception $e) {
+
+            // Response
+            if (count($final_res) > 0) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                    'data' => $final_res
+                ], Response::HTTP_OK);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("not_found", 'stats'),
+                ], Response::HTTP_NOT_FOUND);
+            }
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => Generator::getMessageTemplate("unknown_error", null),

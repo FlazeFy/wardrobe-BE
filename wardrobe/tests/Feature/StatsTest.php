@@ -28,7 +28,7 @@ class StatsTest extends TestCase
         $ctx = "clothes_merk";
 
         $token = $this->login_trait("user");
-        $response = $this->httpClient->post("clothes/$ctx", [
+        $response = $this->httpClient->post("clothes/by/$ctx", [
             'headers' => [
                 'Authorization' => "Bearer $token"
             ]

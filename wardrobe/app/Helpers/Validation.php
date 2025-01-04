@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Validator;
 // Rules
 use App\Rules\DictionaryType;
 use App\Rules\MostUsedContextColumn;
+use App\Rules\YearlyContextColumn;
 
 class Validation
 {
@@ -33,6 +34,10 @@ class Validation
             return Validator::make($request->all(), [
                 'context' => ['required', new MostUsedContextColumn],
             ]);  
-        } 
+        } else if($type == 'yearly_context'){
+            return Validator::make($request->all(), [
+                'context' => ['required', new YearlyContextColumn],
+            ]); 
+        }
     }
 }

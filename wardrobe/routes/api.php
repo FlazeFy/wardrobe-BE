@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\DictionaryApi\Commands as CommandDictionaryApi;
 use App\Http\Controllers\Api\HistoryApi\Queries as QueriesHistoryController;
 use App\Http\Controllers\Api\ErrorApi\Queries as QueriesErrorController;
 use App\Http\Controllers\Api\StatsApi\Commands as CommandStatsApi;
+use App\Http\Controllers\Api\StatsApi\Queries as QueriesStatsApi;
 
 ######################### Public Route #########################
 
@@ -37,7 +38,9 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
 });
 
 Route::prefix('/v1/stats')->middleware(['auth:sanctum'])->group(function () {
-    Route::post('/clothes/{ctx}', [CommandStatsApi::class, 'get_stats_clothes_most_context']);
+    Route::post('/clothes/by/{ctx}', [CommandStatsApi::class, 'get_stats_clothes_most_context']);
+    Route::get('/clothes/summary', [QueriesStatsApi::class, 'get_stats_summary']);
+    Route::get('/clothes/yearly/{ctx}', [QueriesStatsApi::class, 'get_stats_yearly_context']);
 });
 
 Route::prefix('/v1/error')->middleware(['auth:sanctum'])->group(function () {

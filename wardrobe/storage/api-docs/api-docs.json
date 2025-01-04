@@ -2457,13 +2457,14 @@
                 ]
             }
         },
-        "/api/v1/stats/clothes/{ctx}": {
+        "/api/v1/stats/clothes/by/{ctx}": {
             "post": {
                 "tags": [
                     "Stats"
                 ],
                 "summary": "Get stats clothes by context (column)",
-                "operationId": "c7c4be0f4311db999a8ab9516a586f7d",
+                "description": "This request is used to get summary stats. This request is using MySql database, have a protected routes",
+                "operationId": "7cae097e48f0a012ef67dc3e0e71bf1c",
                 "parameters": [
                     {
                         "name": "ctx",
@@ -2535,6 +2536,237 @@
                     },
                     "404": {
                         "description": "stats failed to fetch",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "stats not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/stats/clothes/summary": {
+            "get": {
+                "tags": [
+                    "Stats"
+                ],
+                "summary": "Get stats summary",
+                "description": "This request is used to get summary stats. This request is using MySql database, have a protected routes",
+                "operationId": "305f52f8bcaed6ceccf36748e0c90c4e",
+                "responses": {
+                    "200": {
+                        "description": "stats fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "stats fetched"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "total_clothes": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "max_price": {
+                                                    "type": "integer",
+                                                    "example": 600000
+                                                },
+                                                "avg_price": {
+                                                    "type": "integer",
+                                                    "example": 200000
+                                                },
+                                                "sum_clothes_qty": {
+                                                    "type": "integer",
+                                                    "example": 3
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "stats failed to fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "stats not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/stats/clothes/yearly/{ctx}": {
+            "get": {
+                "tags": [
+                    "Stats"
+                ],
+                "summary": "Get yearly stats activity",
+                "description": "This request is used to get yearly stats activity. This request is using MySql database, have a protected routes",
+                "operationId": "c427bd1ae3892db11935f69e256f8a34",
+                "responses": {
+                    "200": {
+                        "description": "stats fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "stats fetched"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "context": {
+                                                        "type": "string",
+                                                        "example": "2024-01-11"
+                                                    },
+                                                    "total": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "stats failed to fetched",
                         "content": {
                             "application/json": {
                                 "schema": {

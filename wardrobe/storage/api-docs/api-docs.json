@@ -1569,6 +1569,281 @@
                 }
             }
         },
+        "/api/v1/clothes/detail/{clothes_id}": {
+            "get": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Show clothes detail by clothes id",
+                "operationId": "dba738aef10bb7566b6c9058fcd313b0",
+                "parameters": [
+                    {
+                        "name": "clothes_id",
+                        "in": "path",
+                        "description": "clothes id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Clothes found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "This clothes is washed right now"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "detail": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "10bacb64-e819-11ed-a05b-0242ac120003"
+                                                        },
+                                                        "clothes_name": {
+                                                            "type": "string",
+                                                            "example": "Short Sleeves Oversized"
+                                                        },
+                                                        "clothes_desc": {
+                                                            "type": "string",
+                                                            "example": "Lorem ipsum odor amet, consectetuer adipiscing elit."
+                                                        },
+                                                        "clothes_merk": {
+                                                            "type": "string",
+                                                            "example": "Berskha"
+                                                        },
+                                                        "clothes_size": {
+                                                            "type": "string",
+                                                            "example": "L"
+                                                        },
+                                                        "clothes_gender": {
+                                                            "type": "string",
+                                                            "example": "male"
+                                                        },
+                                                        "clothes_made_from": {
+                                                            "type": "string",
+                                                            "example": "cloth"
+                                                        },
+                                                        "clothes_color": {
+                                                            "type": "string",
+                                                            "example": "black, white"
+                                                        },
+                                                        "clothes_category": {
+                                                            "type": "string",
+                                                            "example": "upper_body"
+                                                        },
+                                                        "clothes_type": {
+                                                            "type": "string",
+                                                            "example": "shirt"
+                                                        },
+                                                        "clothes_price": {
+                                                            "type": "integer",
+                                                            "example": 600000
+                                                        },
+                                                        "clothes_buy_at": {
+                                                            "type": "string",
+                                                            "example": null,
+                                                            "nullable": true
+                                                        },
+                                                        "clothes_qty": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "is_faded": {
+                                                            "type": "integer",
+                                                            "example": 0
+                                                        },
+                                                        "has_washed": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "has_ironed": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "is_favorite": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "is_scheduled": {
+                                                            "type": "integer",
+                                                            "example": 0
+                                                        },
+                                                        "created_at": {
+                                                            "type": "string",
+                                                            "example": "2024-04-10 22:10:56"
+                                                        },
+                                                        "created_by": {
+                                                            "type": "string",
+                                                            "example": "2d98f524-de02-11ed-b5ea-0242ac120002"
+                                                        },
+                                                        "updated_at": {
+                                                            "type": "string",
+                                                            "example": null,
+                                                            "nullable": true
+                                                        },
+                                                        "deleted_at": {
+                                                            "type": "string",
+                                                            "example": null,
+                                                            "nullable": true
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "used_history": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string",
+                                                                "example": "1d7a826d-4898-c7a4-3b67-e3a01819a55c"
+                                                            },
+                                                            "clothes_note": {
+                                                                "type": "string",
+                                                                "example": null,
+                                                                "nullable": true
+                                                            },
+                                                            "used_context": {
+                                                                "type": "string",
+                                                                "example": "Shopping"
+                                                            },
+                                                            "created_at": {
+                                                                "type": "string",
+                                                                "example": "2024-05-14 02:32:07"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "wash_history": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "wash_note": {
+                                                                "type": "string",
+                                                                "example": null,
+                                                                "nullable": true
+                                                            },
+                                                            "wash_type": {
+                                                                "type": "string",
+                                                                "example": "Laundry"
+                                                            },
+                                                            "wash_checkpoint": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "string",
+                                                                            "example": "1"
+                                                                        },
+                                                                        "checkpoint_name": {
+                                                                            "type": "string",
+                                                                            "example": "Rendam"
+                                                                        },
+                                                                        "is_finished": {
+                                                                            "type": "boolean",
+                                                                            "example": false
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            },
+                                                            "created_at": {
+                                                                "type": "string",
+                                                                "example": "2024-05-17 04:09:40"
+                                                            },
+                                                            "finished_at": {
+                                                                "type": "string",
+                                                                "example": null,
+                                                                "nullable": true
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "clothes not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/clothes/wash_checkpoint/{clothes_id}": {
             "get": {
                 "tags": [
@@ -2001,6 +2276,10 @@
                                                     "dictionary_name": {
                                                         "type": "string",
                                                         "example": "Laundry"
+                                                    },
+                                                    "dictionary_type": {
+                                                        "type": "string",
+                                                        "example": "wash_type"
                                                     }
                                                 },
                                                 "type": "object"
@@ -2734,6 +3013,10 @@
                                                     "total": {
                                                         "type": "integer",
                                                         "example": 2
+                                                    },
+                                                    "day": {
+                                                        "type": "string",
+                                                        "example": "Sat"
                                                     }
                                                 },
                                                 "type": "object"

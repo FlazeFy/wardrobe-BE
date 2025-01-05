@@ -110,7 +110,8 @@ class Queries extends Controller
      *             @OA\Property(property="data", type="array",
      *                  @OA\Items(type="object",
      *                      @OA\Property(property="context", type="string", example="2024-01-11"),
-     *                      @OA\Property(property="total", type="integer", example=2)
+     *                      @OA\Property(property="total", type="integer", example=2),
+     *                      @OA\Property(property="day", type="string", example="Sat")
      *                  )
      *             )
      *         )
@@ -184,12 +185,15 @@ class Queries extends Controller
                     $total_all = 0;
                     foreach ($list_date as $date) {
                         $found = false;
+                        $day = (new DateTime($date))->format('D');
+
                         foreach ($res as $dt) {
                             if($dt->context == $date){
                                 $found = true;
                                 $final_res[] = [
                                     'context' => $date,
-                                    'total' => $dt->total
+                                    'total' => $dt->total,
+                                    'day' => $day,
                                 ];
                                 $total_all = $total_all + $dt->total;
                                 break;
@@ -199,7 +203,8 @@ class Queries extends Controller
                         if(!$found){
                             $final_res[] = [
                                 'context' => $date,
-                                'total' => 0
+                                'total' => 0,
+                                'day' => $day
                             ];
                         }
                     }

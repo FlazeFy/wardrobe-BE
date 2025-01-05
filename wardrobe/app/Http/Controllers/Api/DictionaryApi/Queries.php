@@ -35,6 +35,7 @@ class Queries extends Controller
      *             @OA\Property(property="data", type="array",
      *                  @OA\Items(type="object",
      *                      @OA\Property(property="dictionary_name", type="string", example="Laundry"),
+     *                      @OA\Property(property="dictionary_type", type="string", example="wash_type"),
      *                  )
      *             )
      *         )
@@ -68,11 +69,18 @@ class Queries extends Controller
     public function get_dct_by_type(Request $request, $type)
     {
         try{
-            $user_id = $request->user()->id;
+            $res = DictionaryModel::select('dictionary_name','dictionary_type');
+            if(strpos($type, ',')){
+                $dcts = explode(",", $type);
+                foreach ($dcts as $dt) {
+                    $res = $res->orwhere('dictionary_type',$dt); 
+                }
+            } else {
+                $res = $res->where('dictionary_type',$type); 
+            }
 
-            $res = DictionaryModel::select('dictionary_name')
-                ->where('dictionary_type',$type)
-                ->orderBy('dictionary_name', 'ASC')
+            $res = $res->orderby('dictionary_type', 'ASC')
+                ->orderby('dictionary_name', 'ASC')
                 ->get();
             
             if (count($res) > 0) {

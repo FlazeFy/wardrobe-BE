@@ -44,10 +44,16 @@ class DictionaryTest extends TestCase
         $this->assertArrayHasKey('data', $data);
 
         foreach ($data['data'] as $dt) {
-            $this->assertArrayHasKey('dictionary_name', $dt);
+            $check_object = ['dictionary_name','dictionary_type'];
+            foreach ($check_object as $col) {
+                $this->assertArrayHasKey($col, $dt);
+            }
 
-            $this->assertNotNull($dt['dictionary_name']);
-            $this->assertIsString($dt['dictionary_name']);
+            $check_not_null_str = ['dictionary_name','dictionary_type'];
+            foreach ($check_not_null_str as $col) {
+                $this->assertNotNull($dt[$col]);
+                $this->assertIsString($dt[$col]);
+            }
         }
 
         Audit::auditRecordText("Test - Get All Dictionary By Type", "TC-XXX", "Result : ".json_encode($data));

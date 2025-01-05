@@ -361,4 +361,142 @@ class ClothesTest extends TestCase
         Audit::auditRecordText("Test - Hard Delete Wash By ID", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Hard Delete Wash By ID", "TC-XXX", 'TC-XXX test_hard_delete_wash_by_id', json_encode($data));
     }
+
+    public function test_get_deleted_clothes(): void
+    {
+        // Exec
+        $token = $this->login_trait("user");
+        $clothes_id = "2d98f524-de02-11ed-b5ea-0242ac120002";
+        $order = "desc";
+        $response = $this->httpClient->get("trash", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertArrayHasKey('data', $data);
+
+        foreach ($data['data']['data'] as $dt) {
+            $check_object = ['id','clothes_name','clothes_size','clothes_gender','clothes_color','clothes_category','clothes_type','clothes_qty','deleted_at'];
+            foreach ($check_object as $col) {
+                $this->assertArrayHasKey($col, $dt);
+            }
+
+            $this->assertNotNull($dt['clothes_qty']);
+            $this->assertIsInt($dt['clothes_qty']);
+            $this->assertGreaterThanOrEqual(0, $dt['clothes_qty']);
+        }
+
+        Audit::auditRecordText("Test - Get Deleted Clothes", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Get Deleted Clothes", "TC-XXX", 'TC-XXX test_get_deleted_clothes', json_encode($data));
+    }
+
+    public function test_get_clothes_detail_by_id(): void
+    {
+        // Exec
+        $token = $this->login_trait("user");
+        $clothes_id = "10bacb64-e819-11ed-a05b-0242ac120003";
+        $response = $this->httpClient->get("detail/$clothes_id", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertArrayHasKey('data', $data);
+
+        $check_object = ['id', 'clothes_name', 'clothes_desc', 'clothes_merk', 'clothes_size', 'clothes_gender', 'clothes_made_from', 'clothes_color', 'clothes_category', 'clothes_type', 'clothes_price', 'clothes_buy_at', 'clothes_qty', 'is_faded', 'has_washed', 'has_ironed', 'is_favorite', 'is_scheduled', 'created_at', 'created_by', 'updated_at', 'deleted_at'];
+        foreach ($check_object as $col) {
+            $this->assertArrayHasKey($col, $data['data']['detail']);
+        }
+
+        $check_not_null_str = ['id', 'clothes_name', 'clothes_size', 'clothes_gender', 'clothes_made_from', 'clothes_color', 'clothes_category', 'clothes_type', 'created_at', 'created_by'];
+        foreach ($check_not_null_str as $col) {
+            $this->assertNotNull($data['data']['detail'][$col]);
+            $this->assertIsString($data['data']['detail'][$col]);
+        }
+
+        $check_nullable_str = ['clothes_desc','clothes_merk','clothes_buy_at','updated_at','deleted_at'];
+        foreach ($check_nullable_str as $col) {
+            if(!is_null($data['data']['detail'][$col])){
+                $this->assertIsString($data['data']['detail'][$col]);
+            }
+        }
+
+        $check_not_null_int = ['clothes_qty','is_faded','has_washed','has_ironed','is_favorite','is_scheduled'];
+        foreach ($check_not_null_int as $col) {
+            $this->assertNotNull($data['data']['detail'][$col]);
+            $this->assertIsInt($data['data']['detail'][$col]);
+            $this->assertGreaterThanOrEqual(0, $data['data']['detail'][$col]);
+        }
+
+        if(!is_null($data['data']['used_history'])){
+            foreach ($data['data']['used_history'] as $dt) {
+                $check_object = ['id', 'used_context', 'clothes_note', 'created_at'];
+                foreach ($check_object as $col) {
+                    $this->assertArrayHasKey($col, $dt);
+                }
+
+                $check_not_null_str = ['id', 'used_context', 'created_at'];
+                foreach ($check_not_null_str as $col) {
+                    $this->assertNotNull($dt[$col]);
+                    $this->assertIsString($dt[$col]);
+                }
+
+                $check_nullable_str = ['clothes_note'];
+                foreach ($check_nullable_str as $col) {
+                    if(!is_null($dt[$col])){
+                        $this->assertIsString($dt[$col]);
+                    }
+                }
+            }
+        }
+
+        if(!is_null($data['data']['wash_history'])){
+            foreach ($data['data']['wash_history'] as $dt) {
+                $check_object = ['wash_type', 'wash_note', 'created_at', 'finished_at','wash_checkpoint'];
+                foreach ($check_object as $col) {
+                    $this->assertArrayHasKey($col, $dt);
+                }
+
+                foreach ($dt['wash_checkpoint'] as $wash_check) {
+                    $check_object = ['id', 'checkpoint_name', 'is_finished'];
+                    foreach ($check_object as $col) {
+                        $this->assertArrayHasKey($col, $wash_check);
+                    }
+
+                    $check_not_null_str = ['id', 'checkpoint_name'];
+                    foreach ($check_not_null_str as $col) {
+                        $this->assertNotNull($wash_check[$col]);
+                        $this->assertIsString($wash_check[$col]);
+                    }
+
+                    $this->assertIsBool($wash_check['is_finished']);
+                }
+
+                $check_nullable_str = ['wash_note','finished_at'];
+                foreach ($check_nullable_str as $col) {
+                    if(!is_null($dt[$col])){
+                        $this->assertIsString($dt[$col]);
+                    }
+                }
+            }
+        }
+
+        Audit::auditRecordText("Test - Get Clothes Detail By Id", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Get Clothes Detail By Id", "TC-XXX", 'TC-XXX test_get_clothes_detail_by_id', json_encode($data));
+    }
 }

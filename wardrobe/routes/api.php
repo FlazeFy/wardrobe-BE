@@ -25,6 +25,7 @@ Route::get('/v1/logout', [QueryAuthApi::class, 'logout'])->middleware(['auth:san
 Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/header/{category}/{order}', [QueriesClothesApi::class, 'get_all_clothes_header']);
     Route::get('/detail/{category}/{order}', [QueriesClothesApi::class, 'get_all_clothes_detail']);
+    Route::get('/detail/{clothes_id}', [QueriesClothesApi::class, 'get_clothes_detail_by_id']);
     Route::get('/history/{clothes_id}/{order}', [QueriesClothesApi::class, 'get_clothes_used_history']);
     Route::get('/similiar/{ctx}/{val}/{exc}', [QueriesClothesApi::class, 'get_clothes_similiar_by']);
     Route::get('/check_wash/{clothes_id}', [QueriesClothesApi::class, 'get_clothes_wash_status_by_clothes_id']);

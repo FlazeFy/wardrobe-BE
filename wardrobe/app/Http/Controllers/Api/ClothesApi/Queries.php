@@ -440,6 +440,7 @@ class Queries extends Controller
      *                 @OA\Property(property="data", type="array",
      *                     @OA\Items(type="object",
      *                          @OA\Property(property="clothes_name", type="string", example="Short Sleeves Oversized"),
+     *                          @OA\Property(property="clothes_type", type="string", example="Hat"),
      *                          @OA\Property(property="clothes_note", type="string", example="for sunny day"),
      *                          @OA\Property(property="used_context", type="string", example="Shopping"),
      *                          @OA\Property(property="created_at", type="string", example="2024-04-10 22:10:56"),
@@ -479,7 +480,7 @@ class Queries extends Controller
         try{
             $user_id = $request->user()->id;
 
-            $res = ClothesUsedModel::select('clothes_name','clothes_note','used_context','clothes.created_at')
+            $res = ClothesUsedModel::select('clothes_name','clothes_type','clothes_note','used_context','clothes.created_at')
                 ->join('clothes','clothes.id','=','clothes_used.clothes_id')
                 ->where('clothes_id',$clothes_id)
                 ->orderBy('clothes_used.created_at', $order)
@@ -708,17 +709,25 @@ class Queries extends Controller
                     ->where('created_by',$user_id)
                     ->get();
 
+                $last_used = ClothesUsedModel::select('created_at')
+                    ->orderby('created_at','ASC')
+                    ->first();
+
                 $res_wash = WashModel::select('wash_note','wash_type','wash_checkpoint','created_at','finished_at')
                     ->where('clothes_id',$clothes_id)
                     ->where('created_by',$user_id)
                     ->get();
+
+                $total_used = count($res_used);
 
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("custom", 'This clothes is washed right now'),
                     'data' => [
                         'detail' => $res_clothes,
-                        'used_history' => count($res_used) > 0 ? $res_used : null,
+                        'used_history' =>  $total_used > 0 ? $res_used : null,
+                        'total_used_history' => $total_used,
+                        'last_used_history' => $last_used ? $last_used->created_at : null,
                         'wash_history' => count($res_wash) > 0 ? $res_wash : null
                     ]
                 ], Response::HTTP_OK);

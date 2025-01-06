@@ -10,6 +10,10 @@ use DateTime;
 use App\Models\ClothesModel;
 use App\Models\ClothesUsedModel;
 use App\Models\WashModel;
+use App\Models\UserModel;
+use App\Models\ScheduleModel;
+use App\Models\OutfitModel;
+use App\Models\FeedbackModel;
 
 // Helpers
 use App\Helpers\Generator;
@@ -68,11 +72,7 @@ class Queries extends Controller
     {
         try{
             $user_id = $request->user()->id;
-
-            $res = ClothesModel::selectRaw('
-                COUNT(1) as total_clothes, MAX(clothes_price) as max_price, CAST(AVG(clothes_price) as UNSIGNED) as avg_price, CAST(SUM(clothes_qty) as UNSIGNED) as sum_clothes_qty')
-                ->where('created_by',$user_id)
-                ->first();
+            $res = ClothesModel::getStatsSummary($user_id);
             
             if ($res) {
                 return response()->json([
@@ -90,6 +90,136 @@ class Queries extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @OA\GET(
+     *     path="/api/v1/stats/all",
+     *     summary="Get stats summary",
+     *     description="This request is used to get all summary. This request is using MySql database",
+     *     tags={"Stats"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="stats fetched",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="stats fetched"),
+     *             @OA\Property(property="data", type="array",
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="total_clothes", type="integer", example=2),
+     *                      @OA\Property(property="total_user", type="integer", example=2),
+     *                      @OA\Property(property="total_schedule", type="integer", example=2),
+     *                      @OA\Property(property="total_outfit_decision", type="integer", example=3)
+     *                  )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function get_all_stats()
+    {
+        try{
+            $total_clothes = ClothesModel::whereNull('deleted_at')->count();
+            $total_user = UserModel::count();
+            $total_schedule = ScheduleModel::count();
+            $total_outfit_decision = OutfitModel::where('is_auto',1)->count();
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                'data' => [
+                    'total_clothes' => $total_clothes,
+                    'total_user' => $total_user,
+                    'total_schedule' => $total_schedule,
+                    'total_outfit_decision' => $total_outfit_decision,
+                ]
+            ], Response::HTTP_OK);
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @OA\GET(
+     *     path="/api/v1/stats/feedback/top",
+     *     summary="Get Top Feedback",
+     *     description="This request is used to get top 4 feedback by rate. This request is using MySql database",
+     *     tags={"Stats"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="stats fetched",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="stats fetched"),
+     *             @OA\Property(property="data", type="array",
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="feedback_rate", type="integer", example=5),
+     *                      @OA\Property(property="feedback_body", type="string", example="thats great!"),
+     *                      @OA\Property(property="created_at", type="string", example="2025-01-06 03:04:54"),
+     *                      @OA\Property(property="username", type="string", example="flazefy")
+     *                  )
+     *             ),
+     *             @OA\Property(property="total", type="integer", example=2),
+     *             @OA\Property(property="average", type="integer", example=2),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="stats failed to fetched",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="stats not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function get_top_feedback()
+    {
+        try{
+            $res = FeedbackModel::getTopFeedback();
+
+            if ($res) {
+                $total = FeedbackModel::count();
+                $average = FeedbackModel::avg('feedback_rate');
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                    'data' => $res,
+                    'total' => $total,
+                    'average' => $average
+                ], Response::HTTP_OK);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("not_found", 'stats'),
+                ], Response::HTTP_NOT_FOUND);
+            }
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

@@ -44,6 +44,11 @@ Route::prefix('/v1/stats')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/clothes/yearly/{ctx}', [QueriesStatsApi::class, 'get_stats_yearly_context']);
 });
 
+Route::prefix('/v1/stats')->group(function () {
+    Route::get('/all', [QueriesStatsApi::class, 'get_all_stats']);
+    Route::get('/feedback/top', [QueriesStatsApi::class, 'get_top_feedback']);
+});
+
 Route::prefix('/v1/error')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/', [QueriesErrorController::class, 'get_all_error']);
 });

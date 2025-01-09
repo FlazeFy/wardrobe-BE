@@ -15,7 +15,7 @@ class UserModel extends Authenticatable
 
     protected $table = 'users';
     protected $primaryKey = 'id';
-    protected $fillable = ['id', 'username', 'password', 'email', 'created_at', 'updated_at'];
+    protected $fillable = ['id', 'username', 'password', 'email', 'telegram_is_valid', 'telegram_user_id', 'created_at', 'updated_at'];
 
     public static function getRandom($null){
         if($null == 0){

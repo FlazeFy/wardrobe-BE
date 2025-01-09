@@ -83,4 +83,36 @@ class Generator
 
         return $seed[$ran];
     }
+
+    public static function generateDocTemplate($type){
+        $datetime = now();
+
+        if($type == "footer"){
+            return "
+                <br><hr>
+                <div>
+                    <h6 class='date-text' style='margin: 0;'>Parts of FlazenApps</h6>
+                    <h6 class='date-text' style='margin: 0; float:right; margin-top:-12px;'>Generated at $datetime by <span style='color:#3b82f6;'>https://wardrobe.leonardhors.com</span></h6>
+                </div>
+            ";
+        } else if($type == "header"){
+            return "
+                <div style='text-align:center;'>
+                    <h1 style='color:#3b82f6; margin:0;'>Wardrobe</h1>
+                    <h4 style='color:#212121; margin:0; font-style:italic;'>Effortless style decision and Organize</div>
+                <hr>
+            ";
+        } else if($type == "style"){
+            return "
+                <style>
+                    body { font-family: Helvetica; }
+                    table { border-collapse: collapse; font-size:10px; width:100%; }
+                    td, th { border: 1px solid #dddddd; text-align: left; padding: 8px; }
+                    th { text-align:center; }
+                    .date-text { font-style:italic; font-weight:normal; color:grey; font-size:11px; }
+                    thead { background-color:rgba(59, 131, 246, 0.75); }
+                </style>
+            ";
+        }
+    }
 }

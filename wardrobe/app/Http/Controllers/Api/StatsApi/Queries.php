@@ -508,14 +508,15 @@ class Queries extends Controller
                     ->get();
 
                 $final_res = [];
+                $format_date = 'd M Y';
 
                 foreach ($datePeriod as $date) {
                     $dateDt = clone $date;
-                    $date = $date->format('d m Y');
+                    $date = $date->format($format_date);
 
                     $curr_res_used_history = [];
                     foreach ($res_used_history as $dt) {
-                        if(date('d m Y',strtotime($dt->created_at)) == $date){
+                        if(date($format_date,strtotime($dt->created_at)) == $date){
                             $curr_res_used_history[] = $dt;
                         }
                     }
@@ -527,19 +528,19 @@ class Queries extends Controller
                     }
                     $curr_res_wash_schedule = [];
                     foreach ($res_wash_schedule as $dt) {
-                        if(date('d m Y',strtotime($dt->created_at)) == $date){
+                        if(date($format_date,strtotime($dt->created_at)) == $date){
                             $curr_res_wash_schedule[] = $dt;
                         }
                     }
                     $curr_res_buyed_history = [];
                     foreach ($res_buyed_history as $dt) {
-                        if(date('d m Y',strtotime($dt->clothes_buy_at)) == $date){
+                        if(date($format_date,strtotime($dt->clothes_buy_at)) == $date){
                             $curr_res_buyed_history[] = $dt;
                         }
                     }
                     $curr_res_add_wardrobe = [];
                     foreach ($res_add_wardrobe as $dt) {
-                        if(date('d m Y',strtotime($dt->created_at)) == $date){
+                        if(date($format_date,strtotime($dt->created_at)) == $date){
                             $curr_res_add_wardrobe[] = $dt;
                         }
                     }

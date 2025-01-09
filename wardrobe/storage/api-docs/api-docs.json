@@ -665,6 +665,109 @@
                 }
             }
         },
+        "/api/v1/clothes/destroy_used/{id}": {
+            "delete": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Permentally delete clothes used by id",
+                "operationId": "17068b2f02994a621aba37e53c5e00e2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "clothes used ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "clothes used permentally deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes used permentally deleted"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "clothes used not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes used not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/clothes/header/{category}/{order}": {
             "get": {
                 "tags": [
@@ -3198,6 +3301,255 @@
                                                     "day": {
                                                         "type": "string",
                                                         "example": "Sat"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "stats failed to fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "stats not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/stats/calendar/{month}/{year}": {
+            "get": {
+                "tags": [
+                    "Stats"
+                ],
+                "summary": "Get calendar history for used history, weekly schedule, wash history, buyed history, and add to wardrobe",
+                "description": "This request is used to get yearly stats activity. This request is using MySql database, have a protected routes",
+                "operationId": "c23887dd1cf6f1669b4ff770d6e5a1de",
+                "responses": {
+                    "200": {
+                        "description": "stats fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "stats fetched"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "date": {
+                                                        "type": "string",
+                                                        "example": "10 05 2024"
+                                                    },
+                                                    "used_history": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string",
+                                                                    "example": "17963858-9771-11ee-8f4a-3216422910r4"
+                                                                },
+                                                                "clothes_name": {
+                                                                    "type": "string",
+                                                                    "example": "Reebok Black Hat"
+                                                                },
+                                                                "clothes_category": {
+                                                                    "type": "string",
+                                                                    "example": "head"
+                                                                },
+                                                                "clothes_type": {
+                                                                    "type": "string",
+                                                                    "example": "hat"
+                                                                },
+                                                                "created_at": {
+                                                                    "type": "string",
+                                                                    "example": "2024-05-10 22:10:56"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "weekly_schedule": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string",
+                                                                    "example": "17963858-9771-11ee-8f4a-3216422910r4"
+                                                                },
+                                                                "clothes_name": {
+                                                                    "type": "string",
+                                                                    "example": "Reebok Black Hat"
+                                                                },
+                                                                "clothes_category": {
+                                                                    "type": "string",
+                                                                    "example": "head"
+                                                                },
+                                                                "clothes_type": {
+                                                                    "type": "string",
+                                                                    "example": "hat"
+                                                                },
+                                                                "day": {
+                                                                    "type": "string",
+                                                                    "example": "Sun"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "wash_schedule": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string",
+                                                                    "example": "17963858-9771-11ee-8f4a-3216422910r4"
+                                                                },
+                                                                "clothes_name": {
+                                                                    "type": "string",
+                                                                    "example": "Reebok Black Hat"
+                                                                },
+                                                                "clothes_category": {
+                                                                    "type": "string",
+                                                                    "example": "head"
+                                                                },
+                                                                "clothes_type": {
+                                                                    "type": "string",
+                                                                    "example": "hat"
+                                                                },
+                                                                "created_at": {
+                                                                    "type": "string",
+                                                                    "example": "2024-05-10 22:10:56"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "buyed_history": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string",
+                                                                    "example": "17963858-9771-11ee-8f4a-3216422910r4"
+                                                                },
+                                                                "clothes_name": {
+                                                                    "type": "string",
+                                                                    "example": "Reebok Black Hat"
+                                                                },
+                                                                "clothes_category": {
+                                                                    "type": "string",
+                                                                    "example": "head"
+                                                                },
+                                                                "clothes_type": {
+                                                                    "type": "string",
+                                                                    "example": "hat"
+                                                                },
+                                                                "created_at": {
+                                                                    "type": "string",
+                                                                    "example": "2024-05-10 22:10:56"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "add_wardrobe": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string",
+                                                                    "example": "17963858-9771-11ee-8f4a-3216422910r4"
+                                                                },
+                                                                "clothes_name": {
+                                                                    "type": "string",
+                                                                    "example": "Reebok Black Hat"
+                                                                },
+                                                                "clothes_category": {
+                                                                    "type": "string",
+                                                                    "example": "head"
+                                                                },
+                                                                "clothes_type": {
+                                                                    "type": "string",
+                                                                    "example": "hat"
+                                                                },
+                                                                "created_at": {
+                                                                    "type": "string",
+                                                                    "example": "2024-05-10 22:10:56"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
                                                     }
                                                 },
                                                 "type": "object"

@@ -35,6 +35,7 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::delete('/destroy/{id}', [CommandClothesApi::class, 'hard_delete_clothes_by_id']);
     Route::delete('/destroy_wash/{id}', [CommandClothesApi::class, 'hard_delete_wash_by_id']);
     Route::delete('/delete/{id}', [CommandClothesApi::class, 'soft_delete_clothes_by_id']);
+    Route::delete('/destroy_used/{id}', [CommandClothesApi::class, 'hard_delete_clothes_used_by_id']);
     Route::post('/history', [CommandClothesApi::class, 'post_history_clothes']);
 });
 
@@ -42,6 +43,7 @@ Route::prefix('/v1/stats')->middleware(['auth:sanctum'])->group(function () {
     Route::post('/clothes/by/{ctx}', [CommandStatsApi::class, 'get_stats_clothes_most_context']);
     Route::get('/clothes/summary', [QueriesStatsApi::class, 'get_stats_summary']);
     Route::get('/clothes/yearly/{ctx}', [QueriesStatsApi::class, 'get_stats_yearly_context']);
+    Route::get('/calendar/{month}/{year}', [QueriesStatsApi::class, 'get_stats_calendar']);
 });
 
 Route::prefix('/v1/stats')->group(function () {

@@ -381,9 +381,13 @@ class Queries extends Controller
         try{
             $user_id = $request->user()->id;
 
-            $res = ClothesModel::select('*')
-                ->where('clothes_category',$category)
-                ->where('created_by',$user_id)
+            $res = ClothesModel::select('*');
+
+            if($category != "all"){
+                $res->where('clothes_category',$category);
+            }
+            
+            $res = $res->where('created_by',$user_id)
                 ->orderBy('is_favorite', 'desc')
                 ->orderBy('clothes_name', $order)
                 ->orderBy('created_at', $order)

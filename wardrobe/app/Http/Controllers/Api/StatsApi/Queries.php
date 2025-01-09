@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use DateTime;
+use DateInterval;
+use DatePeriod;
 
 // Models
 use App\Models\ClothesModel;
@@ -357,6 +359,211 @@ class Queries extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @OA\GET(
+     *     path="/api/v1/stats/calendar/{month}/{year}",
+     *     summary="Get calendar history for used history, weekly schedule, wash history, buyed history, and add to wardrobe",
+     *     description="This request is used to get yearly stats activity. This request is using MySql database, have a protected routes",
+     *     tags={"Stats"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="stats fetched",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="stats fetched"),
+     *             @OA\Property(property="data", type="array",
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="date", type="string", example="10 05 2024"),
+     *                      @OA\Property(property="used_history", type="array",
+     *                          @OA\Items(type="object",
+     *                              @OA\Property(property="id", type="string", example="17963858-9771-11ee-8f4a-3216422910r4"),
+     *                              @OA\Property(property="clothes_name", type="string", example="Reebok Black Hat"),
+     *                              @OA\Property(property="clothes_category", type="string", example="head"),
+     *                              @OA\Property(property="clothes_type", type="string", example="hat"),
+     *                              @OA\Property(property="created_at", type="string", example="2024-05-10 22:10:56"),
+     *                          )
+     *                      ),
+     *                      @OA\Property(property="weekly_schedule", type="array",
+     *                          @OA\Items(type="object",
+     *                              @OA\Property(property="id", type="string", example="17963858-9771-11ee-8f4a-3216422910r4"),
+     *                              @OA\Property(property="clothes_name", type="string", example="Reebok Black Hat"),
+     *                              @OA\Property(property="clothes_category", type="string", example="head"),
+     *                              @OA\Property(property="clothes_type", type="string", example="hat"),
+     *                              @OA\Property(property="day", type="string", example="Sun"),
+     *                          )
+     *                      ),
+     *                      @OA\Property(property="wash_schedule", type="array",
+     *                          @OA\Items(type="object",
+     *                              @OA\Property(property="id", type="string", example="17963858-9771-11ee-8f4a-3216422910r4"),
+     *                              @OA\Property(property="clothes_name", type="string", example="Reebok Black Hat"),
+     *                              @OA\Property(property="clothes_category", type="string", example="head"),
+     *                              @OA\Property(property="clothes_type", type="string", example="hat"),
+     *                              @OA\Property(property="created_at", type="string", example="2024-05-10 22:10:56"),
+     *                          )
+     *                      ),
+     *                      @OA\Property(property="buyed_history", type="array",
+     *                          @OA\Items(type="object",
+     *                              @OA\Property(property="id", type="string", example="17963858-9771-11ee-8f4a-3216422910r4"),
+     *                              @OA\Property(property="clothes_name", type="string", example="Reebok Black Hat"),
+     *                              @OA\Property(property="clothes_category", type="string", example="head"),
+     *                              @OA\Property(property="clothes_type", type="string", example="hat"),
+     *                              @OA\Property(property="created_at", type="string", example="2024-05-10 22:10:56"),
+     *                          )
+     *                      ),
+     *                      @OA\Property(property="add_wardrobe", type="array", 
+     *                          @OA\Items(type="object",
+     *                              @OA\Property(property="id", type="string", example="17963858-9771-11ee-8f4a-3216422910r4"),
+     *                              @OA\Property(property="clothes_name", type="string", example="Reebok Black Hat"),
+     *                              @OA\Property(property="clothes_category", type="string", example="head"),
+     *                              @OA\Property(property="clothes_type", type="string", example="hat"),
+     *                              @OA\Property(property="created_at", type="string", example="2024-05-10 22:10:56"),
+     *                          )
+     *                      ),
+     *                  )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="stats failed to fetched",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="stats not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function get_stats_calendar(Request $request, $month, $year){
+        try{
+            if ($month < 1 || $month > 12) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'month is not valid'
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            } else {
+                $query_select = "clothes.id, clothes_name, clothes_category, clothes_type";
+                $user_id = $request->user()->id;
+
+                $startDate = new DateTime("$year-$month-01");
+                $endDate = clone $startDate;
+                $endDate->modify('first day of next month');
+                $interval = new DateInterval('P1D'); // End date is first day of next month
+                $datePeriod = new DatePeriod($startDate, $interval, $endDate);       
+
+                $res_used_history = ClothesUsedModel::selectRaw("$query_select, clothes_used.created_at")
+                    ->join('clothes', 'clothes_used.clothes_id', '=', 'clothes.id')
+                    ->where('clothes_used.created_by', $user_id)
+                    ->whereYear('clothes_used.created_at', '=', $year)
+                    ->whereMonth('clothes_used.created_at', '=', $month)
+                    ->orderby('clothes_used.created_at', 'asc')
+                    ->get();
+
+                $res_wash_schedule = WashModel::selectRaw("$query_select, wash.created_at")
+                    ->join('clothes', 'clothes.id', '=', 'wash.clothes_id')
+                    ->where('wash.created_by', $user_id)
+                    ->whereYear('wash.created_at', '=', $year)
+                    ->whereMonth('wash.created_at', '=', $month)
+                    ->orderby('wash.created_at', 'asc')
+                    ->get();
+
+                $res_weekly_schedule = ScheduleModel::selectRaw("$query_select, day")
+                    ->join('clothes', 'clothes.id', '=', 'schedule.clothes_id')
+                    ->where('schedule.created_by', $user_id)
+                    ->get();
+
+                $res_buyed_history = ClothesModel::selectRaw("$query_select, clothes_buy_at as created_at")
+                    ->where('created_by', $user_id)
+                    ->whereNotNull('clothes_buy_at')
+                    ->whereYear('clothes_buy_at', '=', $year)
+                    ->whereMonth('clothes_buy_at', '=', $month)
+                    ->orderby('clothes_buy_at', 'asc')
+                    ->get();
+
+                $res_add_wardrobe = ClothesModel::selectRaw("$query_select, created_at")
+                    ->where('created_by', $user_id)
+                    ->whereYear('created_at', '=', $year)
+                    ->whereMonth('created_at', '=', $month)
+                    ->orderby('created_at', 'asc')
+                    ->get();
+
+                $final_res = [];
+
+                foreach ($datePeriod as $date) {
+                    $dateDt = clone $date;
+                    $date = $date->format('d m Y');
+
+                    $curr_res_used_history = [];
+                    foreach ($res_used_history as $dt) {
+                        if(date('d m Y',strtotime($dt->created_at)) == $date){
+                            $curr_res_used_history[] = $dt;
+                        }
+                    }
+                    $curr_res_weekly_schedule = [];
+                    foreach ($res_weekly_schedule as $dt) {
+                        if($dt->day == $dateDt->format('D')){
+                            $curr_res_weekly_schedule[] = $dt;
+                        }
+                    }
+                    $curr_res_wash_schedule = [];
+                    foreach ($res_wash_schedule as $dt) {
+                        if(date('d m Y',strtotime($dt->created_at)) == $date){
+                            $curr_res_wash_schedule[] = $dt;
+                        }
+                    }
+                    $curr_res_buyed_history = [];
+                    foreach ($res_buyed_history as $dt) {
+                        if(date('d m Y',strtotime($dt->clothes_buy_at)) == $date){
+                            $curr_res_buyed_history[] = $dt;
+                        }
+                    }
+                    $curr_res_add_wardrobe = [];
+                    foreach ($res_add_wardrobe as $dt) {
+                        if(date('d m Y',strtotime($dt->created_at)) == $date){
+                            $curr_res_add_wardrobe[] = $dt;
+                        }
+                    }
+
+                    $final_res[] = [
+                        'date' => $date,
+                        'used_history' => count($curr_res_used_history) > 0 ? $curr_res_used_history : null,
+                        'weekly_schedule' => count($curr_res_weekly_schedule) > 0 ? $curr_res_weekly_schedule : null,
+                        'wash_schedule' => count($curr_res_wash_schedule) > 0 ? $curr_res_wash_schedule : null,
+                        'buyed_history' => count($curr_res_buyed_history) > 0 ? $curr_res_buyed_history : null,
+                        'add_wardrobe' => count($curr_res_add_wardrobe) > 0 ? $curr_res_add_wardrobe : null,
+                    ];
+                }   
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                    'data' => $final_res,
+                ], Response::HTTP_OK);
+            }
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

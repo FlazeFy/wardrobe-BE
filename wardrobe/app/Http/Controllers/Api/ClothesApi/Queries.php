@@ -47,6 +47,7 @@ class Queries extends Controller
      *                     @OA\Items(type="object",
      *                         @OA\Property(property="id", type="string", example="17963858-9771-11ee-8f4a-321642910r4w"),
      *                         @OA\Property(property="clothes_name", type="string", example="Reebok Black Hatsss"),
+     *                         @OA\Property(property="clothes_image", type="string", example="https://storage.googleapis.com/download/storage/v1/b/wardrobe-26571.firebasestorage.app/o/clothes.png"),
      *                         @OA\Property(property="clothes_size", type="string", example="L"),
      *                         @OA\Property(property="clothes_gender", type="string", example="unisex"),
      *                         @OA\Property(property="clothes_color", type="string", example="black"),
@@ -94,7 +95,7 @@ class Queries extends Controller
         try{
             $user_id = $request->user()->id;
 
-            $res = ClothesModel::select('id', 'clothes_name', 'clothes_size', 'clothes_gender', 'clothes_color', 'clothes_category', 'clothes_type', 'clothes_qty', 'is_faded', 'has_washed', 'has_ironed', 'is_favorite', 'is_scheduled');
+            $res = ClothesModel::select('id', 'clothes_name', 'clothes_image', 'clothes_size', 'clothes_gender', 'clothes_color', 'clothes_category', 'clothes_type', 'clothes_qty', 'is_faded', 'has_washed', 'has_ironed', 'is_favorite', 'is_scheduled');
             
             if($category != "all"){
                 $res->where('clothes_category',$category);
@@ -142,6 +143,7 @@ class Queries extends Controller
      *                     @OA\Items(type="object",
      *                         @OA\Property(property="id", type="string", example="17963858-9771-11ee-8f4a-321642910r4w"),
      *                         @OA\Property(property="clothes_name", type="string", example="Reebok Black Hatsss"),
+     *                         @OA\Property(property="clothes_image", type="string", example="https://storage.googleapis.com/download/storage/v1/b/wardrobe-26571.firebasestorage.app/o/clothes.png"),
      *                         @OA\Property(property="clothes_size", type="string", example="L"),
      *                         @OA\Property(property="clothes_gender", type="string", example="unisex"),
      *                         @OA\Property(property="clothes_color", type="string", example="black"),
@@ -185,7 +187,7 @@ class Queries extends Controller
         try{
             $user_id = $request->user()->id;
 
-            $res = ClothesModel::select('id', 'clothes_name', 'clothes_size', 'clothes_gender', 'clothes_color', 'clothes_category', 'clothes_type', 'clothes_qty', 'deleted_at')
+            $res = ClothesModel::select('id', 'clothes_name', 'clothes_image', 'clothes_size', 'clothes_gender', 'clothes_color', 'clothes_category', 'clothes_type', 'clothes_qty', 'deleted_at')
                 ->whereNotNull('deleted_at')
                 ->where('created_by',$user_id)
                 ->orderBy('deleted_at', 'desc')
@@ -263,7 +265,7 @@ class Queries extends Controller
         try{
             $user_id = $request->user()->id;
 
-            $res = ClothesModel::select('id', 'clothes_name', 'clothes_category', 'clothes_type')
+            $res = ClothesModel::select('id', 'clothes_name', 'clothes_image', 'clothes_category', 'clothes_type')
                 ->where($ctx, 'like', "%$val%")                
                 ->where('created_by',$user_id)
                 ->whereNot('id',$exc)
@@ -326,6 +328,7 @@ class Queries extends Controller
      *                         @OA\Property(property="id", type="string", example="17963858-9771-11ee-8f4a-321642910r4w"),
      *                         @OA\Property(property="clothes_name", type="string", example="Reebok Black Hatsss"),
      *                         @OA\Property(property="clothes_desc", type="string", nullable=true, example=null),
+     *                         @OA\Property(property="clothes_image", type="string", example="https://storage.googleapis.com/download/storage/v1/b/wardrobe-26571.firebasestorage.app/o/clothes.png"),
      *                         @OA\Property(property="clothes_merk", type="string", example="Reebok"),
      *                         @OA\Property(property="clothes_size", type="string", example="-"),
      *                         @OA\Property(property="clothes_gender", type="string", example="unisex"),

@@ -7,17 +7,40 @@ use Illuminate\Http\Response;
 use Kreait\Firebase\Factory;
 use Illuminate\Support\Facades\Storage;
 use Kreait\Firebase\Messaging\Notification;
+use Dompdf\Dompdf;
+use Dompdf\Options;
+use Dompdf\Canvas\Factory as CanvasFactory;
+use Dompdf\Options as DompdfOptions;
+use Dompdf\Adapter\CPDF;
+use Telegram\Bot\Laravel\Facades\Telegram;
+use Telegram\Bot\FileUpload\InputFile;
 
 // Models
 use App\Models\ClothesModel;
+use App\Models\UserModel;
 use App\Models\ClothesUsedModel;
 use App\Models\WashModel;
 
 // Helpers
 use App\Helpers\Generator;
+use App\Helpers\Validation;
+use App\Helpers\Audit;
+use App\Helpers\Firebase;
+
+// Jobs
+use App\Jobs\ProcessMailer;
 
 class Commands extends Controller
 {
+    private $max_size_file;
+    private $allowed_file_type;
+
+    public function __construct()
+    {
+        $this->max_size_file = 10000000; // 10 Mb
+        $this->allowed_file_type = ['jpg','jpeg','gif','png'];
+    }
+
     /**
      * @OA\DELETE(
      *     path="/api/v1/clothes/destroy/{id}",
@@ -508,11 +531,7 @@ class Commands extends Controller
     public function post_clothes(Request $request)
     {
         try{
-            $factory = (new Factory)->withServiceAccount(base_path('/firebase/...'));
             $user_id = $request->user()->id;
-            $request->merge([
-                'is_favorite' => $request->is_favorite == 'off' ? 0 : 1
-            ]);
 
             $validator = Validation::getValidateClothes($request,'create');
             if ($validator->fails()) {
@@ -551,7 +570,7 @@ class Commands extends Controller
                         } catch (\Exception $e) {
                             return response()->json([
                                 'status' => 'error',
-                                'message' => Generator::getMessageTemplate("unknown_error", null),
+                                'message' => $e->getMessage(),
                             ], Response::HTTP_INTERNAL_SERVER_ERROR);
                         }
                     }
@@ -564,7 +583,7 @@ class Commands extends Controller
 
                 if(!$is_exist){
                     $id = Generator::getUUID();
-                    $res = clothesModel::create([
+                    $res = ClothesModel::create([
                         'id' => $id,                 
                         'clothes_name' => $request->clothes_name, 
                         'clothes_category' => $request->clothes_category, 

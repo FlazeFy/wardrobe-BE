@@ -11,7 +11,7 @@ class Firebase
     public static function init()
     {
         if (!self::$factory) {
-            self::$factory = (new Factory)->withServiceAccount(base_path('/firebase/gudangku-94edc-firebase-adminsdk-we9nr-31d47a729d.json'));
+            self::$factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
         }
     }
 
@@ -19,7 +19,7 @@ class Firebase
         self::init();
         // Firebase Storage instance
         $storage = self::$factory->createStorage();
-        $bucket = $storage->getBucket();
+        $bucket = $storage->getBucket('wardrobe-26571.firebasestorage.app');
         $uploadedFile = fopen($file->getRealPath(), 'r');
         $id = Generator::getUUID();
 

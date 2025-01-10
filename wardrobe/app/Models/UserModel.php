@@ -28,6 +28,14 @@ class UserModel extends Authenticatable
         return $res;
     }
 
+    public static function getSocial($id){
+        $res = UserModel::select('telegram_user_id','telegram_is_valid','email')
+            ->where('id',$id)
+            ->first();
+
+        return $res;
+    }
+
     public static function getRandomWhoHaveClothes($null){
         if($null == 0){
             $res = UserModel::inRandomOrder()

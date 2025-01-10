@@ -768,6 +768,122 @@
                 }
             }
         },
+        "/api/v1/clothes": {
+            "post": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Create clothes",
+                "operationId": "6a7705d55be10eb564e2fce0002fa9ac",
+                "responses": {
+                    "201": {
+                        "description": "clothes created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes created, its called product A"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Data is already exist",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes is already exist"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "{validation_msg}",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "{field validation message}"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/clothes/header/{category}/{order}": {
             "get": {
                 "tags": [
@@ -825,6 +941,10 @@
                                                             "clothes_name": {
                                                                 "type": "string",
                                                                 "example": "Reebok Black Hatsss"
+                                                            },
+                                                            "clothes_image": {
+                                                                "type": "string",
+                                                                "example": "https://storage.googleapis.com/download/storage/v1/b/wardrobe-26571.firebasestorage.app/o/clothes.png"
                                                             },
                                                             "clothes_size": {
                                                                 "type": "string",
@@ -981,6 +1101,10 @@
                                                             "clothes_name": {
                                                                 "type": "string",
                                                                 "example": "Reebok Black Hatsss"
+                                                            },
+                                                            "clothes_image": {
+                                                                "type": "string",
+                                                                "example": "https://storage.googleapis.com/download/storage/v1/b/wardrobe-26571.firebasestorage.app/o/clothes.png"
                                                             },
                                                             "clothes_size": {
                                                                 "type": "string",
@@ -1264,6 +1388,10 @@
                                                                 "type": "string",
                                                                 "example": null,
                                                                 "nullable": true
+                                                            },
+                                                            "clothes_image": {
+                                                                "type": "string",
+                                                                "example": "https://storage.googleapis.com/download/storage/v1/b/wardrobe-26571.firebasestorage.app/o/clothes.png"
                                                             },
                                                             "clothes_merk": {
                                                                 "type": "string",
@@ -3698,6 +3826,39 @@
                         "description": "ID of the user who specific faced the error",
                         "type": "string",
                         "format": "uuid"
+                    }
+                },
+                "type": "object"
+            },
+            "FailedJobs": {
+                "required": [
+                    "id",
+                    "type",
+                    "status",
+                    "payload",
+                    "created_at"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Primary Key",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "Type of the failed jobs on Task Scheduling",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "Status of the failed jobs on Task Scheduling",
+                        "type": "string"
+                    },
+                    "payload": {
+                        "description": "Respond / Payload from the error",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the jobs had failed",
+                        "type": "string",
+                        "format": "date-time"
                     }
                 },
                 "type": "object"

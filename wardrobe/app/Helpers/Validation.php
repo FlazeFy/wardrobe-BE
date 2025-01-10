@@ -11,6 +11,8 @@ use App\Rules\ClothesGender;
 use App\Rules\ClothesMadeFrom;
 use App\Rules\ClothesCategory;
 use App\Rules\ClothesType;
+use App\Rules\UsedContext;
+use App\Rules\DayName;
 
 class Validation
 {
@@ -55,6 +57,32 @@ class Validation
                 'is_favorite' => 'required|boolean',
             ]); 
         } 
+    }
+
+    public static function getValidateClothesUsed($request,$type){
+        if($type == 'create'){
+            return Validator::make($request->all(), [
+                'clothes_note' => 'nullable|string|max:144',
+                'used_context' => ['required', new UsedContext],
+            ]); 
+        } 
+    }
+
+    public static function getValidateSchedule($request,$type){
+        if($type == 'create'){
+            return Validator::make($request->all(), [
+                'is_remind' => 'required|boolean',
+                'schedule_note' => 'nullable|string|max:255',
+                'day' => ['required', new DayName],
+            ]); 
+        } 
+    }
+
+    public static function getValidateFeedback($request){
+        return Validator::make($request->all(), [
+            'feedback_rate' => 'required|numeric|max:5',
+            'feedback_body' => 'required|string|max:144',
+        ]); 
     }
 
     public static function getValidateStats($request,$type){

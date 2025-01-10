@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\AuthApi\Commands as CommandAuthApi;
 use App\Http\Controllers\Api\AuthApi\Queries as QueryAuthApi;
 use App\Http\Controllers\Api\ClothesApi\Commands as CommandClothesApi;
 use App\Http\Controllers\Api\ClothesApi\Queries as QueriesClothesApi;
+use App\Http\Controllers\Api\FeedbackApi\Commands as CommandFeedbackApi;
+use App\Http\Controllers\Api\FeedbackApi\Queries as QueriesFeedbackApi;
 use App\Http\Controllers\Api\DictionaryApi\Queries as QueriesDictionaryApi;
 use App\Http\Controllers\Api\DictionaryApi\Commands as CommandDictionaryApi;
 use App\Http\Controllers\Api\HistoryApi\Queries as QueriesHistoryController;
@@ -38,6 +40,7 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::delete('/destroy_used/{id}', [CommandClothesApi::class, 'hard_delete_clothes_used_by_id']);
     Route::post('/history', [CommandClothesApi::class, 'post_history_clothes']);
     Route::post('/', [CommandClothesApi::class, 'post_clothes']);
+    Route::post('/schedule', [CommandClothesApi::class, 'post_schedule']);
 });
 
 Route::prefix('/v1/stats')->middleware(['auth:sanctum'])->group(function () {
@@ -65,4 +68,9 @@ Route::prefix('/v1/dct')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/{type}', [QueriesDictionaryApi::class, 'get_dct_by_type']);
     Route::post('/', [CommandDictionaryApi::class, 'post_dct']);
     Route::delete('/{id}', [CommandDictionaryApi::class, 'hard_delete_dct_by_id']);
+});
+
+Route::prefix('/v1/feedback')->middleware(['auth:sanctum'])->group(function () {
+    Route::get('/', [QueriesFeedbackApi::class, 'get_all_feedback']);
+    Route::post('/', [CommandFeedbackApi::class, 'post_feedback']);
 });

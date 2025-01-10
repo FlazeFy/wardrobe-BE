@@ -20,6 +20,7 @@ use App\Models\ClothesModel;
 use App\Models\UserModel;
 use App\Models\ClothesUsedModel;
 use App\Models\WashModel;
+use App\Models\ScheduleModel;
 
 // Helpers
 use App\Helpers\Generator;
@@ -225,29 +226,111 @@ class Commands extends Controller
     public function post_history_clothes(Request $request)
     {
         try{
-            $user_id = $request->user()->id;
-
-            $res = ClothesUsedModel::create([
-                'id' => Generator::getUUID(),
-                'clothes_id' => $request->clothes_id,
-                'clothes_note' => $request->clothes_note,
-                'used_context' => $request->used_context,
-                'created_at' => date("Y-m-d H:i:s"),
-                'created_by' => $user_id
-            ]);
-
-            if($res){
-                return response()->json([
-                    'status' => 'success',
-                    'message' => Generator::getMessageTemplate("create", "clothes"),
-                    'data' => $res
-                ], Response::HTTP_CREATED);
-            } else {
+            $validator = Validation::getValidateClothesUsed($request,'create');
+            if ($validator->fails()) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => Generator::getMessageTemplate("unknown_error", null),
-                ], Response::HTTP_INTERNAL_SERVER_ERROR);
-            }   
+                    'message' => $validator->errors()
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            } else {
+                $user_id = $request->user()->id;
+
+                $res = ClothesUsedModel::create([
+                    'id' => Generator::getUUID(),
+                    'clothes_id' => $request->clothes_id,
+                    'clothes_note' => $request->clothes_note,
+                    'used_context' => $request->used_context,
+                    'created_at' => date("Y-m-d H:i:s"),
+                    'created_by' => $user_id
+                ]);
+
+                if($res){
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => Generator::getMessageTemplate("create", "clothes"),
+                        'data' => $res
+                    ], Response::HTTP_CREATED);
+                } else {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => Generator::getMessageTemplate("unknown_error", null),
+                    ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                }  
+            } 
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @OA\POST(
+     *     path="/api/v1/clothes/schedule",
+     *     summary="Add schedule",
+     *     tags={"Clothes"},
+     *     @OA\Response(
+     *         response=201,
+     *         description="clothes created",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="schedule created")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function post_schedule(Request $request)
+    {
+        try{
+            $validator = Validation::getValidateSchedule($request,'create');
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $validator->errors()
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            } else {
+                $user_id = $request->user()->id;
+
+                $res = ScheduleModel::create([
+                    'id' => Generator::getUUID(),
+                    'clothes_id' => $request->clothes_id,
+                    'day' => $request->day,
+                    'schedule_note' => $request->schedule_note,
+                    'is_remind' => $request->is_remind,
+                    'created_at' => date("Y-m-d H:i:s"),
+                    'created_by' => $user_id
+                ]);
+
+                if($res){
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => Generator::getMessageTemplate("create", "schedule"),
+                        'data' => $res
+                    ], Response::HTTP_CREATED);
+                } else {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => Generator::getMessageTemplate("unknown_error", null),
+                    ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                }  
+            } 
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',

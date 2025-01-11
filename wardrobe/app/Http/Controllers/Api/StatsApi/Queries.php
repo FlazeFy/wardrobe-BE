@@ -363,6 +363,120 @@ class Queries extends Controller
         }
     }
 
+     /**
+     * @OA\GET(
+     *     path="/api/v1/stats/clothes/monthly/created_buyed/{year}",
+     *     summary="Get Clothes Monthly Created Buyed",
+     *     description="This request is used to get yearly stats activity. This request is using MySql database, have a protected routes",
+     *     tags={"Stats"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="year",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="year of created date and buy at",
+     *         example="2024",
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="stats fetched",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="stats fetched"),
+     *             @OA\Property(property="data", type="array",
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="context", type="string", example="January"),
+     *                      @OA\Property(property="total_created", type="integer", example=2),
+     *                      @OA\Property(property="total_buyed", type="integer", example=1)
+     *                  )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="stats failed to fetched",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="stats not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function get_stats_clothes_monthly_created_buyed(Request $request, $year) {
+        try {
+            $user_id = $request->user()->id;
+            $date_now = new DateTime();
+            $list_date = [];
+
+            $months = [
+                '01' => 'January', '02' => 'February', '03' => 'March', '04' => 'April', '05' => 'May', '06' => 'June', '07' => 'July', '08' => 'August', '09' => 'September', '10' => 'October', '11' => 'November', '12' => 'December'
+            ];
+    
+            $res_created = ClothesModel::selectRaw("COUNT(1) as total, MONTH(created_at) as context")
+                ->whereRaw("YEAR(created_at) = ?", [$year])
+                ->where('created_by', $user_id)
+                ->groupByRaw("MONTH(created_at)")
+                ->get();
+    
+            $res_buyed = ClothesModel::selectRaw("COUNT(1) as total, MONTH(clothes_buy_at) as context")
+                ->whereRaw("YEAR(clothes_buy_at) = ?", [$year])
+                ->where('created_by', $user_id)
+                ->whereNotNull('clothes_buy_at')
+                ->groupByRaw("MONTH(clothes_buy_at)")
+                ->get();
+    
+            if ($res_created->isNotEmpty() || $res_buyed->isNotEmpty()) {
+                $final_res = [];
+    
+                foreach ($months as $month_number => $month_name) {
+                    $found_created = $res_created->firstWhere('context', $month_number);
+                    $found_buyed = $res_buyed->firstWhere('context', $month_number);
+    
+                    $final_res[] = [
+                        'context' => $month_name,  
+                        'total_created' => $found_created ? $found_created->total : 0,
+                        'total_buyed' => $found_buyed ? $found_buyed->total : 0,
+                    ];
+                }
+    
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                    'data' => $final_res,
+                ], Response::HTTP_OK);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("not_found", 'stats'),
+                    'data' => $list_date
+                ], Response::HTTP_NOT_FOUND);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+
     /**
      * @OA\GET(
      *     path="/api/v1/stats/calendar/{month}/{year}",
@@ -462,7 +576,7 @@ class Queries extends Controller
                     'message' => 'month is not valid'
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             } else {
-                $query_select = "clothes.id, clothes_name, clothes_category, clothes_type";
+                $query_select = "clothes.id, clothes_name, clothes_category, clothes_type, clothes_image";
                 $user_id = $request->user()->id;
 
                 $startDate = new DateTime("$year-$month-01");

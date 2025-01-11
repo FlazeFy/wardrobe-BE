@@ -120,4 +120,45 @@ class StatsTest extends TestCase
         Audit::auditRecordText("Test - Get All Stats", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Get All Stats", "TC-XXX", 'TC-XXX test_get_all_stats', json_encode($data));
     }
+
+    public function test_get_stats_clothes_monthly_created_buyed(): void
+    {
+        // Exec
+        $year = "2025";
+
+        $token = $this->login_trait("user");
+        $response = $this->httpClient->get("clothes/monthly/created_buyed/$year", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertArrayHasKey('data', $data);
+
+        foreach ($data['data'] as $dt) {
+            $check_object = ['context','total_created','total_buyed'];
+            foreach ($check_object as $col) {
+                $this->assertArrayHasKey($col, $dt);
+                $this->assertNotNull($dt[$col]);
+            }
+
+            $this->assertIsString($dt['context']);
+
+            $check_not_null_int = ['total_created','total_buyed'];
+            foreach ($check_not_null_int as $col) {
+                $this->assertIsInt($dt['total_created']);
+                $this->assertGreaterThanOrEqual(0, $dt['total_buyed']);
+            }
+        }
+
+        Audit::auditRecordText("Test - Get Clothes Monthly Created Buyed", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Get Clothes Monthly Created Buyed", "TC-XXX", 'TC-XXX test_get_stats_clothes_monthly_created_buyed', json_encode($data));
+    }
 }

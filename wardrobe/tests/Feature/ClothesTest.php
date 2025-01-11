@@ -499,4 +499,63 @@ class ClothesTest extends TestCase
         Audit::auditRecordText("Test - Get Clothes Detail By Id", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Get Clothes Detail By Id", "TC-XXX", 'TC-XXX test_get_clothes_detail_by_id', json_encode($data));
     }
+
+    public function test_post_history_clothes(): void
+    {
+        // Exec
+        $token = $this->login_trait("user");
+        $body = [
+            'clothes_id' => '10bacb64-e819-11ed-a05b-0242ac120003',
+            'clothes_note' => 'test',
+            'used_context' => 'Work',
+        ];
+        $response = $this->httpClient->post("history", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ],
+            'json' => $body
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertEquals('clothes created',$data['message']);
+
+        Audit::auditRecordText("Test - Post History Clothes", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Post History Clothes", "TC-XXX", 'TC-XXX test_post_history_clothes', json_encode($data));
+    }
+
+    public function test_post_schedule(): void
+    {
+        // Exec
+        $token = $this->login_trait("user");
+        $body = [
+            'clothes_id' => '10bacb64-e819-11ed-a05b-0242ac120003',
+            'day' => 'Sun',
+            'schedule_note' => 'test',
+            'is_remind' => 1,
+        ];
+        $response = $this->httpClient->post("schedule", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ],
+            'json' => $body
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertEquals('schedule created',$data['message']);
+
+        Audit::auditRecordText("Test - Post Schedule", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Post Schedule", "TC-XXX", 'TC-XXX test_post_schedule', json_encode($data));
+    }
 }

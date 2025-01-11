@@ -18,7 +18,7 @@ class ClothesMadeFrom implements Rule
 
     public function passes($attribute, $value)
     {
-        $type = ['cotton','wool','silk','linen','polyester','denim','leather','nylon','rayon','synthetic'];
+        $type = ['cotton','wool','silk','linen','polyester','denim','leather','nylon','rayon','synthetic','cloth'];
 
         foreach ($type as $format) {
             if ($format === $value) {

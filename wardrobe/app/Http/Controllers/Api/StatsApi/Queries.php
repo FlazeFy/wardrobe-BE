@@ -204,6 +204,7 @@ class Queries extends Controller
             if ($res) {
                 $total = FeedbackModel::count();
                 $average = FeedbackModel::avg('feedback_rate');
+                $average = ceil($average * 100) / 100;
 
                 return response()->json([
                     'status' => 'success',

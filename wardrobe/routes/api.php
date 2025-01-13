@@ -11,10 +11,12 @@ use App\Http\Controllers\Api\FeedbackApi\Commands as CommandFeedbackApi;
 use App\Http\Controllers\Api\FeedbackApi\Queries as QueriesFeedbackApi;
 use App\Http\Controllers\Api\DictionaryApi\Queries as QueriesDictionaryApi;
 use App\Http\Controllers\Api\DictionaryApi\Commands as CommandDictionaryApi;
-use App\Http\Controllers\Api\HistoryApi\Queries as QueriesHistoryController;
+use App\Http\Controllers\Api\HistoryApi\Queries as QueriesHistoryApi;
+use App\Http\Controllers\Api\HistoryApi\Commands as CommandHistoryApi;
 use App\Http\Controllers\Api\ErrorApi\Queries as QueriesErrorController;
 use App\Http\Controllers\Api\StatsApi\Commands as CommandStatsApi;
 use App\Http\Controllers\Api\StatsApi\Queries as QueriesStatsApi;
+use App\Http\Controllers\Api\UserApi\Queries as QueriesUserApi;
 
 ######################### Public Route #########################
 
@@ -34,6 +36,7 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/wash_checkpoint/{clothes_id}', [QueriesClothesApi::class, 'get_wash_checkpoint_by_clothes_id']);
     Route::get('/trash', [QueriesClothesApi::class, 'get_deleted_clothes']);
     Route::put('/update_checkpoint/{id}', [CommandClothesApi::class, 'update_wash_by_clothes_id']);
+    Route::put('/recover/{id}', [CommandClothesApi::class, 'recover_clothes_by_id']);
     Route::delete('/destroy/{id}', [CommandClothesApi::class, 'hard_delete_clothes_by_id']);
     Route::delete('/destroy_wash/{id}', [CommandClothesApi::class, 'hard_delete_wash_by_id']);
     Route::delete('/delete/{id}', [CommandClothesApi::class, 'soft_delete_clothes_by_id']);
@@ -61,8 +64,8 @@ Route::prefix('/v1/error')->middleware(['auth:sanctum'])->group(function () {
 });
 
 Route::prefix('/v1/history')->middleware(['auth:sanctum'])->group(function () {
-    Route::get('/', [QueriesHistoryController::class, 'get_all_history']);
-    Route::delete('/destroy/{id}', [CommandsHistoryController::class, 'hard_delete_history_by_id']);
+    Route::get('/', [QueriesHistoryApi::class, 'get_all_history']);
+    Route::delete('/destroy/{id}', [CommandHistoryApi::class, 'hard_delete_history_by_id']);
 });
 
 Route::prefix('/v1/dct')->middleware(['auth:sanctum'])->group(function () {
@@ -74,4 +77,8 @@ Route::prefix('/v1/dct')->middleware(['auth:sanctum'])->group(function () {
 Route::prefix('/v1/feedback')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/', [QueriesFeedbackApi::class, 'get_all_feedback']);
     Route::post('/', [CommandFeedbackApi::class, 'post_feedback']);
+});
+
+Route::prefix('/v1/user')->middleware(['auth:sanctum'])->group(function () {
+    Route::get('/my', [QueriesUserApi::class, 'get_my_profile']);
 });

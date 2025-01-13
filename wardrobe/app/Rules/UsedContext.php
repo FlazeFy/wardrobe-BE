@@ -18,7 +18,7 @@ class UsedContext implements Rule
 
     public function passes($attribute, $value)
     {
-        $type = ['Worship','Shopping','Work','School','Campus','Sport'];
+        $type = ['Worship','Shopping','Work','School','Campus','Sport','Party'];
 
         foreach ($type as $format) {
             if ($format === $value) {

@@ -19,6 +19,7 @@ class FeedbackModel extends Model
         $res = FeedbackModel::selectRaw('CAST(feedback_rate as UNSIGNED) as feedback_rate, feedback_body, feedback.created_at, username')
             ->join('users','users.id','=','feedback.created_by')
             ->orderby('feedback_rate','DESC')
+            ->groupby('username')
             ->limit(4)
             ->get();
 

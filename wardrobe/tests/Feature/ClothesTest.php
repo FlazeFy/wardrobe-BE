@@ -314,6 +314,30 @@ class ClothesTest extends TestCase
         Audit::auditRecordSheet("Test - Soft Delete Clothes By ID", "TC-XXX", 'TC-XXX test_soft_delete_clothes_by_id', json_encode($data));
     }
 
+    public function test_recover_clothes_by_id(): void
+    {
+        // Exec
+        $token = $this->login_trait("user");
+        $clothes_id = "17963858-9771-11ee-8f4a-321642910r4w";
+        $response = $this->httpClient->put("recover/$clothes_id", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertEquals('clothes recovered',$data['message']);
+
+        Audit::auditRecordText("Test - Recover Clothes By ID", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Recover Clothes By ID", "TC-XXX", 'TC-XXX test_recover_clothes_by_id', json_encode($data));
+    }
+
     public function test_hard_delete_clothes_by_id(): void
     {
         // Exec

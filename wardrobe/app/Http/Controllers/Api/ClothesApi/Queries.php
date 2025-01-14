@@ -7,6 +7,7 @@ use Illuminate\Http\Response;
 
 // Models
 use App\Models\ClothesModel;
+use App\Models\ScheduleModel;
 use App\Models\ClothesUsedModel;
 use App\Models\WashModel;
 
@@ -670,7 +671,15 @@ class Queries extends Controller
      *                         @OA\Property(property="created_at", type="string", example="2024-05-17 04:09:40"),
      *                         @OA\Property(property="finished_at", type="string", nullable=true, example=null)
      *                     )
-     *                 )
+     *                 ),
+     *                 @OA\Property(property="schedule", type="array",
+     *                     @OA\Items(type="object",
+     *                         @OA\Property(property="day", type="string", example="Sun"),
+     *                         @OA\Property(property="is_remind", type="integer", example=1),
+     *                         @OA\Property(property="schedule_note", type="string", example="Shopping"),
+     *                         @OA\Property(property="created_at", type="string", example="2024-05-14 02:32:07")
+     *                     )
+     *                 ),
      *             )
      *         )
      *     ),
@@ -725,6 +734,11 @@ class Queries extends Controller
                     ->where('created_by',$user_id)
                     ->get();
 
+                $res_schedule = ScheduleModel::select('id','day','schedule_note','created_at','is_remind')
+                    ->where('clothes_id',$clothes_id)
+                    ->where('created_by',$user_id)
+                    ->get();
+
                 $total_used = count($res_used);
 
                 return response()->json([
@@ -735,7 +749,8 @@ class Queries extends Controller
                         'used_history' =>  $total_used > 0 ? $res_used : null,
                         'total_used_history' => $total_used,
                         'last_used_history' => $last_used ? $last_used->created_at : null,
-                        'wash_history' => count($res_wash) > 0 ? $res_wash : null
+                        'wash_history' => count($res_wash) > 0 ? $res_wash : null,
+                        'schedule' => count($res_schedule) > 0 ? $res_schedule : null
                     ]
                 ], Response::HTTP_OK);
             } else {

@@ -307,29 +307,40 @@ class Commands extends Controller
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             } else {
                 $user_id = $request->user()->id;
+                $clothes_id = $request->clothes_id;
+                $day = $request->day;
 
-                $res = ScheduleModel::create([
-                    'id' => Generator::getUUID(),
-                    'clothes_id' => $request->clothes_id,
-                    'day' => $request->day,
-                    'schedule_note' => $request->schedule_note,
-                    'is_remind' => $request->is_remind,
-                    'created_at' => date("Y-m-d H:i:s"),
-                    'created_by' => $user_id
-                ]);
+                $check_availability = ScheduleModel::checkDayAvailability($day, $clothes_id, $user_id);
 
-                if($res){
-                    return response()->json([
-                        'status' => 'success',
-                        'message' => Generator::getMessageTemplate("create", "schedule"),
-                        'data' => $res
-                    ], Response::HTTP_CREATED);
+                if($check_availability){
+                    $res = ScheduleModel::create([
+                        'id' => Generator::getUUID(),
+                        'clothes_id' => $clothes_id,
+                        'day' => $day,
+                        'schedule_note' => $request->schedule_note,
+                        'is_remind' => $request->is_remind,
+                        'created_at' => date("Y-m-d H:i:s"),
+                        'created_by' => $user_id
+                    ]);
+    
+                    if($res){
+                        return response()->json([
+                            'status' => 'success',
+                            'message' => Generator::getMessageTemplate("create", "schedule"),
+                            'data' => $res
+                        ], Response::HTTP_CREATED);
+                    } else {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => Generator::getMessageTemplate("unknown_error", null),
+                        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                    }  
                 } else {
                     return response()->json([
-                        'status' => 'error',
-                        'message' => Generator::getMessageTemplate("unknown_error", null),
-                    ], Response::HTTP_INTERNAL_SERVER_ERROR);
-                }  
+                        'status' => 'failed',
+                        'message' => Generator::getMessageTemplate("conflict", "day"),
+                    ], Response::HTTP_CONFLICT);
+                }
             } 
         } catch(\Exception $e) {
             return response()->json([
@@ -931,6 +942,81 @@ class Commands extends Controller
                 return response()->json([
                     'status' => 'failed',
                     'message' => Generator::getMessageTemplate("not_found", 'clothes'),
+                ], Response::HTTP_NOT_FOUND);
+            }
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @OA\DELETE(
+     *     path="/api/v1/clothes/destroy_schedule/{id}",
+     *     summary="Permentally delete schedule by id",
+     *     tags={"Clothes"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="schedule ID",
+     *         example="e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9",
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="schedule permentally deleted",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="schedule permentally deleted")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="schedule not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="schedule not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function hard_delete_schedule_by_id(Request $request, $id)
+    {
+        try{
+            $user_id = $request->user()->id;
+
+            $rows = ScheduleModel::where('id', $id)
+                ->where('created_by', $user_id)
+                ->delete();
+
+            if($rows > 0){
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("permentally delete", 'schedule'),
+                ], Response::HTTP_OK);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("not_found", 'schedule'),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {

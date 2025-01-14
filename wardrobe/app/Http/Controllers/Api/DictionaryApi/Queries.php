@@ -7,6 +7,7 @@ use Illuminate\Http\Response;
 
 // Models
 use App\Models\DictionaryModel;
+use App\Models\ClothesModel;
 
 // Helpers
 use App\Helpers\Generator;
@@ -93,6 +94,83 @@ class Queries extends Controller
                 return response()->json([
                     'status' => 'failed',
                     'message' => Generator::getMessageTemplate("not_found", 'dictionary'),
+                ], Response::HTTP_NOT_FOUND);
+            }
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @OA\GET(
+     *     path="/api/v1/dct/clothes/category_type",
+     *     summary="Show existed clothes category and clothes type",
+     *     tags={"Dictionary"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="clothes category type found",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="clothes category type fetched"),
+     *             @OA\Property(property="data", type="array",
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="clothes_category", type="string", example="head"),
+     *                      @OA\Property(property="clothes_type", type="string", example="hat"),
+     *                      @OA\Property(property="total", type="string", example=4),
+     *                  )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="clothes category type not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="clothes category type not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function get_category_type_clothes(Request $request)
+    {
+        try{
+            $user_id = $request->user()->id;
+
+            $res = ClothesModel::selectRaw('clothes_category,clothes_type,COUNT(1) as total')
+                ->where('created_by',$user_id)
+                ->groupby('clothes_category')
+                ->groupby('clothes_type')
+                ->get();
+                
+            if ($res) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("fetch", "clothes category type"),
+                    'data' => $res
+                ], Response::HTTP_OK);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("not_found", "clothes category type"),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {

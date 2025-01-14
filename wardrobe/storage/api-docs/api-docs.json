@@ -1063,6 +1063,109 @@
                 ]
             }
         },
+        "/api/v1/clothes/destroy_schedule/{id}": {
+            "delete": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Permentally delete schedule by id",
+                "operationId": "00fdd9dbd5d743962258fab7d3666b8b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "schedule ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "schedule permentally deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "schedule permentally deleted"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "schedule not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "schedule not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/clothes/header/{category}/{order}": {
             "get": {
                 "tags": [
@@ -2182,6 +2285,30 @@
                                                         },
                                                         "type": "object"
                                                     }
+                                                },
+                                                "schedule": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "day": {
+                                                                "type": "string",
+                                                                "example": "Sun"
+                                                            },
+                                                            "is_remind": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "schedule_note": {
+                                                                "type": "string",
+                                                                "example": "Shopping"
+                                                            },
+                                                            "created_at": {
+                                                                "type": "string",
+                                                                "example": "2024-05-14 02:32:07"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
                                                 }
                                             },
                                             "type": "object"
@@ -2735,6 +2862,117 @@
                                         "message": {
                                             "type": "string",
                                             "example": "dictionary not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/dct/clothes/category_type": {
+            "get": {
+                "tags": [
+                    "Dictionary"
+                ],
+                "summary": "Show existed clothes category and clothes type",
+                "operationId": "71f36cb325267706f4188af6a6bb295e",
+                "responses": {
+                    "200": {
+                        "description": "clothes category type found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes category type fetched"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "clothes_category": {
+                                                        "type": "string",
+                                                        "example": "head"
+                                                    },
+                                                    "clothes_type": {
+                                                        "type": "string",
+                                                        "example": "hat"
+                                                    },
+                                                    "total": {
+                                                        "type": "string",
+                                                        "example": 4
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "clothes category type not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes category type not found"
                                         }
                                     },
                                     "type": "object"

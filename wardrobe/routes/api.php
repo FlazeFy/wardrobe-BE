@@ -41,6 +41,7 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::delete('/destroy_wash/{id}', [CommandClothesApi::class, 'hard_delete_wash_by_id']);
     Route::delete('/delete/{id}', [CommandClothesApi::class, 'soft_delete_clothes_by_id']);
     Route::delete('/destroy_used/{id}', [CommandClothesApi::class, 'hard_delete_clothes_used_by_id']);
+    Route::delete('/destroy_schedule/{id}', [CommandClothesApi::class, 'hard_delete_schedule_by_id']);
     Route::post('/history', [CommandClothesApi::class, 'post_history_clothes']);
     Route::post('/', [CommandClothesApi::class, 'post_clothes']);
     Route::post('/schedule', [CommandClothesApi::class, 'post_schedule']);
@@ -70,6 +71,7 @@ Route::prefix('/v1/history')->middleware(['auth:sanctum'])->group(function () {
 
 Route::prefix('/v1/dct')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/{type}', [QueriesDictionaryApi::class, 'get_dct_by_type']);
+    Route::get('/clothes/category_type', [QueriesDictionaryApi::class, 'get_category_type_clothes']);
     Route::post('/', [CommandDictionaryApi::class, 'post_dct']);
     Route::delete('/{id}', [CommandDictionaryApi::class, 'hard_delete_dct_by_id']);
 });

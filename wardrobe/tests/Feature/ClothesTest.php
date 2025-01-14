@@ -314,6 +314,30 @@ class ClothesTest extends TestCase
         Audit::auditRecordSheet("Test - Soft Delete Clothes By ID", "TC-XXX", 'TC-XXX test_soft_delete_clothes_by_id', json_encode($data));
     }
 
+    public function test_hard_delete_schedule_by_id(): void
+    {
+        // Exec
+        $token = $this->login_trait("user");
+        $clothes_id = "27dbf1e0-a9e5-11ee-aa95-3216422210e8";
+        $response = $this->httpClient->delete("destroy_schedule/$clothes_id", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertEquals('schedule permentally deleted',$data['message']);
+
+        Audit::auditRecordText("Test - Hard Delete Schedule By ID", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Hard Delete Schedule By ID", "TC-XXX", 'TC-XXX test_hard_delete_schedule_by_id', json_encode($data));
+    }
+
     public function test_recover_clothes_by_id(): void
     {
         // Exec

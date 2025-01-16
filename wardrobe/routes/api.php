@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\ErrorApi\Queries as QueriesErrorController;
 use App\Http\Controllers\Api\StatsApi\Commands as CommandStatsApi;
 use App\Http\Controllers\Api\StatsApi\Queries as QueriesStatsApi;
 use App\Http\Controllers\Api\UserApi\Queries as QueriesUserApi;
+use App\Http\Controllers\Api\ChatApi\Commands as CommandChatApi;
 
 ######################### Public Route #########################
 
@@ -45,6 +46,7 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::post('/history', [CommandClothesApi::class, 'post_history_clothes']);
     Route::post('/', [CommandClothesApi::class, 'post_clothes']);
     Route::post('/schedule', [CommandClothesApi::class, 'post_schedule']);
+    Route::post('/generate/outfit', [CommandClothesApi::class, 'post_generated_outfit']);
 });
 
 Route::prefix('/v1/stats')->middleware(['auth:sanctum'])->group(function () {
@@ -58,6 +60,10 @@ Route::prefix('/v1/stats')->middleware(['auth:sanctum'])->group(function () {
 Route::prefix('/v1/stats')->group(function () {
     Route::get('/all', [QueriesStatsApi::class, 'get_all_stats']);
     Route::get('/feedback/top', [QueriesStatsApi::class, 'get_top_feedback']);
+});
+
+Route::prefix('/v1/chat')->middleware(['auth:sanctum'])->group(function () {
+    Route::post('/', [CommandChatApi::class, 'post_chat']);
 });
 
 Route::prefix('/v1/error')->middleware(['auth:sanctum'])->group(function () {

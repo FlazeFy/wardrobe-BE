@@ -606,4 +606,55 @@ class ClothesTest extends TestCase
         Audit::auditRecordText("Test - Post Schedule", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Post Schedule", "TC-XXX", 'TC-XXX test_post_schedule', json_encode($data));
     }
+
+    public function test_post_generated_outfit(): void
+    {
+        // Exec
+        $token = $this->login_trait("user");
+        $body = [
+            'clothes_type' => 'hat'
+        ];
+        $response = $this->httpClient->post("generate/outfit", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ],
+            'json' => $body
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertArrayHasKey('data', $data);
+
+        foreach ($data['data'] as $dt) {
+            $check_object = ['clothes_name','clothes_color','clothes_category','clothes_type','clothes_merk','clothes_image','last_used','total_used'];
+            foreach ($check_object as $col) {
+                $this->assertArrayHasKey($col, $dt);
+            }
+
+            $check_not_null_str = ['clothes_name','clothes_color','clothes_category','clothes_type'];
+            foreach ($check_not_null_str as $col) {
+                $this->assertNotNull($dt[$col]);
+                $this->assertIsString($dt[$col]);
+            }
+
+            $check_nullable_str = ['clothes_merk','clothes_image','last_used'];
+            foreach ($check_nullable_str as $col) {
+                if(!is_null($dt[$col])){
+                    $this->assertIsString($dt[$col]);
+                }
+            }
+
+            $this->assertNotNull($dt['total_used']);
+            $this->assertIsInt($dt['total_used']);
+            $this->assertGreaterThanOrEqual(0, $dt['total_used']);
+        }
+
+        Audit::auditRecordText("Test - Post Generated Outfit", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Post Generated Outfit", "TC-XXX", 'TC-XXX test_post_generated_outfit', json_encode($data));
+    }
 }

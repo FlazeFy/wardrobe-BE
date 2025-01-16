@@ -1026,4 +1026,99 @@ class Commands extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * @OA\GET(
+     *     path="/api/v1/clothes/generate/outfit",
+     *     summary="Show clothes used history",
+     *     tags={"Clothes"},
+     *     @OA\Response(
+     *         response=201,
+     *         description="outfit generated",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="outfit generated"),
+     *             @OA\Property(property="data", type="array",
+     *                     @OA\Items(type="object",
+     *                          @OA\Property(property="clothes_name", type="string", example="Short Sleeves Oversized"),
+     *                          @OA\Property(property="clothes_type", type="string", example="Hat"),
+     *                          @OA\Property(property="clothes_category", type="string", example="head"),
+     *                          @OA\Property(property="clothes_merk", type="string", example="Nike"),
+     *                          @OA\Property(property="clothes_made_from", type="string", example="Cotton"),
+     *                          @OA\Property(property="clothes_color", type="string", example="blue"),
+     *                          @OA\Property(property="clothes_image", type="string", example="https://image.png"),
+     *                          @OA\Property(property="last_used", type="string", example="2024-04-10 22:10:56"),
+     *                          @OA\Property(property="total_used", type="integer", example="2"),
+     *                      )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="outfit not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="outfit not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function post_generated_outfit(Request $request)
+    {
+        try{
+            $user_id = $request->user()->id;
+            $type = $request->clothes_type;
+
+            $clothes = ClothesModel::selectRaw('clothes_name,clothes_category,clothes_type,clothes_merk,clothes_made_from,clothes_color,clothes_image,
+                MAX(clothes_used.created_at) as last_used, CAST(SUM(CASE WHEN clothes_used.id IS NOT NULL THEN 1 ELSE 0 END) as UNSIGNED) as total_used')
+                ->leftjoin('clothes_used','clothes_used.clothes_id','=','clothes.id');
+
+            if(strpos($type, ',')){
+                $dcts = explode(",", $type);
+                foreach ($dcts as $dt) {
+                    $clothes = $clothes->orwhere('clothes_type',$dt); 
+                }
+            } else {
+                $clothes = $clothes->where('clothes_type',$type); 
+            }
+
+            $res = $clothes->where('has_washed',1)
+                ->groupby('clothes_type')
+                ->get();
+
+            if(count($res) > 0){
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("generate", 'outfit'),
+                    'data' => $res
+                ], Response::HTTP_CREATED);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("not_found", 'outfit'),
+                ], Response::HTTP_NOT_FOUND);
+            }
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

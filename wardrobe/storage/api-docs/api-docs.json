@@ -1166,6 +1166,141 @@
                 }
             }
         },
+        "/api/v1/clothes/generate/outfit": {
+            "get": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Show clothes used history",
+                "operationId": "90aec27a13929aa40782787b9e543038",
+                "responses": {
+                    "201": {
+                        "description": "outfit generated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit generated"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "clothes_name": {
+                                                        "type": "string",
+                                                        "example": "Short Sleeves Oversized"
+                                                    },
+                                                    "clothes_type": {
+                                                        "type": "string",
+                                                        "example": "Hat"
+                                                    },
+                                                    "clothes_category": {
+                                                        "type": "string",
+                                                        "example": "head"
+                                                    },
+                                                    "clothes_merk": {
+                                                        "type": "string",
+                                                        "example": "Nike"
+                                                    },
+                                                    "clothes_made_from": {
+                                                        "type": "string",
+                                                        "example": "Cotton"
+                                                    },
+                                                    "clothes_color": {
+                                                        "type": "string",
+                                                        "example": "blue"
+                                                    },
+                                                    "clothes_image": {
+                                                        "type": "string",
+                                                        "example": "https://image.png"
+                                                    },
+                                                    "last_used": {
+                                                        "type": "string",
+                                                        "example": "2024-04-10 22:10:56"
+                                                    },
+                                                    "total_used": {
+                                                        "type": "integer",
+                                                        "example": "2"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "outfit not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/clothes/header/{category}/{order}": {
             "get": {
                 "tags": [

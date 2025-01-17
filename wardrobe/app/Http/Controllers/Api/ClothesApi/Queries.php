@@ -10,6 +10,8 @@ use App\Models\ClothesModel;
 use App\Models\ScheduleModel;
 use App\Models\ClothesUsedModel;
 use App\Models\WashModel;
+use App\Models\OutfitModel;
+use App\Models\OutfitRelModel;
 
 // Helpers
 use App\Helpers\Generator;
@@ -665,7 +667,7 @@ class Queries extends Controller
      *                             @OA\Items(type="object",
      *                                 @OA\Property(property="id", type="string", example="1"),
      *                                 @OA\Property(property="checkpoint_name", type="string", example="Rendam"),
-     *                                 @OA\Property(property="is_finished", type="boolean", example=false)
+     *                                 @OA\Property(property="is_finished", type="integer", example=0)
      *                             )
      *                         ),
      *                         @OA\Property(property="created_at", type="string", example="2024-05-17 04:09:40"),
@@ -794,7 +796,7 @@ class Queries extends Controller
      *                          @OA\Items(type="object",
      *                              @OA\Property(property="id", type="string", example="1"),
      *                              @OA\Property(property="checkpoint_name", type="string", example="Rendam"),
-     *                              @OA\Property(property="is_finished", type="boolean", example=false),
+     *                              @OA\Property(property="is_finished", type="integer", example=0),
      *                          )
      *                      )
      *                  )
@@ -847,6 +849,199 @@ class Queries extends Controller
                 return response()->json([
                     'status' => 'failed',
                     'message' => Generator::getMessageTemplate("not_found", "wash checkpoint"),
+                ], Response::HTTP_NOT_FOUND);
+            }
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @OA\GET(
+     *     path="/api/v1/clothes/outfit",
+     *     summary="Show all outfit",
+     *     tags={"Clothes"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="outfit found",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="outfit fetched"),
+     *             @OA\Property(property="data", type="array",
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="id", type="string", example="05d6fe1d-9041-5673-044b-4d2e7f6f0090"),
+     *                      @OA\Property(property="outfit_name", type="string", example="Outfit Generated 17-Jan-2025 10:28"),
+     *                      @OA\Property(property="outfit_note", type="string", example="Test 123"),
+     *                      @OA\Property(property="is_favorite", type="integer", example=1),
+     *                      @OA\Property(property="total_used", type="integer", example=2),
+     *                      @OA\Property(property="clothes", type="array",
+     *                          @OA\Items(type="object",
+     *                              @OA\Property(property="id", type="string", example="05d6fe1d-9041-5673-044b-4d2e7f6f0090"),
+     *                              @OA\Property(property="clothes_name", type="string", example="shirt A"),
+     *                              @OA\Property(property="clothes_type", type="string", example="hat"),
+     *                              @OA\Property(property="clothes_merk", type="string", example="nike"),
+     *                              @OA\Property(property="clothes_image", type="string", example="https://storage.googleapis.com"),
+     *                              @OA\Property(property="clothes_color", type="string", example="black"),
+     *                              @OA\Property(property="has_washed", type="integer", example=0),
+     *                          )
+     *                      )
+     *                  )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="outfit not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="outfit not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function get_all_outfit(Request $request)
+    {
+        try{
+            $user_id = $request->user()->id;
+            $limit = $request->limit ?? 8;
+
+            $res = OutfitModel::selectRaw('outfit.id, outfit_name, outfit_note, is_favorite, CAST(SUM(CASE WHEN outfit_used.id IS NOT NULL THEN 1 ELSE 0 END) as UNSIGNED) as total_used')
+                ->leftjoin('outfit_used','outfit_used.outfit_id','=','outfit.id')
+                ->orderby('total_used','desc')
+                ->orderby('outfit.created_at','desc')
+                ->groupby('outfit.id')
+                ->paginate($limit);
+                
+            if ($res->count() > 0) {                
+                $data = $res->getCollection()->map(function ($dt) {
+                    $clothes = OutfitRelModel::select('clothes.id','clothes_name', 'clothes_type', 'clothes_merk', 'clothes_image', 'has_washed', 'clothes_color')
+                        ->join('clothes', 'clothes.id', '=', 'outfit_relation.clothes_id')
+                        ->where('outfit_id', $dt->id)
+                        ->get();
+            
+                    $dt->clothes = $clothes;
+                    return $dt;
+                });
+            
+                $res->setCollection($data);
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("fetch", "outfit"),
+                    'data' => $res
+                ], Response::HTTP_OK);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("not_found", "outfit"),
+                ], Response::HTTP_NOT_FOUND);
+            }
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @OA\GET(
+     *     path="/api/v1/clothes/outfit/last",
+     *     summary="Show last outfit",
+     *     tags={"Clothes"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="outfit found",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="outfit fetched"),
+     *             @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="id", type="string", example="05d6fe1d-9041-5673-044b-4d2e7f6f0090"),
+     *                  @OA\Property(property="outfit_name", type="string", example="Outfit Generated 17-Jan-2025 10:28"),
+     *                  @OA\Property(property="is_favorite", type="integer", example=1),
+     *                  @OA\Property(property="total_used", type="integer", example=2),
+     *                  @OA\Property(property="clothes", type="array",
+     *                      @OA\Items(type="object",
+     *                          @OA\Property(property="clothes_name", type="string", example="shirt A"),
+     *                          @OA\Property(property="clothes_type", type="string", example="hat"),
+     *                          @OA\Property(property="clothes_image", type="string", example="https://storage.googleapis.com"),
+     *                      )
+     *                  )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="outfit not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="outfit not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function get_last_outfit(Request $request)
+    {
+        try { 
+            $user_id = $request->user()->id;
+
+            $res = OutfitModel::selectRaw('outfit.id, outfit_name, is_favorite, CAST(SUM(CASE WHEN outfit_used.id IS NOT NULL THEN 1 ELSE 0 END) as UNSIGNED) as total_used')
+                ->leftjoin('outfit_used','outfit_used.outfit_id','=','outfit.id')
+                ->orderby('outfit_used.created_at','desc')
+                ->first();
+                
+            if ($res) {                
+                $clothes = OutfitRelModel::select('clothes_name','clothes_type','clothes_image')
+                    ->join('clothes', 'clothes.id', '=', 'outfit_relation.clothes_id')
+                    ->where('outfit_id', $res->id)
+                    ->get();
+                    
+                $res->clothes = $clothes;
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("fetch", "outfit"),
+                    'data' => $res
+                ], Response::HTTP_OK);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("not_found", "outfit"),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {

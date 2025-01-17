@@ -2517,8 +2517,8 @@
                                                                             "example": "Rendam"
                                                                         },
                                                                         "is_finished": {
-                                                                            "type": "boolean",
-                                                                            "example": false
+                                                                            "type": "integer",
+                                                                            "example": 0
                                                                         }
                                                                     },
                                                                     "type": "object"
@@ -2692,8 +2692,8 @@
                                                                     "example": "Rendam"
                                                                 },
                                                                 "is_finished": {
-                                                                    "type": "boolean",
-                                                                    "example": false
+                                                                    "type": "integer",
+                                                                    "example": 0
                                                                 }
                                                             },
                                                             "type": "object"
@@ -2742,6 +2742,161 @@
                                         "message": {
                                             "type": "string",
                                             "example": "wash checkpoint not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/clothes/outfit": {
+            "get": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Show all outfit",
+                "operationId": "ccab11df3d49e18227841f9873f3718d",
+                "responses": {
+                    "200": {
+                        "description": "outfit found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit fetched"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "05d6fe1d-9041-5673-044b-4d2e7f6f0090"
+                                                    },
+                                                    "outfit_name": {
+                                                        "type": "string",
+                                                        "example": "Outfit Generated 17-Jan-2025 10:28"
+                                                    },
+                                                    "outfit_note": {
+                                                        "type": "string",
+                                                        "example": "Test 123"
+                                                    },
+                                                    "is_favorite": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "total_used": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "clothes": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string",
+                                                                    "example": "05d6fe1d-9041-5673-044b-4d2e7f6f0090"
+                                                                },
+                                                                "clothes_name": {
+                                                                    "type": "string",
+                                                                    "example": "shirt A"
+                                                                },
+                                                                "clothes_type": {
+                                                                    "type": "string",
+                                                                    "example": "hat"
+                                                                },
+                                                                "clothes_merk": {
+                                                                    "type": "string",
+                                                                    "example": "nike"
+                                                                },
+                                                                "clothes_image": {
+                                                                    "type": "string",
+                                                                    "example": "https://storage.googleapis.com"
+                                                                },
+                                                                "clothes_color": {
+                                                                    "type": "string",
+                                                                    "example": "black"
+                                                                },
+                                                                "has_washed": {
+                                                                    "type": "integer",
+                                                                    "example": 0
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "outfit not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit not found"
                                         }
                                     },
                                     "type": "object"

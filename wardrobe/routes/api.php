@@ -46,8 +46,10 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::post('/history', [CommandClothesApi::class, 'post_history_clothes']);
     Route::post('/', [CommandClothesApi::class, 'post_clothes']);
     Route::post('/schedule', [CommandClothesApi::class, 'post_schedule']);
-    Route::post('/generate/outfit', [CommandClothesApi::class, 'post_generated_outfit']);
-    Route::post('/save/outfit', [CommandClothesApi::class, 'post_save_outfit']);
+    Route::post('/outfit/generate', [CommandClothesApi::class, 'post_generated_outfit']);
+    Route::post('/outfit/save', [CommandClothesApi::class, 'post_save_outfit']);
+    Route::get('/outfit', [QueriesClothesApi::class, 'get_all_outfit']);
+    Route::get('/outfit/last', [QueriesClothesApi::class, 'get_last_outfit']);
 });
 
 Route::prefix('/v1/stats')->middleware(['auth:sanctum'])->group(function () {

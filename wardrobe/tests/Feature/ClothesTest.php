@@ -614,7 +614,7 @@ class ClothesTest extends TestCase
         $body = [
             'clothes_type' => 'hat'
         ];
-        $response = $this->httpClient->post("generate/outfit", [
+        $response = $this->httpClient->post("outfit/generate", [
             'headers' => [
                 'Authorization' => "Bearer $token"
             ],
@@ -684,7 +684,7 @@ class ClothesTest extends TestCase
                 ],
             ],
         ];
-        $response = $this->httpClient->post("save/outfit", [
+        $response = $this->httpClient->post("outfit/save", [
             'headers' => [
                 'Authorization' => "Bearer $token"
             ],
@@ -702,5 +702,143 @@ class ClothesTest extends TestCase
 
         Audit::auditRecordText("Test - Post Save Outfit", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Post Save Outfit", "TC-XXX", 'TC-XXX test_post_save_outfit', json_encode($data));
+    }
+
+    public function test_get_all_outfit(): void
+    {
+        // Exec
+        $token = $this->login_trait("user");
+        $response = $this->httpClient->get("outfit?page=1", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertArrayHasKey('data', $data);
+
+        foreach ($data['data']['data'] as $dt) {
+            $check_object = ['id','outfit_name','outfit_note','is_favorite','total_used','clothes'];
+            foreach ($check_object as $col) {
+                $this->assertArrayHasKey($col, $dt);
+            }
+
+            $check_not_null_str = ['id','outfit_name'];
+            foreach ($check_not_null_str as $col) {
+                $this->assertNotNull($dt[$col]);
+                $this->assertIsString($dt[$col]);
+            }
+
+            $check_not_int = ['is_favorite','total_used'];
+            foreach ($check_not_int as $col) {
+                $this->assertNotNull($dt[$col]);
+                $this->assertIsInt($dt[$col]);
+                $this->assertGreaterThanOrEqual(0, $dt[$col]);
+            }
+
+            $check_nullable_str = ['outfit_note'];
+            foreach ($check_nullable_str as $col) {
+                if(!is_null($dt[$col])){
+                    $this->assertIsString($dt[$col]);
+                }
+            }
+
+            foreach ($dt['clothes'] as $clo) {
+                $check_object = ['id','clothes_name','clothes_type','clothes_merk','clothes_color','has_washed','clothes_image'];
+                foreach ($check_object as $col) {
+                    $this->assertArrayHasKey($col, $clo);
+                }
+
+                $check_not_null_str = ['id','clothes_name','clothes_type','clothes_color'];
+                foreach ($check_not_null_str as $col) {
+                    $this->assertNotNull($clo[$col]);
+                    $this->assertIsString($clo[$col]);
+                }
+
+                $check_nullable_str = ['clothes_merk','clothes_image'];
+                foreach ($check_nullable_str as $col) {
+                    if(!is_null($clo[$col])){
+                        $this->assertIsString($clo[$col]);
+                    }
+                }
+
+                $check_not_int = ['has_washed'];
+                foreach ($check_not_int as $col) {
+                    $this->assertNotNull($clo[$col]);
+                    $this->assertIsInt($clo[$col]);
+                    $this->assertGreaterThanOrEqual(0, $clo[$col]);
+                }
+            }
+        }
+
+        Audit::auditRecordText("Test - Get All Outfit", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Get All Outfit", "TC-XXX", 'TC-XXX test_get_all_outfit', json_encode($data));
+    }
+
+    public function test_get_last_outfit(): void
+    {
+        // Exec
+        $token = $this->login_trait("user");
+        $response = $this->httpClient->get("outfit/last", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertArrayHasKey('data', $data);
+
+        $check_object = ['id','outfit_name','is_favorite','total_used','clothes'];
+        foreach ($check_object as $col) {
+            $this->assertArrayHasKey($col, $data['data']);
+        }
+
+        $check_not_null_str = ['id','outfit_name'];
+        foreach ($check_not_null_str as $col) {
+            $this->assertNotNull($data['data'][$col]);
+            $this->assertIsString($data['data'][$col]);
+        }
+
+        $check_not_int = ['is_favorite','total_used'];
+        foreach ($check_not_int as $col) {
+            $this->assertNotNull($data['data'][$col]);
+            $this->assertIsInt($data['data'][$col]);
+            $this->assertGreaterThanOrEqual(0, $data['data'][$col]);
+        }
+
+        foreach ($data['data']['clothes'] as $clo) {
+            $check_object = ['clothes_name','clothes_type','clothes_image'];
+            foreach ($check_object as $col) {
+                $this->assertArrayHasKey($col, $clo);
+            }
+
+            $check_not_null_str = ['clothes_name','clothes_type'];
+            foreach ($check_not_null_str as $col) {
+                $this->assertNotNull($clo[$col]);
+                $this->assertIsString($clo[$col]);
+            }
+
+            $check_nullable_str = ['clothes_image'];
+            foreach ($check_nullable_str as $col) {
+                if(!is_null($clo[$col])){
+                    $this->assertIsString($clo[$col]);
+                }
+            }
+        }
+
+        Audit::auditRecordText("Test - Get Last Outfit", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Get Last Outfit", "TC-XXX", 'TC-XXX test_get_last_outfit', json_encode($data));
     }
 }

@@ -21,6 +21,8 @@ use App\Models\UserModel;
 use App\Models\ClothesUsedModel;
 use App\Models\WashModel;
 use App\Models\ScheduleModel;
+use App\Models\OutfitModel;
+use App\Models\OutfitRelModel;
 
 // Helpers
 use App\Helpers\Generator;
@@ -1085,7 +1087,7 @@ class Commands extends Controller
             $user_id = $request->user()->id;
             $type = $request->clothes_type;
 
-            $clothes = ClothesModel::selectRaw('clothes_name,clothes_category,clothes_type,clothes_merk,clothes_made_from,clothes_color,clothes_image,
+            $clothes = ClothesModel::selectRaw('clothes.id, clothes_name,clothes_category,clothes_type,clothes_merk,clothes_made_from,clothes_color,clothes_image,
                 MAX(clothes_used.created_at) as last_used, CAST(SUM(CASE WHEN clothes_used.id IS NOT NULL THEN 1 ELSE 0 END) as UNSIGNED) as total_used')
                 ->leftjoin('clothes_used','clothes_used.clothes_id','=','clothes.id');
 
@@ -1113,6 +1115,149 @@ class Commands extends Controller
                     'status' => 'failed',
                     'message' => Generator::getMessageTemplate("not_found", 'outfit'),
                 ], Response::HTTP_NOT_FOUND);
+            }
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @OA\POST(
+     *     path="/api/v1/clothes/save/outfit",
+     *     summary="Create outfit",
+     *     tags={"Clothes"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=201,
+     *         description="outfit created",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="outfit created with 2 clothes attached")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Data is already exist",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="outfit is already exist")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="{validation_msg}",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="{field validation message}")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function post_save_outfit(Request $request)
+    {
+        try{
+            $user_id = $request->user()->id;
+            $outfits = $request->list_outfit;
+
+            if(count($outfits) > 0){
+                $success_outfit = 0;
+                $failed_outfit = 0;
+                $success_rel_outfit = 0;
+                $failed_rel_outfit = 0;
+                $message_outfit = "";
+
+                foreach ($outfits as $idx => $dt) {
+                    $id = Generator::getUUID();
+                    $outfit = OutfitModel::create([
+                        'id' => $id, 
+                        'outfit_name' => $dt['outfit_name'], 
+                        'outfit_note' => null, 
+                        'is_favorite' => 0, 
+                        'is_auto' => 1, 
+                        'created_at' => date('Y-m-d H:i:s'), 
+                        'created_by' => $user_id, 
+                        'updated_at' => null
+                    ]);
+
+                    if($outfit){
+                        $success_outfit++;
+                        $message_outfit .= ($idx+1).". ".$dt['outfit_name']."\n";
+
+                        foreach ($dt['data'] as $clothes) {
+                            $outfit_rel = OutfitRelModel::create([
+                                'id' => Generator::getUUID(), 
+                                'outfit_id' => $id, 
+                                'clothes_id' => $clothes['id'], 
+                                'created_at' => date('Y-m-d H:i:s'), 
+                                'created_by' => $user_id, 
+                            ]);
+                            $message_outfit .= $clothes['clothes_name'].", ";
+
+                            if($outfit_rel){
+                                $success_rel_outfit++;
+                            } else {
+                                $failed_rel_outfit++;
+                            }
+                        }
+                        $message_outfit .= "\n\n";
+                    } else {
+                        $failed_outfit++;
+                    }
+                }
+
+                if($success_rel_outfit > 0 && $success_outfit > 0){
+                    $user = UserModel::getSocial($user_id);
+                    if($user->telegram_user_id){
+                        $message = "Hello, $user->username. You have successfully add $success_outfit outfit. Here's the detail :\n\n$message_outfit";
+
+                        $response = Telegram::sendMessage([
+                            'chat_id' => $user->telegram_user_id,
+                            'text' => $message,
+                            'parse_mode' => 'HTML'
+                        ]);
+                    }
+                }
+
+                if($failed_rel_outfit == 0){
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => Generator::getMessageTemplate("custom", "outfit created with $success_rel_outfit clothes attached"),
+                    ], Response::HTTP_CREATED);
+                } else if($failed_rel_outfit > 0 && $success_rel_outfit > 0){
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => Generator::getMessageTemplate("custom", "outfit created with $success_rel_outfit clothes attached, but there is $failed_rel_outfit clothes failed to add"),
+                    ], Response::HTTP_CREATED);
+                } else {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => Generator::getMessageTemplate("unknown_error", null),
+                    ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                }
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("custom", 'at least one outfit must be selected'),
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
             }
         } catch(\Exception $e) {
             return response()->json([

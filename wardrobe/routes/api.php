@@ -47,6 +47,7 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::post('/', [CommandClothesApi::class, 'post_clothes']);
     Route::post('/schedule', [CommandClothesApi::class, 'post_schedule']);
     Route::post('/generate/outfit', [CommandClothesApi::class, 'post_generated_outfit']);
+    Route::post('/save/outfit', [CommandClothesApi::class, 'post_save_outfit']);
 });
 
 Route::prefix('/v1/stats')->middleware(['auth:sanctum'])->group(function () {

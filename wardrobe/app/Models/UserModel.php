@@ -29,7 +29,7 @@ class UserModel extends Authenticatable
     }
 
     public static function getSocial($id){
-        $res = UserModel::select('telegram_user_id','telegram_is_valid','email')
+        $res = UserModel::select('username','telegram_user_id','telegram_is_valid','email')
             ->where('id',$id)
             ->first();
 

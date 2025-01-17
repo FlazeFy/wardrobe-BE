@@ -657,4 +657,50 @@ class ClothesTest extends TestCase
         Audit::auditRecordText("Test - Post Generated Outfit", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Post Generated Outfit", "TC-XXX", 'TC-XXX test_post_generated_outfit', json_encode($data));
     }
+
+    public function test_post_save_outfit(): void
+    {
+        // Exec
+        $token = $this->login_trait("user");
+        $body = [
+            'list_outfit' => [
+                [
+                    'data' => [
+                        [
+                            'id' => 'efbf49d9-78f4-436a-07ef-ca3aa661f9d7',
+                            'clothes_name' => 'shirt A',
+                            'clothes_category' => 'head',
+                            'clothes_type' => 'hat',
+                            'clothes_merk' => 'Nike',
+                            'clothes_made_from' => 'cotton',
+                            'clothes_color' => 'blue',
+                            'clothes_image' => 'https://storage.googleapis.com',
+                            'last_used' => '2025-01-11 11:09:18',
+                            'total_used' => 2,
+                        ],
+                    ],
+                    'created_at' => '2025-01-17T03:35:56.340Z',
+                    'outfit_name' => 'Outfit Generated 17-Jan-2025 10:35',
+                ],
+            ],
+        ];
+        $response = $this->httpClient->post("save/outfit", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ],
+            'json' => $body
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertStringContainsString('outfit created with',$data['message']);
+
+        Audit::auditRecordText("Test - Post Save Outfit", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Post Save Outfit", "TC-XXX", 'TC-XXX test_post_save_outfit', json_encode($data));
+    }
 }

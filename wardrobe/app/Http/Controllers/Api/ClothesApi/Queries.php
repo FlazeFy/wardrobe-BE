@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\ClothesApi;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
 // Models
 use App\Models\ClothesModel;
@@ -11,6 +12,7 @@ use App\Models\ScheduleModel;
 use App\Models\ClothesUsedModel;
 use App\Models\WashModel;
 use App\Models\OutfitModel;
+use App\Models\OutfitUsedModel;
 use App\Models\OutfitRelModel;
 
 // Helpers
@@ -979,6 +981,7 @@ class Queries extends Controller
      *                  @OA\Property(property="outfit_name", type="string", example="Outfit Generated 17-Jan-2025 10:28"),
      *                  @OA\Property(property="is_favorite", type="integer", example=1),
      *                  @OA\Property(property="total_used", type="integer", example=2),
+     *                  @OA\Property(property="last_used", type="string", example="2024-04-10 22:10:56"),
      *                  @OA\Property(property="clothes", type="array",
      *                      @OA\Items(type="object",
      *                          @OA\Property(property="clothes_name", type="string", example="shirt A"),
@@ -1020,11 +1023,8 @@ class Queries extends Controller
         try { 
             $user_id = $request->user()->id;
 
-            $res = OutfitModel::selectRaw('outfit.id, outfit_name, is_favorite, CAST(SUM(CASE WHEN outfit_used.id IS NOT NULL THEN 1 ELSE 0 END) as UNSIGNED) as total_used')
-                ->leftjoin('outfit_used','outfit_used.outfit_id','=','outfit.id')
-                ->orderby('outfit_used.created_at','desc')
-                ->first();
-                
+            $res = OutfitModel::getOneOutfit('last',null,$user_id);
+
             if ($res) {                
                 $clothes = OutfitRelModel::select('clothes_name','clothes_type','clothes_image')
                     ->join('clothes', 'clothes.id', '=', 'outfit_relation.clothes_id')
@@ -1042,6 +1042,186 @@ class Queries extends Controller
                 return response()->json([
                     'status' => 'failed',
                     'message' => Generator::getMessageTemplate("not_found", "outfit"),
+                ], Response::HTTP_NOT_FOUND);
+            }
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @OA\GET(
+     *     path="/api/v1/clothes/outfit/by/{id}",
+     *     summary="Show outfit by id",
+     *     tags={"Clothes"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="outfit ID",
+     *         example="e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9",
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="outfit found",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="outfit fetched"),
+     *             @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="id", type="string", example="05d6fe1d-9041-5673-044b-4d2e7f6f0090"),
+     *                  @OA\Property(property="outfit_name", type="string", example="Outfit Generated 17-Jan-2025 10:28"),
+     *                  @OA\Property(property="is_favorite", type="integer", example=1),
+     *                  @OA\Property(property="total_used", type="integer", example=2),
+     *                  @OA\Property(property="last_used", type="string", example="2024-04-10 22:10:56"),
+     *                  @OA\Property(property="clothes", type="array",
+     *                      @OA\Items(type="object",
+     *                          @OA\Property(property="clothes_name", type="string", example="shirt A"),
+     *                          @OA\Property(property="clothes_type", type="string", example="hat"),
+     *                          @OA\Property(property="clothes_image", type="string", example="https://storage.googleapis.com"),
+     *                          @OA\Property(property="clothes_desc", type="string", example="lorem ipsum"),
+     *                          @OA\Property(property="is_favorite", type="boolean", example=1),
+     *                          @OA\Property(property="has_washed", type="boolean", example=0),
+     *                          @OA\Property(property="has_ironed", type="boolean", example=0),
+     *                          @OA\Property(property="is_faded", type="boolean", example=1),
+     *                          @OA\Property(property="clothes_merk", type="string", example="nike"),
+     *                      )
+     *                  )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="outfit not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="outfit not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function get_outfit_by_id(Request $request, $id)
+    {
+        try { 
+            $user_id = $request->user()->id;
+
+            $res = OutfitModel::getOneOutfit('direct',$id,$user_id);
+
+            if ($res) {                
+                $clothes = OutfitRelModel::select('clothes_name','clothes_type','clothes_image','clothes_desc','is_favorite','has_washed','has_ironed','is_faded','clothes_merk')
+                    ->join('clothes', 'clothes.id', '=', 'outfit_relation.clothes_id')
+                    ->where('outfit_id', $res->id)
+                    ->get();
+                    
+                $res->clothes = $clothes;
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("fetch", "outfit"),
+                    'data' => $res
+                ], Response::HTTP_OK);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("not_found", "outfit"),
+                ], Response::HTTP_NOT_FOUND);
+            }
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+     /**
+     * @OA\GET(
+     *     path="/api/v1/clothes/outfit/history/{id}",
+     *     summary="Show outfit history by id",
+     *     tags={"Clothes"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="outfit ID",
+     *         example="e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9",
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="history outfit found",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="history outfit"),
+     *             @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="created_at", type="string", example="2025-01-17 16:50:18"),
+     *                  @OA\Property(property="id", type="string", example="05d6fe1d-9041-5673-044b-4d2e7f6f0090")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="history outfit not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="history outfit not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function get_history_outfit_by_id(Request $request, $id){
+        try { 
+            $user_id = $request->user()->id;
+
+            $res = OutfitUsedModel::select("created_at","id")
+                ->where('outfit_id',$id)
+                ->paginate(14);
+
+            if(count($res) > 0) {            
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("fetch", "history outfit"),
+                    'data' => $res
+                ], Response::HTTP_OK);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("not_found", "history outfit"),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {

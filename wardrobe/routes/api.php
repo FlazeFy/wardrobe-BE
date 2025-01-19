@@ -50,6 +50,9 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::post('/outfit/save', [CommandClothesApi::class, 'post_save_outfit']);
     Route::get('/outfit', [QueriesClothesApi::class, 'get_all_outfit']);
     Route::get('/outfit/last', [QueriesClothesApi::class, 'get_last_outfit']);
+    Route::get('/outfit/history/{id}', [QueriesClothesApi::class, 'get_history_outfit_by_id']);
+    Route::get('/outfit/by/{id}', [QueriesClothesApi::class, 'get_outfit_by_id']);
+    Route::delete('/outfit/history/by/{id}', [CommandClothesApi::class, 'hard_delete_used_outfit_by_id']);
 });
 
 Route::prefix('/v1/stats')->middleware(['auth:sanctum'])->group(function () {

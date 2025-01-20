@@ -971,4 +971,32 @@ class ClothesTest extends TestCase
         Audit::auditRecordText("Test - Get Last Outfit", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Get Last Outfit", "TC-XXX", 'TC-XXX test_get_last_outfit', json_encode($data));
     }
+
+    public function test_post_save_outfit_history(): void
+    {
+        // Exec
+        $token = $this->login_trait("user");
+        $body = [
+            'outfit_id' => '05d6fe1d-9041-5673-044b-4d2e7f6f0090',
+            'used_context' => 'Work'
+        ];
+        $response = $this->httpClient->post("outfit/history/save", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ],
+            'json' => $body
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertStringContainsString('outfit history created with',$data['message']);
+
+        Audit::auditRecordText("Test - Post Save Outfit History", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Post Save Outfit History", "TC-XXX", 'TC-XXX test_post_save_outfit_history', json_encode($data));
+    }
 }

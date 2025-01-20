@@ -1341,4 +1341,130 @@ class Commands extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * @OA\POST(
+     *     path="/api/v1/clothes/outfit/history/save",
+     *     summary="Add outfit used history",
+     *     tags={"Clothes"},
+     *     @OA\Response(
+     *         response=201,
+     *         description="outfit history created",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="outfit history created with 2 clothes attached")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="outfit history not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="outfit not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function post_save_outfit_history(Request $request)
+    {
+        try{
+            $user_id = $request->user()->id;
+            $outfit_id = $request->outfit_id;
+            $is_exist = OutfitModel::isExist($outfit_id, $user_id);
+            if (!$is_exist) {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("not_found", 'outfit'),
+                ], Response::HTTP_NOT_FOUND);
+            } else {
+                $res = OutfitUsedModel::create([
+                    'id' => Generator::getUUID(),
+                    'outfit_id' => $request->outfit_id, 
+                    'created_at' => date("Y-m-d H:i:s"),
+                    'created_by' => $user_id
+                ]);
+
+                if($res){
+                    $list_clothes = OutfitRelModel::getClothes($outfit_id, $user_id);
+                    $success_clothes = 0;
+                    $failed_clothes = 0;
+                    $message_clothes = "";
+
+                    foreach ($list_clothes as $dt) {
+                        $clothes_history = ClothesUsedModel::create([
+                            'id' => Generator::getUUID(),
+                            'clothes_id' => $dt->id, 
+                            'clothes_note' => null, 
+                            'used_context' => $request->used_context, 
+                            'created_at' => date("Y-m-d H:i:s"),
+                            'created_by' => $user_id
+                        ]);
+
+                        if($clothes_history){
+                            $message_clothes .= "- $dt->clothes_name ($dt->clothes_type)\n";
+                            $success_clothes++;
+                        } else {
+                            $failed_clothes++;
+                        }
+                    }
+
+                    if($success_clothes > 0){
+                        $user = UserModel::getSocial($user_id);
+                        if($user->telegram_user_id){
+                            $message = "Hello, $user->username. You have successfully add $success_outfit clothes to history of used. Here's the detail :\n\n$message_clothes";
+    
+                            $response = Telegram::sendMessage([
+                                'chat_id' => $user->telegram_user_id,
+                                'text' => $message,
+                                'parse_mode' => 'HTML'
+                            ]);
+                        }
+                    }
+    
+                    if($failed_clothes == 0){
+                        return response()->json([
+                            'status' => 'success',
+                            'message' => Generator::getMessageTemplate("custom", "outfit history created with $success_clothes clothes attached"),
+                        ], Response::HTTP_CREATED);
+                    } else if($failed_clothes > 0 && $success_clothes > 0){
+                        return response()->json([
+                            'status' => 'success',
+                            'message' => Generator::getMessageTemplate("custom", "outfit history created with $success_clothes clothes attached, but there is $failed_clothes clothes failed to add"),
+                        ], Response::HTTP_CREATED);
+                    } else {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => Generator::getMessageTemplate("unknown_error", null),
+                        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                    }
+                } else {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => Generator::getMessageTemplate("unknown_error", null),
+                    ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                }  
+            } 
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

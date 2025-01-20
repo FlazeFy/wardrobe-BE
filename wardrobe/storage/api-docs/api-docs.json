@@ -1417,6 +1417,200 @@
                 ]
             }
         },
+        "/api/v1/clothes/outfit/history/by/{id}": {
+            "delete": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Permentally delete outfit history by id",
+                "operationId": "35ff7ca826d9d9edb9f6f498f3fe126f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "outfit history ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "outfit history permentally deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit history permentally deleted"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "outfit history not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit history not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/clothes/outfit/history/save": {
+            "post": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Add outfit used history",
+                "operationId": "a0cbd5a1e5f062e367b19ee0ee7d2db3",
+                "responses": {
+                    "201": {
+                        "description": "outfit history created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit history created with 2 clothes attached"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "outfit history not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/clothes/header/{category}/{order}": {
             "get": {
                 "tags": [
@@ -3070,6 +3264,18 @@
                 ],
                 "summary": "Show outfit by id",
                 "operationId": "f9a15d3ed33b0d2c2d27a5d3697836c1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "outfit ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "outfit found",
@@ -3223,13 +3429,25 @@
                 }
             }
         },
-        "/api/v1/clothes/outfit/history": {
+        "/api/v1/clothes/outfit/history/{id}": {
             "get": {
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Show outfit history",
-                "operationId": "983045d2a5987828373c316411a68070",
+                "summary": "Show outfit history by id",
+                "operationId": "2b2d017b2831a5159cba55054e06b187",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "outfit ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "history outfit found",
@@ -3251,9 +3469,9 @@
                                                     "type": "string",
                                                     "example": "2025-01-17 16:50:18"
                                                 },
-                                                "clothes_names": {
+                                                "id": {
                                                     "type": "string",
-                                                    "example": "shirt A, asdasd"
+                                                    "example": "05d6fe1d-9041-5673-044b-4d2e7f6f0090"
                                                 }
                                             },
                                             "type": "object"

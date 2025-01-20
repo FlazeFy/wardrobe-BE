@@ -32,4 +32,12 @@ class OutfitModel extends Model
             return null;
         }
     }
+
+    public static function isExist($id, $user_id){
+        $res = OutfitModel::where('id',$id)
+            ->where('created_by',$user_id)
+            ->first();
+        
+        return $res ? true : false;
+    }
 }

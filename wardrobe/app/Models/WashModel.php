@@ -18,4 +18,24 @@ class WashModel extends Model
     protected $casts = [
         'wash_checkpoint' => 'array'
     ];
+
+    public static function getWashHistory($clothes_id,$user_id){
+        $res = WashModel::select('wash_note','wash_type','wash_checkpoint','created_at','finished_at')
+            ->where('clothes_id',$clothes_id)
+            ->where('created_by',$user_id)
+            ->orderby('created_at','desc')
+            ->get();
+
+        return $res;
+    }
+
+    public static function getActiveWash($clothes_id,$user_id){
+        $res = WashModel::select('wash_note','wash_type','wash_checkpoint')
+            ->where('clothes_id',$clothes_id)
+            ->where('created_by',$user_id)
+            ->whereNull('finished_at')
+            ->first();
+
+        return $res;
+    }
 }

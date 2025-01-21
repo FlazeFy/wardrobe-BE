@@ -544,6 +544,35 @@ class ClothesTest extends TestCase
             }
         }
 
+        if(!is_null($data['data']['outfit'])){
+            foreach ($data['data']['outfit'] as $dt) {
+                $check_object = ['id','outfit_name','outfit_note','is_favorite','created_at','last_used','total_used'];
+                foreach ($check_object as $col) {
+                    $this->assertArrayHasKey($col, $dt);
+                }
+
+                $check_not_null_str = ['id','outfit_name','created_at'];
+                foreach ($check_not_null_str as $col) {
+                    $this->assertNotNull($dt[$col]);
+                    $this->assertIsString($dt[$col]);
+                }
+
+                $check_nullable_str = ['outfit_note','last_used'];
+                foreach ($check_nullable_str as $col) {
+                    if(!is_null($dt[$col])){
+                        $this->assertIsString($dt[$col]);
+                    }
+                }
+
+                $check_not_null_int = ['is_favorite','total_used'];
+                foreach ($check_not_null_int as $col) {
+                    $this->assertNotNull($dt[$col]);
+                    $this->assertIsInt($dt[$col]);
+                    $this->assertGreaterThanOrEqual(0, $dt[$col]);
+                }
+            }
+        }
+
         Audit::auditRecordText("Test - Get Clothes Detail By Id", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Get Clothes Detail By Id", "TC-XXX", 'TC-XXX test_get_clothes_detail_by_id', json_encode($data));
     }

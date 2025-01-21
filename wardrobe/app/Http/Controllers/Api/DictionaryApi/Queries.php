@@ -155,11 +155,7 @@ class Queries extends Controller
         try{
             $user_id = $request->user()->id;
 
-            $res = ClothesModel::selectRaw('clothes_category,clothes_type,COUNT(1) as total')
-                ->where('created_by',$user_id)
-                ->groupby('clothes_category')
-                ->groupby('clothes_type')
-                ->get();
+            $res = ClothesModel::getCategoryAndType($user_id);
                 
             if ($res) {
                 return response()->json([

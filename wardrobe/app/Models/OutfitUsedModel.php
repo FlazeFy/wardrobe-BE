@@ -14,4 +14,13 @@ class OutfitUsedModel extends Model
     protected $table = 'outfit_used';
     protected $primaryKey = 'id';
     protected $fillable = ['id', 'outfit_id', 'created_at', 'created_by'];
+
+    public static function getOutfitHistory($id,$user_id){
+        $res = OutfitUsedModel::select("created_at","id")
+            ->where('outfit_id',$id)
+            ->where('created_by',$user_id)
+            ->paginate(14);
+
+        return $res;
+    }
 }

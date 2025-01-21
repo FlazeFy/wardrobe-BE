@@ -73,10 +73,7 @@ class Queries extends Controller
             $check_admin = AdminModel::find($user_id);
 
             if($check_admin){
-                $res = FeedbackModel::selectRaw('feedback.id, feedback_rate, feedback_body, feedback.created_at, users.username as created_by')
-                    ->join('users','users.id','=','feedback.created_by')
-                    ->orderby('feedback.created_at', 'DESC')
-                    ->paginate(14);
+                $res = FeedbackModel::getAll();
                 
                 if (count($res) > 0) {
                     return response()->json([

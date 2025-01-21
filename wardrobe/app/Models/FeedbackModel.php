@@ -25,4 +25,13 @@ class FeedbackModel extends Model
 
         return $res;
     }
+
+    public static function getAll(){
+        $res = FeedbackModel::selectRaw('feedback.id, feedback_rate, feedback_body, feedback.created_at, users.username as created_by')
+            ->join('users','users.id','=','feedback.created_by')
+            ->orderby('feedback.created_at', 'DESC')
+            ->paginate(14);
+
+        return $res;
+    }
 }

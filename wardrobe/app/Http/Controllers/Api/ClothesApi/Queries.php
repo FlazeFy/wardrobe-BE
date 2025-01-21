@@ -191,12 +191,7 @@ class Queries extends Controller
     {
         try{
             $user_id = $request->user()->id;
-
-            $res = ClothesModel::select('id', 'clothes_name', 'clothes_image', 'clothes_size', 'clothes_gender', 'clothes_color', 'clothes_category', 'clothes_type', 'clothes_qty', 'deleted_at')
-                ->whereNotNull('deleted_at')
-                ->where('created_by',$user_id)
-                ->orderBy('deleted_at', 'desc')
-                ->paginate(14);
+            $res = ClothesModel::getDeletedClothes($user_id);
             
             if (count($res) > 0) {
                 return response()->json([
@@ -684,6 +679,16 @@ class Queries extends Controller
      *                         @OA\Property(property="created_at", type="string", example="2024-05-14 02:32:07")
      *                     )
      *                 ),
+     *                 @OA\Property(property="outfit", type="array",
+     *                     @OA\Items(type="object",
+     *                         @OA\Property(property="outfit_name", type="string", example="Sun"),
+     *                         @OA\Property(property="outfit_note", type="string", example="lorem"),
+     *                         @OA\Property(property="is_favorite", type="integer", example=1),
+     *                         @OA\Property(property="total_used", type="integer", example=0),
+     *                         @OA\Property(property="last_used", type="string", example="2024-05-14 02:32:07")
+     *                         @OA\Property(property="created_at", type="string", example="2024-05-14 02:32:07")
+     *                     )
+     *                 ),
      *             )
      *         )
      *     ),
@@ -724,37 +729,24 @@ class Queries extends Controller
                 ->first();
 
             if($res_clothes){
-                $res_used = ClothesUsedModel::select('id','clothes_note','used_context','created_at')
-                    ->where('clothes_id',$clothes_id)
-                    ->where('created_by',$user_id)
-                    ->get();
-
-                $last_used = ClothesUsedModel::select('created_at')
-                    ->orderby('created_at','ASC')
-                    ->first();
-
-                $res_wash = WashModel::select('wash_note','wash_type','wash_checkpoint','created_at','finished_at')
-                    ->where('clothes_id',$clothes_id)
-                    ->where('created_by',$user_id)
-                    ->get();
-
-                $res_schedule = ScheduleModel::select('id','day','schedule_note','created_at','is_remind')
-                    ->where('clothes_id',$clothes_id)
-                    ->where('created_by',$user_id)
-                    ->get();
-
+                $res_used = ClothesUsedModel::getClothesUsedHistory($clothes_id,$user_id);
+                $res_wash = WashModel::getWashHistory($clothes_id,$user_id);
+                $last_used = ClothesUsedModel::getLastUsed($user_id);
+                $res_schedule = ScheduleModel::getSchedule($clothes_id, $user_id);
+                $res_outfit = OutfitRelModel::getClothesFoundInOutfit($clothes_id,$user_id);
                 $total_used = count($res_used);
 
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("custom", 'This clothes is washed right now'),
+                    'message' => Generator::getMessageTemplate("fetch", 'clothes'),
                     'data' => [
                         'detail' => $res_clothes,
                         'used_history' =>  $total_used > 0 ? $res_used : null,
                         'total_used_history' => $total_used,
                         'last_used_history' => $last_used ? $last_used->created_at : null,
                         'wash_history' => count($res_wash) > 0 ? $res_wash : null,
-                        'schedule' => count($res_schedule) > 0 ? $res_schedule : null
+                        'schedule' => count($res_schedule) > 0 ? $res_schedule : null,
+                        'outfit' => count($res_outfit) > 0 ? $res_outfit: null,
                     ]
                 ], Response::HTTP_OK);
             } else {
@@ -836,10 +828,7 @@ class Queries extends Controller
         try{
             $user_id = $request->user()->id;
 
-            $res = WashModel::select('wash_note','wash_type','wash_checkpoint')
-                ->where('clothes_id',$clothes_id)
-                ->whereNull('finished_at')
-                ->first();
+            $res = WashModel::getActiveWash($clothes_id,$user_id);
                 
             if ($res) {
                 return response()->json([
@@ -926,20 +915,11 @@ class Queries extends Controller
             $user_id = $request->user()->id;
             $limit = $request->limit ?? 8;
 
-            $res = OutfitModel::selectRaw('outfit.id, outfit_name, outfit_note, is_favorite, CAST(SUM(CASE WHEN outfit_used.id IS NOT NULL THEN 1 ELSE 0 END) as UNSIGNED) as total_used')
-                ->leftjoin('outfit_used','outfit_used.outfit_id','=','outfit.id')
-                ->orderby('total_used','desc')
-                ->orderby('outfit.created_at','desc')
-                ->groupby('outfit.id')
-                ->paginate($limit);
-                
+            $res = OutfitModel::getAllOutfit($limit,$user_id);
+
             if ($res->count() > 0) {                
                 $data = $res->getCollection()->map(function ($dt) {
-                    $clothes = OutfitRelModel::select('clothes.id','clothes_name', 'clothes_type', 'clothes_merk', 'clothes_image', 'has_washed', 'clothes_color')
-                        ->join('clothes', 'clothes.id', '=', 'outfit_relation.clothes_id')
-                        ->where('outfit_id', $dt->id)
-                        ->get();
-            
+                    $clothes = OutfitRelModel::getClothesByOutfit($dt->id, "full");
                     $dt->clothes = $clothes;
                     return $dt;
                 });
@@ -1026,11 +1006,7 @@ class Queries extends Controller
             $res = OutfitModel::getOneOutfit('last',null,$user_id);
 
             if ($res) {                
-                $clothes = OutfitRelModel::select('clothes_name','clothes_type','clothes_image')
-                    ->join('clothes', 'clothes.id', '=', 'outfit_relation.clothes_id')
-                    ->where('outfit_id', $res->id)
-                    ->get();
-                    
+                $clothes = OutfitRelModel::getClothesByOutfit($res->id, "header");
                 $res->clothes = $clothes;
 
                 return response()->json([
@@ -1208,9 +1184,7 @@ class Queries extends Controller
         try { 
             $user_id = $request->user()->id;
 
-            $res = OutfitUsedModel::select("created_at","id")
-                ->where('outfit_id',$id)
-                ->paginate(14);
+            $res = OutfitUsedModel::getOutfitHistory($id,$user_id);
 
             if(count($res) > 0) {            
                 return response()->json([

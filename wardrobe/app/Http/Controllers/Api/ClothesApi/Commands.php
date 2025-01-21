@@ -1427,7 +1427,7 @@ class Commands extends Controller
                     if($success_clothes > 0){
                         $user = UserModel::getSocial($user_id);
                         if($user->telegram_user_id){
-                            $message = "Hello, $user->username. You have successfully add $success_outfit clothes to history of used. Here's the detail :\n\n$message_clothes";
+                            $message = "Hello, $user->username. You have successfully add $success_clothes clothes to history of used. Here's the detail :\n\n$message_clothes";
     
                             $response = Telegram::sendMessage([
                                 'chat_id' => $user->telegram_user_id,

@@ -40,4 +40,16 @@ class OutfitModel extends Model
         
         return $res ? true : false;
     }
+
+    public static function getAllOutfit($limit,$user_id){
+        $res = OutfitModel::selectRaw('outfit.id, outfit_name, outfit_note, is_favorite, CAST(SUM(CASE WHEN outfit_used.id IS NOT NULL THEN 1 ELSE 0 END) as UNSIGNED) as total_used')
+            ->leftjoin('outfit_used','outfit_used.outfit_id','=','outfit.id')
+            ->orderby('total_used','desc')
+            ->orderby('outfit.created_at','desc')
+            ->groupby('outfit.id')
+            ->where('outfit.created_by',$user_id)
+            ->paginate($limit);
+
+        return $res;
+    }
 }

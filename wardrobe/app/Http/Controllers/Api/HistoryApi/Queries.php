@@ -70,10 +70,7 @@ class Queries extends Controller
         try{
             $user_id = $request->user()->id;
 
-            $res = HistoryModel::select('*')
-                ->where('created_by',$user_id)
-                ->orderby('created_at', 'DESC')
-                ->paginate(14);
+            $res = HistoryModel::getAll($user_id);
             
             if (count($res) > 0) {
                 return response()->json([

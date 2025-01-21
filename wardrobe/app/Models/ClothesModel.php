@@ -35,4 +35,24 @@ class ClothesModel extends Model
 
         return $res;
     }
+
+    public static function getDeletedClothes($user_id){
+        $res = ClothesModel::select('id', 'clothes_name', 'clothes_image', 'clothes_size', 'clothes_gender', 'clothes_color', 'clothes_category', 'clothes_type', 'clothes_qty', 'deleted_at')
+            ->whereNotNull('deleted_at')
+            ->where('created_by',$user_id)
+            ->orderBy('deleted_at', 'desc')
+            ->paginate(14);
+
+        return $res;
+    }
+
+    public static function getCategoryAndType($user_id){
+        $res = ClothesModel::selectRaw('clothes_category,clothes_type,COUNT(1) as total')
+            ->where('created_by',$user_id)
+            ->groupby('clothes_category')
+            ->groupby('clothes_type')
+            ->get();
+
+        return $res;
+    }
 }

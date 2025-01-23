@@ -56,7 +56,13 @@ class Validation
                 'has_ironed' => 'required|boolean',
                 'is_favorite' => 'required|boolean',
             ]); 
-        } 
+        } else if($type == 'create_outfit_relation'){
+            return Validator::make($request->all(), [
+                'clothes_name' => 'required|string|max:75|min:2',
+                'clothes_type' => ['required', new ClothesType],
+                'clothes_id' => 'required|string|max:36',
+            ]); 
+        }
     }
 
     public static function getValidateClothesUsed($request,$type){

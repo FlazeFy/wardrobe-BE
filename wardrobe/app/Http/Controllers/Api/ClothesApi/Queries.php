@@ -732,7 +732,7 @@ class Queries extends Controller
                 $res_used = ClothesUsedModel::getClothesUsedHistory($clothes_id,$user_id);
                 $res_wash = WashModel::getWashHistory($clothes_id,$user_id);
                 $last_used = ClothesUsedModel::getLastUsed($user_id);
-                $res_schedule = ScheduleModel::getSchedule($clothes_id, $user_id);
+                $res_schedule = ScheduleModel::getScheduleByClothes($clothes_id, $user_id);
                 $res_outfit = OutfitRelModel::getClothesFoundInOutfit($clothes_id,$user_id);
                 $total_used = count($res_used);
 
@@ -1196,6 +1196,87 @@ class Queries extends Controller
                 return response()->json([
                     'status' => 'failed',
                     'message' => Generator::getMessageTemplate("not_found", "history outfit"),
+                ], Response::HTTP_NOT_FOUND);
+            }
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+     /**
+     * @OA\GET(
+     *     path="/api/v1/clothes/schedule/{day}",
+     *     summary="Show founded clothes in schedule by day",
+     *     tags={"Clothes"},
+     *     @OA\Parameter(
+     *         name="day",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="Day Name",
+     *         example="Mon",
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="schedule found",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="schedule fetched"),
+     *             @OA\Property(property="data", type="array",
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="id", type="string", example="17963858-9771-11ee-8f4a-321642910r4w"),
+     *                      @OA\Property(property="clothes_name", type="string", example="Shirt ABC"),
+     *                      @OA\Property(property="clothes_type", type="string", example="Shirt"),
+     *                      @OA\Property(property="clothes_image", type="string", example="https://storage.googleapis.com/download/storage/v1/b/wardrobe-26571.firebasestorage.app/o/clothes.png"),
+     *                  )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="schedule not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="schedule not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function get_schedule_by_day(Request $request, $day){
+        try { 
+            $user_id = $request->user()->id;
+
+            $res = ScheduleModel::getScheduleByDay($day,$user_id);
+
+            if(count($res) > 0) {            
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("fetch", "schedule"),
+                    'data' => $res
+                ], Response::HTTP_OK);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("not_found", "schedule"),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {

@@ -36,11 +36,13 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/check_wash/{clothes_id}', [QueriesClothesApi::class, 'get_clothes_wash_status_by_clothes_id']);
     Route::get('/wash_checkpoint/{clothes_id}', [QueriesClothesApi::class, 'get_wash_checkpoint_by_clothes_id']);
     Route::get('/trash', [QueriesClothesApi::class, 'get_deleted_clothes']);
+    Route::get('/schedule/{day}', [QueriesClothesApi::class, 'get_schedule_by_day']);
     Route::put('/update_checkpoint/{id}', [CommandClothesApi::class, 'update_wash_by_clothes_id']);
     Route::put('/recover/{id}', [CommandClothesApi::class, 'recover_clothes_by_id']);
     Route::delete('/destroy/{id}', [CommandClothesApi::class, 'hard_delete_clothes_by_id']);
     Route::delete('/destroy_wash/{id}', [CommandClothesApi::class, 'hard_delete_wash_by_id']);
     Route::delete('/delete/{id}', [CommandClothesApi::class, 'soft_delete_clothes_by_id']);
+    Route::delete('/outfit/remove/{clothes_id}', [CommandClothesApi::class, 'hard_delete_clothes_outfit_by_id']);
     Route::delete('/destroy_used/{id}', [CommandClothesApi::class, 'hard_delete_clothes_used_by_id']);
     Route::delete('/destroy_schedule/{id}', [CommandClothesApi::class, 'hard_delete_schedule_by_id']);
     Route::post('/history', [CommandClothesApi::class, 'post_history_clothes']);
@@ -48,6 +50,7 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::post('/schedule', [CommandClothesApi::class, 'post_schedule']);
     Route::post('/outfit/generate', [CommandClothesApi::class, 'post_generated_outfit']);
     Route::post('/outfit/save', [CommandClothesApi::class, 'post_save_outfit']);
+    Route::post('/outfit/save/clothes', [CommandClothesApi::class, 'post_save_clothes_outfit']);
     Route::post('/outfit/history/save', [CommandClothesApi::class, 'post_save_outfit_history']);
     Route::get('/outfit', [QueriesClothesApi::class, 'get_all_outfit']);
     Route::get('/outfit/last', [QueriesClothesApi::class, 'get_last_outfit']);

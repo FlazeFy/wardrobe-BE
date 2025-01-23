@@ -45,10 +45,19 @@ class OutfitRelModel extends Model
             $select_query = "clothes_name,clothes_type,clothes_image";
         }
 
-        $res = OutfitRelModel::select($select_query)
+        $res = OutfitRelModel::selectRaw($select_query)
             ->join('clothes', 'clothes.id', '=', 'outfit_relation.clothes_id')
             ->where('outfit_id', $outfit_id)
             ->get();
+
+        return $res;
+    }
+
+    public static function deleteRelation($user_id,$id,$outfit_id){
+        $res = OutfitRelModel::where('id', $id)
+            ->where('created_by',$user_id)
+            ->where('outfit_id',$outfit_id)
+            ->delete();
 
         return $res;
     }

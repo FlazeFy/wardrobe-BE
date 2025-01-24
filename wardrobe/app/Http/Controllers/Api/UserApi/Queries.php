@@ -69,16 +69,11 @@ class Queries extends Controller
             $user_id = $request->user()->id;
             $res = null;
 
-            $is_admin = AdminModel::select('username','email','created_at','updated_at')
-                ->where('id',$user_id)
-                ->first();
-
+            $is_admin = AdminModel::getProfile($user_id);
             if($is_admin){
                 $res = $is_admin;
             } else {
-                $res = UserModel::select('username','email','telegram_user_id','telegram_is_valid','created_at','updated_at')
-                    ->where('id',$user_id)
-                    ->first();
+                $res = UserModel::getProfile($user_id);
             }
 
             if ($res) {

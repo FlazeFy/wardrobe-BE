@@ -33,4 +33,26 @@ class ClothesUsedModel extends Model
 
         return $res;
     }
+
+    public static function getClothesUsedHistoryCalendar($user_id, $year, $month){
+        $res = ClothesUsedModel::selectRaw("clothes.id, clothes_name, clothes_category, clothes_type, clothes_image, clothes_used.created_at")
+            ->join('clothes', 'clothes_used.clothes_id', '=', 'clothes.id')
+            ->where('clothes_used.created_by', $user_id)
+            ->whereYear('clothes_used.created_at', '=', $year)
+            ->whereMonth('clothes_used.created_at', '=', $month)
+            ->orderby('clothes_used.created_at', 'asc')
+            ->get();
+
+        return $res;
+    }
+
+    public static function getYearlyClothesUsed($user_id){
+        $res = ClothesUsedModel::selectRaw("COUNT(1) as total, DATE(created_at) as context")
+            ->whereRaw("DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 365 DAY)")
+            ->where('created_by',$user_id)
+            ->groupByRaw("DATE(created_at)")
+            ->get();
+
+        return $res;
+    }
 }

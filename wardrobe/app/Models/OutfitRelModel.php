@@ -53,12 +53,21 @@ class OutfitRelModel extends Model
         return $res;
     }
 
-    public static function deleteRelation($user_id,$id,$outfit_id){
-        $res = OutfitRelModel::where('id', $id)
+    public static function deleteRelation($user_id,$clothes_id,$outfit_id){
+        $res = OutfitRelModel::where('clothes_id', $clothes_id)
             ->where('created_by',$user_id)
             ->where('outfit_id',$outfit_id)
             ->delete();
 
         return $res;
+    }
+
+    public static function isExistClothes($user_id,$clothes_id,$outfit_id){
+        $res = OutfitRelModel::where('clothes_id',$clothes_id)
+            ->where('outfit_id', $outfit_id)
+            ->where('created_by', $user_id)
+            ->first();
+
+        return $res ? true : false;
     }
 }

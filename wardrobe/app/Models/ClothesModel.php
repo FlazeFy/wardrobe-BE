@@ -55,4 +55,48 @@ class ClothesModel extends Model
 
         return $res;
     }
+
+    public static function getClothesBuyedCalendar($user_id, $year, $month){
+        $res = ClothesModel::selectRaw("clothes.id, clothes_name, clothes_category, clothes_type, clothes_image, clothes_buy_at as created_at")
+            ->where('created_by', $user_id)
+            ->whereNotNull('clothes_buy_at')
+            ->whereYear('clothes_buy_at', '=', $year)
+            ->whereMonth('clothes_buy_at', '=', $month)
+            ->orderby('clothes_buy_at', 'asc')
+            ->get();
+
+        return $res;
+    }
+
+    public static function getClothesCreatedCalendar($user_id, $year, $month){
+        $res = ClothesModel::selectRaw("clothes.id, clothes_name, clothes_category, clothes_type, clothes_image, created_at")
+            ->where('created_by', $user_id)
+            ->whereYear('created_at', '=', $year)
+            ->whereMonth('created_at', '=', $month)
+            ->orderby('created_at', 'asc')
+            ->get();
+
+        return $res;
+    }
+
+    public static function getMonthlyClothesCreatedBuyed($user_id, $year, $col){
+        $res = ClothesModel::selectRaw("COUNT(1) as total, MONTH($col) as context")
+            ->whereYear($col, '=', $year)
+            ->where('created_by', $user_id)
+            ->whereNotNull($col)
+            ->groupByRaw("MONTH($col)")
+            ->get();
+
+        return $res;
+    }
+
+    public static function getYearlyClothesCreatedBuyed($user_id, $target){
+        $res = ClothesModel::selectRaw("COUNT(1) as total, DATE($target) as context")
+            ->whereRaw("DATE($target) >= DATE_SUB(CURDATE(), INTERVAL 365 DAY)")
+            ->where('created_by', $user_id)
+            ->groupByRaw("DATE($target)")
+            ->get();
+
+        return $res;
+    }
 }

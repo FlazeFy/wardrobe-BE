@@ -11,6 +11,7 @@ use App\Helpers\Audit;
 class StatsTest extends TestCase
 {
     protected $httpClient;
+    private $month;
     use LoginHelperTrait;
 
     protected function setUp(): void
@@ -20,6 +21,7 @@ class StatsTest extends TestCase
             'base_uri' => 'http://127.0.0.1:8000/api/v1/stats/',
             'http_errors' => false
         ]);
+        $this->month = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     }
 
     public function test_get_stats_clothes_most_context(): void
@@ -151,14 +153,59 @@ class StatsTest extends TestCase
 
             $this->assertIsString($dt['context']);
 
+            $this->assertTrue(in_array($dt['context'], $this->month));
+
             $check_not_null_int = ['total_created','total_buyed'];
             foreach ($check_not_null_int as $col) {
-                $this->assertIsInt($dt['total_created']);
-                $this->assertGreaterThanOrEqual(0, $dt['total_buyed']);
+                $this->assertIsInt($dt[$col]);
+                $this->assertGreaterThanOrEqual(0, $dt[$col]);
             }
         }
 
         Audit::auditRecordText("Test - Get Clothes Monthly Created Buyed", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Get Clothes Monthly Created Buyed", "TC-XXX", 'TC-XXX test_get_stats_clothes_monthly_created_buyed', json_encode($data));
+    }
+
+    public function test_get_stats_outfit_monthly_by_outfit_id(): void
+    {
+        // Exec
+        $year = "2025";
+
+        $token = $this->login_trait("user");
+        $response = $this->httpClient->get("outfit/monthly/by_outfit/$year/all", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertArrayHasKey('data', $data);
+
+        foreach ($data['data'] as $dt) {
+            $check_object = ['context','total'];
+            foreach ($check_object as $col) {
+                $this->assertArrayHasKey($col, $dt);
+                $this->assertNotNull($dt[$col]);
+            }
+
+            $this->assertIsString($dt['context']);
+
+            $this->assertTrue(in_array($dt['context'], $this->month));
+
+            $check_not_null_int = ['total'];
+            foreach ($check_not_null_int as $col) {
+                $this->assertIsInt($dt[$col]);
+                $this->assertGreaterThanOrEqual(0, $dt[$col]);
+            }
+        }
+
+        Audit::auditRecordText("Test - Get Stats Outfit Monthly By Outfit Id", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Get Stats Outfit Monthly By Outfit Id", "TC-XXX", 'TC-XXX test_get_stats_outfit_monthly_by_outfit_id', json_encode($data));
     }
 }

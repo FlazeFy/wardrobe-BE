@@ -1554,17 +1554,24 @@ class Commands extends Controller
                             'message' => "At the $idx-th clothes : ".$validator->errors()
                         ], Response::HTTP_UNPROCESSABLE_ENTITY);
                     } else {
-                        $outfit_rel = OutfitRelModel::create([
-                            'id' => Generator::getUUID(),
-                            'outfit_id' => $outfit_id, 
-                            'clothes_id' => $dt->clothes_id, 
-                            'created_at' => date("Y-m-d H:i:s"),
-                            'created_by' => $user_id
-                        ]);
+                        $clothes_id = $dt->clothes_id;
+                        $is_exist_clothes = OutfitRelModel::isExistClothes($user_id,$clothes_id,$outfit_id);
 
-                        if($outfit_rel){
-                            $message_clothes .= "- $dt->clothes_name ($dt->clothes_type)\n";
-                            $success_clothes++;
+                        if(!$is_exist_clothes){
+                            $outfit_rel = OutfitRelModel::create([
+                                'id' => Generator::getUUID(),
+                                'outfit_id' => $outfit_id, 
+                                'clothes_id' => $clothes_id, 
+                                'created_at' => date("Y-m-d H:i:s"),
+                                'created_by' => $user_id
+                            ]);
+
+                            if($outfit_rel){
+                                $message_clothes .= "- $dt->clothes_name ($dt->clothes_type)\n";
+                                $success_clothes++;
+                            } else {
+                                $failed_clothes++;
+                            }
                         } else {
                             $failed_clothes++;
                         }
@@ -1583,9 +1590,9 @@ class Commands extends Controller
                     ], Response::HTTP_CREATED);
                 } else {
                     return response()->json([
-                        'status' => 'error',
-                        'message' => Generator::getMessageTemplate("unknown_error", null),
-                    ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                        'status' => 'failed',
+                        'message' => Generator::getMessageTemplate("custom", "nothing has change"),
+                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
                 }
             } 
         } catch(\Exception $e) {
@@ -1643,11 +1650,11 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function hard_delete_clothes_outfit_by_id(Request $request, $clothes_id){
+    public function hard_delete_clothes_outfit_by_id(Request $request, $clothes_id, $outfit_id){
         try{
             $user_id = $request->user()->id;
 
-            $rows = OutfitRelModel::deleteRelation($user_id,$clothes_id,$request->outfit_id);
+            $rows = OutfitRelModel::deleteRelation($user_id,$clothes_id,$outfit_id);
 
             if($rows > 0){
                 return response()->json([

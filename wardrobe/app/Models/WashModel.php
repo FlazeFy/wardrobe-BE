@@ -38,4 +38,26 @@ class WashModel extends Model
 
         return $res;
     }
+
+    public static function getWashCalendar($user_id, $year, $month){
+        $res = WashModel::selectRaw("clothes.id, clothes_name, clothes_category, clothes_type, clothes_image, wash.created_at")
+            ->join('clothes', 'clothes.id', '=', 'wash.clothes_id')
+            ->where('wash.created_by', $user_id)
+            ->whereYear('wash.created_at', '=', $year)
+            ->whereMonth('wash.created_at', '=', $month)
+            ->orderby('wash.created_at', 'asc')
+            ->get();
+
+        return $res;
+    }
+
+    public static function getYearlyWash($user_id){
+        $res = WashModel::selectRaw("COUNT(1) as total, DATE(created_at) as context")
+            ->whereRaw("DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 365 DAY)")
+            ->where('created_by',$user_id)
+            ->groupByRaw("DATE(created_at)")
+            ->get();
+
+        return $res;
+    }
 }

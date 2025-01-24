@@ -51,4 +51,12 @@ class UserModel extends Authenticatable
         
         return $res;
     }
+
+    public static function getProfile($id){
+        $res = UserModel::select('username','email','telegram_user_id','telegram_is_valid','created_at','updated_at')
+            ->where('id',$id)
+            ->first();
+
+        return $res;
+    }
 }

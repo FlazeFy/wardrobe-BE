@@ -15,6 +15,7 @@ use App\Models\WashModel;
 use App\Models\UserModel;
 use App\Models\ScheduleModel;
 use App\Models\OutfitModel;
+use App\Models\OutfitUsedModel;
 use App\Models\FeedbackModel;
 
 // Helpers
@@ -23,6 +24,15 @@ use App\Helpers\Validation;
 
 class Queries extends Controller
 {
+    private $month;
+
+    public function __construct()
+    {
+        $this->months = [
+            '01' => 'January', '02' => 'February', '03' => 'March', '04' => 'April', '05' => 'May', '06' => 'June', '07' => 'July', '08' => 'August', '09' => 'September', '10' => 'October', '11' => 'November', '12' => 'December'
+        ];
+    }
+
     /**
      * @OA\GET(
      *     path="/api/v1/stats/clothes/summary",
@@ -297,20 +307,11 @@ class Queries extends Controller
 
                 if($ctx == "clothes_buy_at" || $ctx == "clothes_created_at"){
                     $target = $ctx == "clothes_created_at" ? "created_at" : "clothes_buy_at";
-                    $res = ClothesModel::selectRaw("COUNT(1) as total, DATE($target) as context")
-                        ->whereRaw("DATE($target) >= DATE_SUB(CURDATE(), INTERVAL 365 DAY)")
-                        ->groupByRaw("DATE($target)")
-                        ->get();
+                    $res = ClothesModel::getYearlyClothesCreatedBuyed($user_id, $target);
                 } else if($ctx == "wash_created_at"){
-                    $res = WashModel::selectRaw("COUNT(1) as total, DATE(created_at) as context")
-                        ->whereRaw("DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 365 DAY)")
-                        ->groupByRaw("DATE(created_at)")
-                        ->get();
+                    $res = WashModel::getYearlyWash($user_id);
                 } else if($ctx == "clothes_used"){
-                    $res = ClothesUsedModel::selectRaw("COUNT(1) as total, DATE(created_at) as context")
-                        ->whereRaw("DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 365 DAY)")
-                        ->groupByRaw("DATE(created_at)")
-                        ->get();
+                    $res = ClothesUsedModel::getYearlyClothesUsed($user_id);
                 }
                 
                 if ($res) {
@@ -425,28 +426,14 @@ class Queries extends Controller
             $user_id = $request->user()->id;
             $date_now = new DateTime();
             $list_date = [];
-
-            $months = [
-                '01' => 'January', '02' => 'February', '03' => 'March', '04' => 'April', '05' => 'May', '06' => 'June', '07' => 'July', '08' => 'August', '09' => 'September', '10' => 'October', '11' => 'November', '12' => 'December'
-            ];
     
-            $res_created = ClothesModel::selectRaw("COUNT(1) as total, MONTH(created_at) as context")
-                ->whereRaw("YEAR(created_at) = ?", [$year])
-                ->where('created_by', $user_id)
-                ->groupByRaw("MONTH(created_at)")
-                ->get();
-    
-            $res_buyed = ClothesModel::selectRaw("COUNT(1) as total, MONTH(clothes_buy_at) as context")
-                ->whereRaw("YEAR(clothes_buy_at) = ?", [$year])
-                ->where('created_by', $user_id)
-                ->whereNotNull('clothes_buy_at')
-                ->groupByRaw("MONTH(clothes_buy_at)")
-                ->get();
+            $res_created = ClothesModel::getMonthlyClothesCreatedBuyed($user_id, $year, 'created_at');
+            $res_buyed = ClothesModel::getMonthlyClothesCreatedBuyed($user_id, $year, 'clothes_buy_at');
     
             if ($res_created->isNotEmpty() || $res_buyed->isNotEmpty()) {
                 $final_res = [];
     
-                foreach ($months as $month_number => $month_name) {
+                foreach ($this->months as $month_number => $month_name) {
                     $found_created = $res_created->firstWhere('context', $month_number);
                     $found_buyed = $res_buyed->firstWhere('context', $month_number);
     
@@ -472,7 +459,7 @@ class Queries extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage(),
+                'message' => Generator::getMessageTemplate("unknown_error", null),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -577,50 +564,18 @@ class Queries extends Controller
                     'message' => 'month is not valid'
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             } else {
-                $query_select = "clothes.id, clothes_name, clothes_category, clothes_type, clothes_image";
                 $user_id = $request->user()->id;
-
                 $startDate = new DateTime("$year-$month-01");
                 $endDate = clone $startDate;
                 $endDate->modify('first day of next month');
                 $interval = new DateInterval('P1D'); // End date is first day of next month
                 $datePeriod = new DatePeriod($startDate, $interval, $endDate);       
 
-                $res_used_history = ClothesUsedModel::selectRaw("$query_select, clothes_used.created_at")
-                    ->join('clothes', 'clothes_used.clothes_id', '=', 'clothes.id')
-                    ->where('clothes_used.created_by', $user_id)
-                    ->whereYear('clothes_used.created_at', '=', $year)
-                    ->whereMonth('clothes_used.created_at', '=', $month)
-                    ->orderby('clothes_used.created_at', 'asc')
-                    ->get();
-
-                $res_wash_schedule = WashModel::selectRaw("$query_select, wash.created_at")
-                    ->join('clothes', 'clothes.id', '=', 'wash.clothes_id')
-                    ->where('wash.created_by', $user_id)
-                    ->whereYear('wash.created_at', '=', $year)
-                    ->whereMonth('wash.created_at', '=', $month)
-                    ->orderby('wash.created_at', 'asc')
-                    ->get();
-
-                $res_weekly_schedule = ScheduleModel::selectRaw("$query_select, day")
-                    ->join('clothes', 'clothes.id', '=', 'schedule.clothes_id')
-                    ->where('schedule.created_by', $user_id)
-                    ->get();
-
-                $res_buyed_history = ClothesModel::selectRaw("$query_select, clothes_buy_at as created_at")
-                    ->where('created_by', $user_id)
-                    ->whereNotNull('clothes_buy_at')
-                    ->whereYear('clothes_buy_at', '=', $year)
-                    ->whereMonth('clothes_buy_at', '=', $month)
-                    ->orderby('clothes_buy_at', 'asc')
-                    ->get();
-
-                $res_add_wardrobe = ClothesModel::selectRaw("$query_select, created_at")
-                    ->where('created_by', $user_id)
-                    ->whereYear('created_at', '=', $year)
-                    ->whereMonth('created_at', '=', $month)
-                    ->orderby('created_at', 'asc')
-                    ->get();
+                $res_used_history = ClothesUsedModel::getClothesUsedHistoryCalendar($user_id, $year, $month);
+                $res_wash_schedule = WashModel::getWashCalendar($user_id, $year, $month);
+                $res_weekly_schedule = ScheduleModel::getWeeklyScheduleCalendar($user_id);
+                $res_buyed_history = ClothesModel::getClothesBuyedCalendar($user_id, $year, $month);
+                $res_add_wardrobe = ClothesModel::getClothesCreatedCalendar($user_id, $year, $month);
 
                 $final_res = [];
                 $format_date = 'd M Y';
@@ -679,7 +634,119 @@ class Queries extends Controller
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage(),
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @OA\GET(
+     *     path="/api/v1/stats/outfit/monthly/by_outfit/{year}/{outfit_id}",
+     *     summary="Get Outfit Monthly Total Used",
+     *     description="This request is used to get yearly stats outfit used. This request is using MySql database, have a protected routes",
+     *     tags={"Stats"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="year",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="year of used date",
+     *         example="2024",
+     *     ),
+     *     @OA\Parameter(
+     *         name="outfit_id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="outfit id",
+     *         example="05d6fe1d-9041-5673-044b-4d2e7f6f0090",
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="stats fetched",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="stats fetched"),
+     *             @OA\Property(property="data", type="array",
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="context", type="string", example="January"),
+     *                      @OA\Property(property="total", type="integer", example=2)
+     *                  )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="stats failed to fetched",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="stats not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function get_stats_outfit_monthly_by_outfit_id(Request $request, $year, $outfit_id){
+        try {
+            $user_id = $request->user()->id;
+            $date_now = new DateTime();
+            $list_date = [];
+    
+            $res = OutfitUsedModel::selectRaw("COUNT(1) as total, MONTH(created_at) as context")
+                ->whereRaw("YEAR(created_at) = ?", [$year]);
+
+            if($outfit_id != "all"){
+                $res = $res->where('outfit_id', $outfit_id);
+            }
+                
+            $res = $res->where('created_by', $user_id)
+                ->groupByRaw("MONTH(created_at)")
+                ->get();
+    
+            if ($res->isNotEmpty()) {
+                $final_res = [];
+    
+                foreach ($this->months as $month_number => $month_name) {
+                    $found = $res->firstWhere('context', $month_number);
+    
+                    $final_res[] = [
+                        'context' => $month_name,  
+                        'total' => $found ? $found->total : 0,
+                    ];
+                }
+    
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                    'data' => $final_res,
+                ], Response::HTTP_OK);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("not_found", 'stats'),
+                    'data' => $list_date
+                ], Response::HTTP_NOT_FOUND);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

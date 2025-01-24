@@ -43,4 +43,13 @@ class ScheduleModel extends Model
 
         return $res;
     }
+
+    public static function getWeeklyScheduleCalendar($user_id){
+        $res = ScheduleModel::selectRaw("clothes.id, clothes_name, clothes_category, clothes_type, clothes_image, day")
+            ->join('clothes', 'clothes.id', '=', 'schedule.clothes_id')
+            ->where('schedule.created_by', $user_id)
+            ->get();
+
+        return $res;
+    }
 }

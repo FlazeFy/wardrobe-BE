@@ -14,6 +14,8 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 // Models
 use App\Models\ClothesModel;
 use App\Models\UserModel;
+use App\Models\ClothesUsedModel;
+use App\Models\WashModel;
 
 // Helper
 use App\Helpers\Generator;
@@ -90,6 +92,108 @@ class Queries extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function get_export_clothes_used_excel(Request $request)
+    {
+        try {
+            $user_id = $request->user()->id;
+            $datetime = date('Y-m-d H:i:s');
+            $user = UserModel::getProfile($user_id);
+
+            $clothes_used = ClothesUsedModel::getClothesUsedExport($user_id);
+
+            return Excel::download(new class($clothes_used) implements WithMultipleSheets {
+                private $clothes_used;
+
+                public function __construct($clothes_used)
+                {
+                    $this->usedClothes = $clothes_used;
+                }
+
+                public function sheets(): array
+                {
+                    return [
+                        new class($this->usedClothes) implements FromCollection, WithHeadings, WithTitle {
+                            private $data;
+
+                            public function __construct($data)
+                            {
+                                $this->data = $data;
+                            }
+                            public function collection()
+                            {
+                                return $this->data;
+                            }
+                            public function headings(): array
+                            {
+                                return ['clothes_name', 'clothes_note', 'used_context', 'clothes_merk', 'clothes_made_from', 'clothes_color', 'clothes_type', 'is_favorite', 'used_at'];
+                            }
+                            public function title(): string
+                            {
+                                return "Clothes History";
+                            }
+                        }
+                    ];
+                }
+            }, "clothes_used-$user->username-$datetime.xlsx");
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function get_export_wash_excel(Request $request)
+    {
+        try {
+            $user_id = $request->user()->id;
+            $datetime = date('Y-m-d H:i:s');
+            $user = UserModel::getProfile($user_id);
+
+            $wash_history = WashModel::getWashExport($user_id);
+
+            return Excel::download(new class($wash_history) implements WithMultipleSheets {
+                private $wash_history;
+
+                public function __construct($wash_history)
+                {
+                    $this->washClothes = $wash_history;
+                }
+
+                public function sheets(): array
+                {
+                    return [
+                        new class($this->washClothes) implements FromCollection, WithHeadings, WithTitle {
+                            private $data;
+
+                            public function __construct($data)
+                            {
+                                $this->data = $data;
+                            }
+                            public function collection()
+                            {
+                                return $this->data;
+                            }
+                            public function headings(): array
+                            {
+                                return ['clothes_name', 'wash_type', 'wash_note', 'wash_checkpoint', 'clothes_merk', 'clothes_made_from', 'clothes_color', 'clothes_type', 'wash_at', 'finished_at'];
+                            }
+                            public function title(): string
+                            {
+                                return "Wash History";
+                            }
+                        }
+                    ];
+                }
+            }, "wash_history-$user->username-$datetime.xlsx");
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

@@ -60,4 +60,21 @@ class WashModel extends Model
 
         return $res;
     }
+
+    public static function getWashExport($user_id){
+        $res = WashModel::select('clothes_name', 'wash_type', 'wash_note', 'wash_checkpoint', 'clothes_merk', 'clothes_made_from', 'clothes_color', 'clothes_type', 'wash.created_at as wash_at', 'finished_at')
+            ->join('clothes','clothes.id','=','wash.clothes_id')
+            ->where('wash.created_by',$user_id)
+            ->orderby('wash.created_at','desc')
+            ->get();
+
+        $final_res = [];
+        foreach ($res as $dt) {    
+            $wash_checkpoint = $dt->wash_checkpoint;
+            $dt['wash_checkpoint'] = implode(', ', array_column($wash_checkpoint, 'checkpoint_name'));
+            $final_res[] = $dt; 
+        }
+
+        return collect($final_res);
+    }
 }

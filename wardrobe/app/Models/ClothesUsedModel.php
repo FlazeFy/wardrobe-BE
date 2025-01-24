@@ -55,4 +55,14 @@ class ClothesUsedModel extends Model
 
         return $res;
     }
+
+    public static function getClothesUsedExport($user_id){
+        $res = ClothesUsedModel::select('clothes_name', 'clothes_note', 'used_context', 'clothes_merk', 'clothes_made_from', 'clothes_color', 'clothes_type', 'is_favorite', 'clothes_used.created_at as used_at')
+            ->join('clothes','clothes.id','=','clothes_used.clothes_id')
+            ->where('clothes_used.created_by',$user_id)
+            ->orderby('clothes_used.created_at', 'desc')
+            ->get();
+
+        return $res;
+    }
 }

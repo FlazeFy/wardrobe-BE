@@ -10,12 +10,15 @@ use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Telegram\Bot\Laravel\Facades\Telegram;
+use Telegram\Bot\FileUpload\InputFile;
 
 // Models
 use App\Models\ClothesModel;
 use App\Models\UserModel;
 use App\Models\ClothesUsedModel;
 use App\Models\WashModel;
+use App\Models\HistoryModel;
 
 // Helper
 use App\Helpers\Generator;
@@ -26,28 +29,29 @@ class Queries extends Controller
     {
         try {
             $user_id = $request->user()->id;
-            $datetime = date('Y-m-d H:i:s');
+            $datetime = date('Y-m-d_H-i-s');
             $user = UserModel::getProfile($user_id);
-
+            $file_name = "clothes-$user->username-$datetime.xlsx";
+    
             $active_clothes = ClothesModel::getClothesExport($user_id, 'active');
             $deleted_clothes = ClothesModel::getClothesExport($user_id, 'deleted');
-
-            return Excel::download(new class($active_clothes, $deleted_clothes) implements WithMultipleSheets {
-                private $active_clothes;
-                private $deleted_clothes;
-
-                public function __construct($active_clothes, $deleted_clothes)
+    
+            Excel::store(new class($active_clothes, $deleted_clothes) implements WithMultipleSheets {
+                private $activeClothes;
+                private $deletedClothes;
+    
+                public function __construct($activeClothes, $deletedClothes)
                 {
-                    $this->activeClothes = $active_clothes;
-                    $this->deletedClothes = $deleted_clothes;
+                    $this->activeClothes = $activeClothes;
+                    $this->deletedClothes = $deletedClothes;
                 }
-
+    
                 public function sheets(): array
                 {
                     return [
                         new class($this->activeClothes) implements FromCollection, WithHeadings, WithTitle {
                             private $data;
-
+                            
                             public function __construct($data)
                             {
                                 $this->data = $data;
@@ -67,7 +71,7 @@ class Queries extends Controller
                         },
                         new class($this->deletedClothes) implements FromCollection, WithHeadings, WithTitle {
                             private $data;
-
+    
                             public function __construct($data)
                             {
                                 $this->data = $data;
@@ -87,7 +91,27 @@ class Queries extends Controller
                         }
                     ];
                 }
-            }, "clothes-$user->username-$datetime.xlsx");
+            }, $file_name, 'public');
+    
+            $storagePath = storage_path("app/public/$file_name");
+            $publicPath = public_path($file_name);
+            if (!file_exists($storagePath)) {
+                throw new \Exception("File not found: $storagePath");
+            }
+            copy($storagePath, $publicPath);
+    
+            if ($user && $user->telegram_is_valid == 1 && $user->telegram_user_id) {
+                $inputFile = InputFile::create($publicPath, $file_name);
+    
+                Telegram::sendDocument([
+                    'chat_id' => $user->telegram_user_id,
+                    'document' => $inputFile,
+                    'caption' => "Your clothes export is ready",
+                    'parse_mode' => 'HTML',
+                ]);
+            }
+    
+            return response()->download($publicPath)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -100,12 +124,13 @@ class Queries extends Controller
     {
         try {
             $user_id = $request->user()->id;
-            $datetime = date('Y-m-d H:i:s');
+            $datetime = date('Y-m-d_H-i-s');
             $user = UserModel::getProfile($user_id);
+            $file_name = "clothes_used-$user->username-$datetime.xlsx";
 
             $clothes_used = ClothesUsedModel::getClothesUsedExport($user_id);
 
-            return Excel::download(new class($clothes_used) implements WithMultipleSheets {
+            Excel::store(new class($clothes_used) implements WithMultipleSheets {
                 private $clothes_used;
 
                 public function __construct($clothes_used)
@@ -138,7 +163,27 @@ class Queries extends Controller
                         }
                     ];
                 }
-            }, "clothes_used-$user->username-$datetime.xlsx");
+            }, $file_name, 'public');
+    
+            $storagePath = storage_path("app/public/$file_name");
+            $publicPath = public_path($file_name);
+            if (!file_exists($storagePath)) {
+                throw new \Exception("File not found: $storagePath");
+            }
+            copy($storagePath, $publicPath);
+    
+            if ($user && $user->telegram_is_valid == 1 && $user->telegram_user_id) {
+                $inputFile = InputFile::create($publicPath, $file_name);
+    
+                Telegram::sendDocument([
+                    'chat_id' => $user->telegram_user_id,
+                    'document' => $inputFile,
+                    'caption' => "Your clothes used export is ready",
+                    'parse_mode' => 'HTML',
+                ]);
+            }
+    
+            return response()->download($publicPath)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -151,12 +196,13 @@ class Queries extends Controller
     {
         try {
             $user_id = $request->user()->id;
-            $datetime = date('Y-m-d H:i:s');
+            $datetime = date('Y-m-d_H-i-s');
             $user = UserModel::getProfile($user_id);
+            $file_name = "wash_history-$user->username-$datetime.xlsx";
 
             $wash_history = WashModel::getWashExport($user_id);
 
-            return Excel::download(new class($wash_history) implements WithMultipleSheets {
+            Excel::store(new class($wash_history) implements WithMultipleSheets {
                 private $wash_history;
 
                 public function __construct($wash_history)
@@ -189,11 +235,103 @@ class Queries extends Controller
                         }
                     ];
                 }
-            }, "wash_history-$user->username-$datetime.xlsx");
+            }, $file_name, 'public');
+        
+            $storagePath = storage_path("app/public/$file_name");
+            $publicPath = public_path($file_name);
+            if (!file_exists($storagePath)) {
+                throw new \Exception("File not found: $storagePath");
+            }
+            copy($storagePath, $publicPath);
+
+            if ($user && $user->telegram_is_valid == 1 && $user->telegram_user_id) {
+                $inputFile = InputFile::create($publicPath, $file_name);
+
+                Telegram::sendDocument([
+                    'chat_id' => $user->telegram_user_id,
+                    'document' => $inputFile,
+                    'caption' => "Your wash history export is ready",
+                    'parse_mode' => 'HTML',
+                ]);
+            }
+
+            return response()->download($publicPath)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage(),
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function get_export_history_excel(Request $request)
+    {
+        try {
+            $user_id = $request->user()->id;
+            $datetime = date('Y-m-d_H-i-s');
+            $user = UserModel::getProfile($user_id);
+            $file_name = "history-$user->username-$datetime.xlsx";
+
+            $history = HistoryModel::getHistoryExport($user_id);
+
+            Excel::store(new class($history) implements WithMultipleSheets {
+                private $history;
+
+                public function __construct($history)
+                {
+                    $this->history = $history;
+                }
+
+                public function sheets(): array
+                {
+                    return [
+                        new class($this->history) implements FromCollection, WithHeadings, WithTitle {
+                            private $data;
+
+                            public function __construct($data)
+                            {
+                                $this->data = $data;
+                            }
+                            public function collection()
+                            {
+                                return $this->data;
+                            }
+                            public function headings(): array
+                            {
+                                return ['history_type', 'history_context', 'created_at'];
+                            }
+                            public function title(): string
+                            {
+                                return "Apps History";
+                            }
+                        }
+                    ];
+                }
+            }, $file_name, 'public');
+        
+            $storagePath = storage_path("app/public/$file_name");
+            $publicPath = public_path($file_name);
+            if (!file_exists($storagePath)) {
+                throw new \Exception("File not found: $storagePath");
+            }
+            copy($storagePath, $publicPath);
+
+            if ($user && $user->telegram_is_valid == 1 && $user->telegram_user_id) {
+                $inputFile = InputFile::create($publicPath, $file_name);
+
+                Telegram::sendDocument([
+                    'chat_id' => $user->telegram_user_id,
+                    'document' => $inputFile,
+                    'caption' => "Your apps history export is ready",
+                    'parse_mode' => 'HTML',
+                ]);
+            }
+
+            return response()->download($publicPath)->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

@@ -23,4 +23,13 @@ class HistoryModel extends Model
 
         return $res;
     }
+
+    public static function getHistoryExport($user_id){
+        $res = HistoryModel::select('history_type','history_context','created_at')
+            ->where('created_by',$user_id)
+            ->orderby('created_at', 'DESC')
+            ->get();
+
+        return $res;
+    }
 }

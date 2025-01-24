@@ -99,4 +99,27 @@ class ClothesModel extends Model
 
         return $res;
     }
+
+    public static function getClothesExport($user_id, $type){
+        $res = ClothesModel::select('*')
+            ->where('created_by', $user_id);
+
+        if($type == 'active'){
+            $res->whereNull('deleted_at');
+        } else {
+            $res->whereNotNull('deleted_at');
+        }
+        
+        $res = $res->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($dt, $type) {
+                if($type == 'active'){
+                    unset($dt->deleted_at);
+                }
+                unset($dt->created_by);
+                return $dt;
+            });
+
+        return $res;
+    }
 }

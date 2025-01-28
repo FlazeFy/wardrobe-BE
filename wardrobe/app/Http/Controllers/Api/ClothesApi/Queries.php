@@ -685,7 +685,7 @@ class Queries extends Controller
      *                         @OA\Property(property="outfit_note", type="string", example="lorem"),
      *                         @OA\Property(property="is_favorite", type="integer", example=1),
      *                         @OA\Property(property="total_used", type="integer", example=0),
-     *                         @OA\Property(property="last_used", type="string", example="2024-05-14 02:32:07")
+     *                         @OA\Property(property="last_used", type="string", example="2024-05-14 02:32:07"),
      *                         @OA\Property(property="created_at", type="string", example="2024-05-14 02:32:07")
      *                     )
      *                 ),

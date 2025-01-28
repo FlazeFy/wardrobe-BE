@@ -95,4 +95,51 @@ class Queries extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * @OA\GET(
+     *     path="/api/v1/user/my_year",
+     *     summary="Get Available Year for User to Filter",
+     *     description="This request is used to get all year found on content (clothes, outfit, wash, schedule). This request is using MySql database",
+     *     tags={"User"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="year filter fetched",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="year filter fetched"),
+     *             @OA\Property(property="data", type="array",
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="year", type="integer", example=2024)
+     *                  )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function get_my_available_year_filter(Request $request){
+        try{
+            $user_id = $request->user()->id;
+            $res = UserModel::getMyAvailableYearFilter($user_id);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => Generator::getMessageTemplate("fetch", 'year filter'),
+                'data' => $res
+            ], Response::HTTP_OK);
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

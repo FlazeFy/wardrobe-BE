@@ -101,4 +101,32 @@ class UserTest extends TestCase
         Audit::auditRecordText("Test - Get My Profile User", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Get My Profile User", "TC-XXX", 'TC-XXX test_get_my_profile_user', json_encode($data));
     }
+
+    public function test_get_my_available_year_filter(): void
+    {
+        $token = $this->login_trait("user");
+        $response = $this->httpClient->get("my_year", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertArrayHasKey('data', $data);
+
+        foreach ($data['data'] as $dt) {
+            $this->assertArrayHasKey('year', $dt);
+            $this->assertNotNull($dt['year']);
+            $this->assertIsInt($dt['year']);
+        }
+
+        Audit::auditRecordText("Test - Get My Available Year Filter", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Get My Available Year Filter", "TC-XXX", 'TC-XXX test_get_my_available_year_filter', json_encode($data));
+    }
 }

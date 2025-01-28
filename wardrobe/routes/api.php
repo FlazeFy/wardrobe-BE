@@ -101,6 +101,7 @@ Route::prefix('/v1/feedback')->middleware(['auth:sanctum'])->group(function () {
 
 Route::prefix('/v1/user')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/my', [QueriesUserApi::class, 'get_my_profile']);
+    Route::get('/my_year', [QueriesUserApi::class, 'get_my_available_year_filter']);
 });
 
 Route::prefix('/v1/export')->middleware(['auth:sanctum'])->group(function () {

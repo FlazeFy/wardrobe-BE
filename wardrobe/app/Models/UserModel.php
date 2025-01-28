@@ -6,6 +6,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
+// Models
+use App\Models\ClothesModel;
+use App\Models\ClothesUsedModel;
+use App\Models\OutfitModel;
+use App\Models\OutfitRelModel;
+use App\Models\OutfitUsedModel;
+use App\Models\WashModel;
+use App\Models\ScheduleModel;
+
 class UserModel extends Authenticatable
 {
     use HasFactory;
@@ -56,6 +65,58 @@ class UserModel extends Authenticatable
         $res = UserModel::select('username','email','telegram_user_id','telegram_is_valid','created_at','updated_at')
             ->where('id',$id)
             ->first();
+
+        return $res;
+    }
+
+    public static function getMyAvailableYearFilter($user_id){
+        $clothes_years = ClothesModel::selectRaw('YEAR(created_at) as year')
+            ->where('created_by', $user_id)
+            ->groupby('year')
+            ->get();
+
+        $clothes_used_years = ClothesUsedModel::selectRaw('YEAR(created_at) as year')
+            ->where('created_by', $user_id)
+            ->groupby('year')
+            ->get();
+
+        $outfit_years = OutfitModel::selectRaw('YEAR(created_at) as year')
+            ->where('created_by', $user_id)
+            ->groupby('year')
+            ->get();
+
+        $outfit_rel_years = OutfitRelModel::selectRaw('YEAR(created_at) as year')
+            ->where('created_by', $user_id)
+            ->groupby('year')
+            ->get();
+
+        $outfit_used_years = OutfitUsedModel::selectRaw('YEAR(created_at) as year')
+            ->where('created_by', $user_id)
+            ->groupby('year')
+            ->get();
+
+        $wash_years = WashModel::selectRaw('YEAR(created_at) as year')
+            ->where('created_by', $user_id)
+            ->groupby('year')
+            ->get();
+
+        $schedule_years = ScheduleModel::selectRaw('YEAR(created_at) as year')
+            ->where('created_by', $user_id)
+            ->groupby('year')
+            ->get();
+
+        $additional_years = collect([['year' => date('Y')]]);
+
+        $res = $clothes_years->concat($clothes_used_years)
+            ->concat($outfit_years)
+            ->concat($outfit_rel_years)
+            ->concat($outfit_used_years)
+            ->concat($wash_years)
+            ->concat($schedule_years)
+            ->concat($additional_years)
+            ->unique('year') 
+            ->sortBy('year')
+            ->values(); 
 
         return $res;
     }

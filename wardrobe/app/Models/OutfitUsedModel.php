@@ -23,4 +23,21 @@ class OutfitUsedModel extends Model
 
         return $res;
     }
+
+    public static function getOutfitMostUsed($year = null,$user_id,$limit = 7){
+        $res = OutfitUsedModel::selectRaw("outfit_name as context, COUNT(1) as total")
+            ->join('outfit','outfit.id','=','outfit_used.outfit_id')
+            ->where('outfit_used.created_by',$user_id);
+
+        if($year){
+            $res = $res->whereYear('outfit_used.created_at',$year);
+        }
+
+        $res = $res->groupby('outfit_id')
+            ->orderby('total','desc')
+            ->limit($limit)
+            ->get();
+
+        return $res;
+    }
 }

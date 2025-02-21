@@ -56,24 +56,32 @@ class ClothesModel extends Model
         return $res;
     }
 
-    public static function getClothesBuyedCalendar($user_id, $year, $month){
+    public static function getClothesBuyedCalendar($user_id, $year, $month = null){
         $res = ClothesModel::selectRaw("clothes.id, clothes_name, clothes_category, clothes_type, clothes_image, clothes_buy_at as created_at")
             ->where('created_by', $user_id)
             ->whereNotNull('clothes_buy_at')
-            ->whereYear('clothes_buy_at', '=', $year)
-            ->whereMonth('clothes_buy_at', '=', $month)
-            ->orderby('clothes_buy_at', 'asc')
+            ->whereYear('clothes_buy_at', '=', $year);
+                
+        if($month){
+            $res->whereMonth('clothes_buy_at', '=', $month);
+        }
+        
+        $res->orderby('clothes_buy_at', 'asc')
             ->get();
 
         return $res;
     }
 
-    public static function getClothesCreatedCalendar($user_id, $year, $month){
+    public static function getClothesCreatedCalendar($user_id, $year, $month = null){
         $res = ClothesModel::selectRaw("clothes.id, clothes_name, clothes_category, clothes_type, clothes_image, created_at")
             ->where('created_by', $user_id)
-            ->whereYear('created_at', '=', $year)
-            ->whereMonth('created_at', '=', $month)
-            ->orderby('created_at', 'asc')
+            ->whereYear('created_at', '=', $year);
+
+        if($month){
+            $res->whereMonth('created_at', '=', $month);
+        }
+
+        $res->orderby('created_at', 'asc')
             ->get();
 
         return $res;

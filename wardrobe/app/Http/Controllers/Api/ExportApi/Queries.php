@@ -12,6 +12,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Telegram\Bot\Laravel\Facades\Telegram;
 use Telegram\Bot\FileUpload\InputFile;
+use Carbon\Carbon;
 
 // Models
 use App\Models\ClothesModel;
@@ -19,6 +20,9 @@ use App\Models\UserModel;
 use App\Models\ClothesUsedModel;
 use App\Models\WashModel;
 use App\Models\HistoryModel;
+
+// Export
+use App\Exports\CalendarClothesExport;
 
 // Helper
 use App\Helpers\Generator;
@@ -332,6 +336,94 @@ class Queries extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function get_export_clothes_calendar_excel(Request $request, $year){
+        try {
+            $user_id = $request->user()->id;
+            $datetime = date('Y-m-d_H-i-s');
+            $user = UserModel::getProfile($user_id);
+            $file_name = "calendar-$user->username-$datetime.xlsx";
+
+            $res_used_history = ClothesUsedModel::getClothesUsedHistoryCalendar($user_id, $year, null)->get()->map(function($col) {
+                return [
+                    'date' => Carbon::parse($col->created_at)->format('Y-m-d'),
+                    'clothes_name' => $col->clothes_name,
+                    'clothes_type' => $col->clothes_type
+                ];
+            });
+            $res_wash_schedule = WashModel::getWashCalendar($user_id, $year, null)->get()->map(function($col) {
+                return [
+                    'date' => Carbon::parse($col->created_at)->format('Y-m-d'),
+                    'clothes_name' => $col->clothes_name,
+                    'clothes_type' => $col->clothes_type
+                ];
+            });
+            $res_buyed_history = ClothesModel::getClothesBuyedCalendar($user_id, $year, null)->get()->map(function($col) {
+                return [
+                    'date' => Carbon::parse($col->created_at)->format('Y-m-d'),
+                    'clothes_name' => $col->clothes_name,
+                    'clothes_type' => $col->clothes_type
+                ];
+            });
+            $res_add_wardrobe = ClothesModel::getClothesCreatedCalendar($user_id, $year, null)->get()->map(function($col) {
+                return [
+                    'date' => Carbon::parse($col->created_at)->format('Y-m-d'),
+                    'clothes_name' => $col->clothes_name,
+                    'clothes_type' => $col->clothes_type
+                ];
+            });
+
+            Excel::store(new class($res_used_history, $res_wash_schedule, $res_buyed_history, $res_add_wardrobe) implements WithMultipleSheets {
+                private $res_used_history;
+                private $res_wash_schedule;
+                private $res_buyed_history;
+                private $res_add_wardrobe;
+
+                public function __construct($res_used_history, $res_wash_schedule, $res_buyed_history, $res_add_wardrobe)
+                {
+                    $this->res_used_history = $res_used_history;
+                    $this->res_wash_schedule = $res_wash_schedule;
+                    $this->res_buyed_history = $res_buyed_history;
+                    $this->res_add_wardrobe = $res_add_wardrobe;
+                }
+
+                public function sheets(): array
+                {
+                    return [
+                        new CalendarClothesExport($this->res_used_history, 'Used History'), 
+                        new CalendarClothesExport($this->res_wash_schedule, 'Wash Schedule'),
+                        new CalendarClothesExport($this->res_buyed_history, 'Buyed History'), 
+                        new CalendarClothesExport($this->res_add_wardrobe, 'Add Wardrobe'),
+                    ];
+                }
+            }, $file_name, 'public');
+        
+            $storagePath = storage_path("app/public/$file_name");
+            $publicPath = public_path($file_name);
+            if (!file_exists($storagePath)) {
+                throw new \Exception("File not found: $storagePath");
+            }
+            copy($storagePath, $publicPath);
+
+            if ($user && $user->telegram_is_valid == 1 && $user->telegram_user_id) {
+                $inputFile = InputFile::create($publicPath, $file_name);
+
+                Telegram::sendDocument([
+                    'chat_id' => $user->telegram_user_id,
+                    'document' => $inputFile,
+                    'caption' => "Your calendar export is ready",
+                    'parse_mode' => 'HTML',
+                ]);
+            }
+
+            return response()->download($publicPath)->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

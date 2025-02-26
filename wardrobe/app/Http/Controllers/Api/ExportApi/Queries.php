@@ -26,6 +26,7 @@ use App\Models\ClothesUsedModel;
 use App\Models\ScheduleModel;
 use App\Models\WashModel;
 use App\Models\HistoryModel;
+use App\Models\OutfitRelModel;
 
 // Export
 use App\Exports\CalendarClothesExport;
@@ -475,6 +476,66 @@ class Queries extends Controller
             return response($dompdf->output(), 200)
                 ->header('Content-Type', 'application/pdf')
                 ->header('Content-Disposition', "inline; filename='$file_name'");
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function get_export_clothes_detail_by_id_pdf(Request $request, $id){
+        try {
+            $user_id = $request->user()->id;
+            $datetime = date('Y-m-d_H-i-s');
+            $user = UserModel::getProfile($user_id);
+
+            $res_clothes = ClothesModel::select('*')
+                ->where('id',$id)
+                ->where('created_by',$user_id)
+                ->first();
+
+            if($res_clothes){
+                $res_used = ClothesUsedModel::getClothesUsedHistory($id,$user_id);
+                $res_wash = WashModel::getWashHistory($id,$user_id);
+                $last_used = ClothesUsedModel::getLastUsed($user_id);
+                $res_schedule = ScheduleModel::getScheduleByClothes($id, $user_id);
+                $res_outfit = OutfitRelModel::getClothesFoundInOutfit($id,$user_id);
+                $file_name = "clothes-detail-$res_clothes->clothes_name-$user->username-$datetime.pdf";
+
+                $html = Document::documentClothesDetail(null,null,null,$res_clothes,$res_used,$res_wash,$last_used,$res_schedule,$res_outfit);
+                $options = new DompdfOptions();
+                $options->set('defaultFont', 'Helvetica');
+                $dompdf = new Dompdf($options);
+                $dompdf->loadHtml($html);
+                $dompdf->setPaper('A4', 'portrait');
+                $dompdf->render();
+
+                if($user->telegram_user_id){
+                    $pdfContent = $dompdf->output();
+                    $pdfFilePath = public_path($file_name);
+                    file_put_contents($pdfFilePath, $pdfContent);
+                    $inputFile = InputFile::create($pdfFilePath, $pdfFilePath);
+
+                    Telegram::sendDocument([
+                        'chat_id' => $user->telegram_user_id,
+                        'document' => $inputFile,
+                        'caption' => "Your clothes detail document is ready",
+                        'parse_mode' => 'HTML'
+                    ]);
+
+                    unlink($pdfFilePath);
+                }
+
+                return response($dompdf->output(), 200)
+                    ->header('Content-Type', 'application/pdf')
+                    ->header('Content-Disposition', "inline; filename='$file_name'");
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("not_found", "clothes"),
+                ], Response::HTTP_NOT_FOUND);
+            }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',

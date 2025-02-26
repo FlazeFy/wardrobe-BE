@@ -111,6 +111,7 @@ class Generator
                     th { text-align:center; }
                     .date-text { font-style:italic; font-weight:normal; color:grey; font-size:11px; }
                     thead { background-color:rgba(59, 131, 246, 0.75); }
+                    .text-secondary { font-style:italic; font-weight:normal; color:grey; }
                 </style>
             ";
         }

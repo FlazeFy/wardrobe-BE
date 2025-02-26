@@ -109,6 +109,7 @@ Route::prefix('/v1/export')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/clothes/excel', [QueriesExportApi::class, 'get_export_clothes_excel']);
     Route::get('/clothes/calendar/excel/{year}', [QueriesExportApi::class, 'get_export_clothes_calendar_excel']);
     Route::get('/clothes/calendar/pdf/{date}', [QueriesExportApi::class, 'get_export_clothes_calendar_daily_pdf']);
+    Route::get('/clothes/detail/pdf/{id}', [QueriesExportApi::class, 'get_export_clothes_detail_by_id_pdf']);
     Route::get('/clothes_used/excel', [QueriesExportApi::class, 'get_export_clothes_used_excel']);
     Route::get('/wash/excel', [QueriesExportApi::class, 'get_export_wash_excel']);
     Route::get('/history/excel', [QueriesExportApi::class, 'get_export_history_excel']);

@@ -56,32 +56,42 @@ class ClothesModel extends Model
         return $res;
     }
 
-    public static function getClothesBuyedCalendar($user_id, $year, $month = null){
+    public static function getClothesBuyedCalendar($user_id, $year, $month = null, $date = null){
         $res = ClothesModel::selectRaw("clothes.id, clothes_name, clothes_category, clothes_type, clothes_image, clothes_buy_at as created_at")
             ->where('created_by', $user_id)
-            ->whereNotNull('clothes_buy_at')
-            ->whereYear('clothes_buy_at', '=', $year);
+            ->whereNotNull('clothes_buy_at');
+
+        if($date != null){
+            $res = $res->whereDate('clothes_buy_at', $date);
+        } else {
+            $res = $res->whereYear('clothes_buy_at', '=', $year);;
+        }
                 
-        if($month){
-            $res->whereMonth('clothes_buy_at', '=', $month);
+        if($month && $date == null){
+            $res = $res->whereMonth('clothes_buy_at', '=', $month);
         }
         
-        $res->orderby('clothes_buy_at', 'asc')
+        $res = $res->orderby('clothes_buy_at', 'asc')
             ->get();
 
         return $res;
     }
 
-    public static function getClothesCreatedCalendar($user_id, $year, $month = null){
+    public static function getClothesCreatedCalendar($user_id, $year, $month = null, $date = null){
         $res = ClothesModel::selectRaw("clothes.id, clothes_name, clothes_category, clothes_type, clothes_image, created_at")
-            ->where('created_by', $user_id)
-            ->whereYear('created_at', '=', $year);
+            ->where('created_by', $user_id);
 
-        if($month){
-            $res->whereMonth('created_at', '=', $month);
+        if($date != null){
+            $res = $res->whereDate('created_at', $date);
+        } else {
+            $res = $res->whereYear('created_at', '=', $year);;
         }
 
-        $res->orderby('created_at', 'asc')
+        if($month && $date == null){
+            $res = $res->whereMonth('created_at', '=', $month);
+        }
+
+        $res = $res->orderby('created_at', 'asc')
             ->get();
 
         return $res;
@@ -113,9 +123,9 @@ class ClothesModel extends Model
             ->where('created_by', $user_id);
 
         if($type == 'active'){
-            $res->whereNull('deleted_at');
+            $res = $res->whereNull('deleted_at');
         } else {
-            $res->whereNotNull('deleted_at');
+            $res = $res->whereNotNull('deleted_at');
         }
         
         $res = $res->orderBy('created_at', 'desc')

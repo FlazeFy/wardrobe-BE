@@ -34,17 +34,22 @@ class ClothesUsedModel extends Model
         return $res;
     }
 
-    public static function getClothesUsedHistoryCalendar($user_id, $year, $month = null){
+    public static function getClothesUsedHistoryCalendar($user_id, $year, $month = null, $date = null){
         $res = ClothesUsedModel::selectRaw("clothes.id, clothes_name, clothes_category, clothes_type, clothes_image, clothes_used.created_at")
             ->join('clothes', 'clothes_used.clothes_id', '=', 'clothes.id')
-            ->where('clothes_used.created_by', $user_id)
-            ->whereYear('clothes_used.created_at', '=', $year);
-        
-        if($month){
-            $res->whereMonth('clothes_used.created_at', '=', $month);
+            ->where('clothes_used.created_by', $user_id);
+
+        if($date != null){
+            $res = $res->whereDate('clothes_used.created_at', $date);
+        } else {
+            $res = $res->whereYear('clothes_used.created_at', '=', $year);
         }
         
-        $res->orderby('clothes_used.created_at', 'asc')
+        if($month && $date == null){
+            $res = $res->whereMonth('clothes_used.created_at', '=', $month);
+        }
+        
+        $res = $res->orderby('clothes_used.created_at', 'asc')
             ->get();
 
         return $res;

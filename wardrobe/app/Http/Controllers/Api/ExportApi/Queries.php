@@ -10,6 +10,11 @@ use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Dompdf\Dompdf;
+use Dompdf\Options;
+use Dompdf\Canvas\Factory as CanvasFactory;
+use Dompdf\Options as DompdfOptions;
+use Dompdf\Adapter\CPDF;
 use Telegram\Bot\Laravel\Facades\Telegram;
 use Telegram\Bot\FileUpload\InputFile;
 use Carbon\Carbon;
@@ -18,6 +23,7 @@ use Carbon\Carbon;
 use App\Models\ClothesModel;
 use App\Models\UserModel;
 use App\Models\ClothesUsedModel;
+use App\Models\ScheduleModel;
 use App\Models\WashModel;
 use App\Models\HistoryModel;
 
@@ -26,6 +32,7 @@ use App\Exports\CalendarClothesExport;
 
 // Helper
 use App\Helpers\Generator;
+use App\Helpers\Document;
 
 class Queries extends Controller
 {
@@ -345,7 +352,7 @@ class Queries extends Controller
             $user_id = $request->user()->id;
             $datetime = date('Y-m-d_H-i-s');
             $user = UserModel::getProfile($user_id);
-            $file_name = "calendar-$user->username-$datetime.xlsx";
+            $file_name = "calendar-$year-$user->username-$datetime.xlsx";
 
             $res_used_history = ClothesUsedModel::getClothesUsedHistoryCalendar($user_id, $year, null)->get()->map(function($col) {
                 return [
@@ -420,6 +427,54 @@ class Queries extends Controller
             }
 
             return response()->download($publicPath)->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function get_export_clothes_calendar_daily_pdf(Request $request, $date){
+        try {
+            $user_id = $request->user()->id;
+            $datetime = date('Y-m-d_H-i-s');
+            $user = UserModel::getProfile($user_id);
+            $file_name = "calendar-daily-$date-$user->username-$datetime.pdf";
+
+            $res_used_history = ClothesUsedModel::getClothesUsedHistoryCalendar($user_id, null, null, $date);
+            $res_wash_schedule = WashModel::getWashCalendar($user_id, null, null, $date);
+            $res_weekly_schedule = ScheduleModel::getWeeklyScheduleCalendar($user_id, $date);
+            $res_buyed_history = ClothesModel::getClothesBuyedCalendar($user_id, null, null, $date);
+            $res_add_wardrobe = ClothesModel::getClothesCreatedCalendar($user_id, null, null, $date);
+
+            $html = Document::documentDailyWeeklyReport(null,null,null,'daily',$date,$res_used_history,$res_wash_schedule,$res_weekly_schedule,$res_buyed_history,$res_add_wardrobe);
+            $options = new DompdfOptions();
+            $options->set('defaultFont', 'Helvetica');
+            $dompdf = new Dompdf($options);
+            $dompdf->loadHtml($html);
+            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->render();
+
+            if($user->telegram_user_id){
+                $pdfContent = $dompdf->output();
+                $pdfFilePath = public_path($file_name);
+                file_put_contents($pdfFilePath, $pdfContent);
+                $inputFile = InputFile::create($pdfFilePath, $pdfFilePath);
+
+                Telegram::sendDocument([
+                    'chat_id' => $user->telegram_user_id,
+                    'document' => $inputFile,
+                    'caption' => "Your daily report is ready",
+                    'parse_mode' => 'HTML'
+                ]);
+
+                unlink($pdfFilePath);
+            }
+
+            return response($dompdf->output(), 200)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', "inline; filename='$file_name'");
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',

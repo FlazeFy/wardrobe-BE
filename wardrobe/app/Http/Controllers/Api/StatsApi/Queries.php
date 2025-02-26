@@ -604,7 +604,7 @@ class Queries extends Controller
                     }
                     $curr_res_buyed_history = [];
                     foreach ($res_buyed_history as $dt) {
-                        if(date($format_date,strtotime($dt->clothes_buy_at)) == $date){
+                        if(date($format_date,strtotime($dt->created_at)) == $date){
                             $curr_res_buyed_history[] = $dt;
                         }
                     }

@@ -5,6 +5,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 // Models
 use App\Models\ClothesModel;
@@ -99,6 +102,7 @@ class Queries extends Controller
     {
         try{
             $user_id = $request->user()->id;
+            $page = request()->query('page');  
 
             $res = ClothesModel::select('id', 'clothes_name', 'clothes_image', 'clothes_size', 'clothes_gender', 'clothes_color', 'clothes_category', 'clothes_type', 'clothes_qty', 'is_faded', 'has_washed', 'has_ironed', 'is_favorite', 'is_scheduled');
             
@@ -109,8 +113,13 @@ class Queries extends Controller
             $res = $res->where('created_by',$user_id)
                 ->orderBy('is_favorite', 'desc')
                 ->orderBy('clothes_name', $order)
-                ->orderBy('created_at', $order)
-                ->paginate(14);
+                ->orderBy('created_at', $order);
+
+            if($page != "all"){
+                $res = $res->paginate(14);
+            } else {
+                $res = $res->get();
+            }
             
             if (count($res) > 0) {
                 return response()->json([
@@ -486,13 +495,23 @@ class Queries extends Controller
     {
         try{
             $user_id = $request->user()->id;
+            $page = request()->query('page');  
 
             $res = ClothesUsedModel::select('clothes_name','clothes_type','clothes_note','used_context','clothes.created_at')
-                ->join('clothes','clothes.id','=','clothes_used.clothes_id')
-                ->where('clothes_id',$clothes_id)
-                ->orderBy('clothes_used.created_at', $order)
-                ->orderBy('clothes_name', $order)
-                ->paginate(14);
+                ->join('clothes','clothes.id','=','clothes_used.clothes_id');
+
+            if($clothes_id != "all"){
+                $res = $res->where('clothes_id',$clothes_id);
+            } 
+            
+            $res = $res->orderBy('clothes_used.created_at', $order)
+                ->orderBy('clothes_name', $order);
+
+            if($clothes_id != "all" || $page != "all"){
+                $res = $res->paginate(14);
+            } else {
+                $res = $res->get();
+            }
             
             if (count($res) > 0) {
                 return response()->json([
@@ -1283,6 +1302,99 @@ class Queries extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @OA\GET(
+     *     path="/api/v1/clothes/wash_history",
+     *     summary="Show all clothes wash history",
+     *     tags={"Clothes"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="wash history found",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="wash history fetched"),
+     *             @OA\Property(property="data", type="array",
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="clothes_name", type="string", example="Shirt ABC"),
+     *                      @OA\Property(property="wash_type", type="string", example="Laundry"),
+     *                      @OA\Property(property="clothes_made_from", type="string", example="cloth"),
+     *                      @OA\Property(property="clothes_color", type="string", example="black, white"),
+     *                      @OA\Property(property="clothes_type", type="string", example="shirt"),
+     *                      @OA\Property(property="wash_at", type="string", example="2024-05-17 04:09:40"),
+     *                      @OA\Property(property="finished_at", type="string", example="2024-06-17 04:09:40"),
+     *                  )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="wash history not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="wash history not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function get_all_wash_history(Request $request){
+        try { 
+            $user_id = $request->user()->id;
+            $perPage = request()->input('per_page', 14);
+            $page = request()->input('page', 1);
+
+            $res = WashModel::getWashExport($user_id)->map(function ($col) {
+                unset($col->wash_checkpoint, $col->wash_note, $col->clothes_merk);
+                return $col;
+            });
+
+            $collection = collect($res);
+            $collection = $collection->sortBy('wash_at')->values();
+            $page = request()->input('page', 1);
+            $paginator = new LengthAwarePaginator(
+                $collection->forPage($page, $perPage)->values(),
+                $collection->count(),
+                $perPage,
+                $page,
+                ['path' => url()->current()]
+            );
+            $res = $paginator->appends(request()->except('page'));
+
+            if ($res->isEmpty()) {         
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("not_found", "schedule"),
+                ], Response::HTTP_NOT_FOUND);
+            } else {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("fetch", "schedule"),
+                    'data' => $res
+                ], Response::HTTP_OK);
+            }
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

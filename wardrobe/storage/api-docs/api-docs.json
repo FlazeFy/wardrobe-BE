@@ -3943,6 +3943,133 @@
                 }
             }
         },
+        "/api/v1/clothes/wash_history": {
+            "get": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Show all clothes wash history",
+                "operationId": "87e4abac31d2f96a4ef6cbc10d14b555",
+                "responses": {
+                    "200": {
+                        "description": "wash history found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "wash history fetched"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "clothes_name": {
+                                                        "type": "string",
+                                                        "example": "Shirt ABC"
+                                                    },
+                                                    "wash_type": {
+                                                        "type": "string",
+                                                        "example": "Laundry"
+                                                    },
+                                                    "clothes_made_from": {
+                                                        "type": "string",
+                                                        "example": "cloth"
+                                                    },
+                                                    "clothes_color": {
+                                                        "type": "string",
+                                                        "example": "black, white"
+                                                    },
+                                                    "clothes_type": {
+                                                        "type": "string",
+                                                        "example": "shirt"
+                                                    },
+                                                    "wash_at": {
+                                                        "type": "string",
+                                                        "example": "2024-05-17 04:09:40"
+                                                    },
+                                                    "finished_at": {
+                                                        "type": "string",
+                                                        "example": "2024-06-17 04:09:40"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "wash history not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "wash history not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/dct/{id}": {
             "delete": {
                 "tags": [
@@ -5007,6 +5134,104 @@
                 ]
             }
         },
+        "/api/v1/question/faq": {
+            "get": {
+                "tags": [
+                    "Question"
+                ],
+                "summary": "Get latest faq",
+                "description": "This request is used to get latest faq. This request is using MySql database",
+                "operationId": "8549f87126ed724637ebc9fa77019c94",
+                "responses": {
+                    "200": {
+                        "description": "faq fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "faq fetched"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "question": {
+                                                                "type": "string",
+                                                                "example": "How to login?"
+                                                            },
+                                                            "answer": {
+                                                                "type": "string",
+                                                                "example": "Using your username and password"
+                                                            },
+                                                            "created_at": {
+                                                                "type": "string",
+                                                                "format": "date-time",
+                                                                "example": "2024-09-20 22:53:47"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "faq failed to fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "faq not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/stats/clothes/by/{ctx}": {
             "post": {
                 "tags": [
@@ -6060,6 +6285,131 @@
                 ]
             }
         },
+        "/api/v1/stats/outfit/most/used/{year}": {
+            "get": {
+                "tags": [
+                    "Stats"
+                ],
+                "summary": "Get Yearly Most Used Outfit",
+                "description": "This request is used to get yearly most used outfit. This request is using MySql database, have a protected routes",
+                "operationId": "da0f5f95bc43283483740750869068af",
+                "parameters": [
+                    {
+                        "name": "year",
+                        "in": "path",
+                        "description": "year of used outfit",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "2024"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "stats fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "stats fetched"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "context": {
+                                                        "type": "string",
+                                                        "example": "Outfit A"
+                                                    },
+                                                    "total": {
+                                                        "type": "integer",
+                                                        "example": 10
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "stats failed to fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "stats not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/user/my": {
             "get": {
                 "tags": [
@@ -6384,6 +6734,10 @@
         {
             "name": "History",
             "description": "History"
+        },
+        {
+            "name": "Question",
+            "description": "Question"
         },
         {
             "name": "Stats",

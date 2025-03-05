@@ -35,13 +35,20 @@ class ScheduleModel extends Model
     }
 
     public static function getScheduleByDay($day, $user_id){
-        $res = ScheduleModel::select('clothes.id','clothes_name','clothes_type','clothes_image')
-            ->join('clothes','clothes.id','=','schedule.clothes_id')
-            ->where('day',$day)
-            ->where('schedule.created_by',$user_id)
-            ->get();
+        $res = ScheduleModel::select('clothes.id','clothes_name','clothes_type','clothes_image','day')
+            ->join('clothes','clothes.id','=','schedule.clothes_id');
+        
+        if($day != 'all'){
+            $res = $res->where('day',$day);
+        }
 
-        return $res;
+        $res = $res->where('schedule.created_by',$user_id);
+        
+        if($day == 'all'){
+            $res = $res->orderByRaw("FIELD(day, 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')");
+        }
+
+        return $res->get();
     }
 
     public static function getWeeklyScheduleCalendar($user_id, $date = null){

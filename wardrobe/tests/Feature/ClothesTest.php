@@ -1028,4 +1028,47 @@ class ClothesTest extends TestCase
         Audit::auditRecordText("Test - Post Save Outfit History", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Post Save Outfit History", "TC-XXX", 'TC-XXX test_post_save_outfit_history', json_encode($data));
     }
+
+    public function test_get_all_wash_history(): void
+    {
+        // Exec
+        $token = $this->login_trait("user");
+        $response = $this->httpClient->get("wash_history", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertArrayHasKey('data', $data);
+
+        foreach ($data['data']['data'] as $dt) {
+            $check_object = ['clothes_name','wash_type','clothes_made_from','clothes_color','clothes_type','wash_at','finished_at'];
+            foreach ($check_object as $col) {
+                $this->assertArrayHasKey($col, $dt);
+            }
+
+            $check_not_null_str = ['clothes_name','wash_type','clothes_made_from','clothes_color','clothes_type','wash_at'];
+            foreach ($check_not_null_str as $col) {
+                $this->assertNotNull($dt[$col]);
+                $this->assertIsString($dt[$col]);
+            }
+
+            $check_nullable_str = ['clothes_made_from','finished_at'];
+            foreach ($check_nullable_str as $col) {
+                if(!is_null($dt[$col])){
+                    $this->assertIsString($dt[$col]);
+                }
+            }
+        }
+
+        Audit::auditRecordText("Test - Get All Wash History", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Get All Wash History", "TC-XXX", 'TC-XXX test_get_all_wash_history', json_encode($data));
+    }
 }

@@ -41,6 +41,7 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/similiar/{ctx}/{val}/{exc}', [QueriesClothesApi::class, 'get_clothes_similiar_by']);
     Route::get('/check_wash/{clothes_id}', [QueriesClothesApi::class, 'get_clothes_wash_status_by_clothes_id']);
     Route::get('/wash_checkpoint/{clothes_id}', [QueriesClothesApi::class, 'get_wash_checkpoint_by_clothes_id']);
+    Route::get('/wash_history', [QueriesClothesApi::class, 'get_all_wash_history']);
     Route::get('/trash', [QueriesClothesApi::class, 'get_deleted_clothes']);
     Route::get('/schedule/{day}', [QueriesClothesApi::class, 'get_schedule_by_day']);
     Route::put('/update_checkpoint/{id}', [CommandClothesApi::class, 'update_wash_by_clothes_id']);

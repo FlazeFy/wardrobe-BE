@@ -86,4 +86,18 @@ class WashModel extends Model
 
         return collect($final_res);
     }
+
+    public static function getUnfinishedWash($user_id,$page){
+        $res = WashModel::select('clothes_name', 'wash_type', 'wash_checkpoint', 'clothes_type', 'wash.created_at as wash_at')
+            ->join('clothes','clothes.id','=','wash.clothes_id')
+            ->where('wash.created_by',$user_id)
+            ->whereNull('finished_at')
+            ->orderby('wash.created_at','desc');
+
+        if($page == "all"){
+            return $res->get();
+        } else {
+            return $res->paginate(14);
+        }
+    }
 }

@@ -4070,6 +4070,141 @@
                 }
             }
         },
+        "/api/v1/clothes/wash_unfinished": {
+            "get": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Show unfinished wash clothes",
+                "operationId": "87156461bd2b4cf7e9d68fc61f5143e6",
+                "responses": {
+                    "200": {
+                        "description": "unfinished wash found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "unfinished wash fetched"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "clothes_name": {
+                                                        "type": "string",
+                                                        "example": "Shirt ABC"
+                                                    },
+                                                    "wash_type": {
+                                                        "type": "string",
+                                                        "example": "Laundry"
+                                                    },
+                                                    "wash_checkpoint": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string",
+                                                                    "example": "1"
+                                                                },
+                                                                "checkpoint_name": {
+                                                                    "type": "string",
+                                                                    "example": "Rendam"
+                                                                },
+                                                                "is_finished": {
+                                                                    "type": "boolean",
+                                                                    "example": false
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "clothes_type": {
+                                                        "type": "string",
+                                                        "example": "shirt"
+                                                    },
+                                                    "wash_at": {
+                                                        "type": "string",
+                                                        "example": "2024-05-17 04:09:40"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "unfinished wash not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "unfinished wash not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/dct/{id}": {
             "delete": {
                 "tags": [

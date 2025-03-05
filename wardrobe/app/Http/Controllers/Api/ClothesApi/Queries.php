@@ -1382,19 +1382,100 @@ class Queries extends Controller
             if ($res->isEmpty()) {         
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", "schedule"),
+                    'message' => Generator::getMessageTemplate("not_found", "wash"),
                 ], Response::HTTP_NOT_FOUND);
             } else {
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", "schedule"),
+                    'message' => Generator::getMessageTemplate("fetch", "wash"),
                     'data' => $res
                 ], Response::HTTP_OK);
             }
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage(),
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @OA\GET(
+     *     path="/api/v1/clothes/wash_unfinished",
+     *     summary="Show unfinished wash clothes",
+     *     tags={"Clothes"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="unfinished wash found",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="unfinished wash fetched"),
+     *             @OA\Property(property="data", type="array",
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="clothes_name", type="string", example="Shirt ABC"),
+     *                      @OA\Property(property="wash_type", type="string", example="Laundry"),
+     *                      @OA\Property(property="wash_checkpoint", type="array",
+     *                          @OA\Items(type="object",
+     *                              @OA\Property(property="id", type="string", example="1"),
+     *                              @OA\Property(property="checkpoint_name", type="string", example="Rendam"),
+     *                              @OA\Property(property="is_finished", type="boolean", example=false),
+     *                          )
+     *                      ),
+     *                      @OA\Property(property="clothes_type", type="string", example="shirt"),
+     *                      @OA\Property(property="wash_at", type="string", example="2024-05-17 04:09:40")
+     *                  )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="unfinished wash not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="unfinished wash not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function get_unfinished_wash(Request $request){
+        try { 
+            $user_id = $request->user()->id;
+            $page = request()->query('page',1);  
+
+            $res = WashModel::getUnfinishedWash($user_id,$page);
+
+            if ($res->isEmpty()) {         
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("not_found", "unfinished wash"),
+                ], Response::HTTP_NOT_FOUND);
+            } else {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("fetch", "unfinished wash"),
+                    'data' => $res
+                ], Response::HTTP_OK);
+            }
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

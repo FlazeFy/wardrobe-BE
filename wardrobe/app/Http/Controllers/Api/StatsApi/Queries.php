@@ -921,4 +921,104 @@ class Queries extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * @OA\GET(
+     *     path="/api/v1/stats/clothes/most/used/daily",
+     *     summary="Get Most Used Daily Clothes By Type",
+     *     description="This request is used to get most used daily clothes by type. This request is using MySql database, have a protected routes",
+     *     tags={"Stats"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="stats fetched",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="stats fetched"),
+     *             @OA\Property(property="data", type="array",
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="day", type="string", example="Sun"),
+     *                      @OA\Property(property="clothes", type="array",
+     *                          @OA\Items(type="object",
+     *                              @OA\Property(property="id", type="string", example="efbf49d9-78f4-436a-07ef-ca3aa661f9d7"),
+     *                              @OA\Property(property="clothes_name", type="string", example="shirt A"),
+     *                              @OA\Property(property="clothes_type", type="string", example="hat"),
+     *                              @OA\Property(property="clothes_image", type="string", nullable=true, example="https://storage.googleapis.com/example.jpg"),
+     *                              @OA\Property(property="clothes_category", type="string", example="head"),
+     *                              @OA\Property(property="total", type="integer", example=6),
+     *                              @OA\Property(property="last_used", type="string", example="2025-01-10 14:30:40")
+     *                          )
+     *                      )
+     *                  ),
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="day", type="string", example="Mon"),
+     *                      @OA\Property(property="clothes", type="array", nullable=true, example=null)
+     *                  ),
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="day", type="string", example="Tue"),
+     *                      @OA\Property(property="clothes", type="array", nullable=true, example=null)
+     *                  ),
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="day", type="string", example="Wed"),
+     *                      @OA\Property(property="clothes", type="array", nullable=true, example=null)
+     *                  ),
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="day", type="string", example="Thu"),
+     *                      @OA\Property(property="clothes", type="array", nullable=true, example=null)
+     *                  ),
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="day", type="string", example="Fri"),
+     *                      @OA\Property(property="clothes", type="array", nullable=true, example=null)
+     *                  ),
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="day", type="string", example="Sat"),
+     *                      @OA\Property(property="clothes", type="array", nullable=true, example=null)
+     *                  )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function get_stats_most_used_clothes_daily(Request $request){
+        try {
+            $user_id = $request->user()->id;
+
+            $res = [];
+            $days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            foreach ($days as $dt) {
+                $res_day = ClothesModel::getMostUsedClothesByDayAndType($user_id, $dt);
+                $res[] = [
+                    'day' => $dt,
+                    'clothes' => count($res_day) > 0 ? $res_day : null
+                ];
+            }
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                'data' => $res,
+            ], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

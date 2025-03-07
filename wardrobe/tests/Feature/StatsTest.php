@@ -289,4 +289,58 @@ class StatsTest extends TestCase
         Audit::auditRecordText("Test - Get Stats Wash Summary", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Get Stats Wash Summary", "TC-XXX", 'TC-XXX test_get_stats_wash_summary', json_encode($data));
     }
+
+    public function test_get_stats_most_used_clothes_daily(): void
+    {
+        // Exec
+        $token = $this->login_trait("user");
+        $response = $this->httpClient->get("clothes/most/used/daily", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertArrayHasKey('data', $data);
+
+        foreach ($data['data'] as $dt) {
+            $check_object = ['day','clothes'];
+            foreach ($check_object as $col) {
+                $this->assertArrayHasKey($col, $dt);
+            }
+
+            $check_not_null_str = ['day'];
+            foreach ($check_not_null_str as $col) {
+                $this->assertIsString($dt[$col]);
+            }
+
+            $check_nullable_arr = ['clothes'];
+            foreach ($check_nullable_arr as $col) {
+                if(!is_null($dt[$col])){
+                    foreach ($dt[$col] as $cl) {
+                        $check_not_null_str = ['id','clothes_name','clothes_type','clothes_category','last_used'];
+                        foreach ($check_not_null_str as $col) {
+                            $this->assertIsString($cl[$col]);
+                        }
+
+                        if(!is_null($cl['clothes_image'])){
+                            $this->assertIsString($cl['clothes_image']);
+                        }
+
+                        $this->assertIsInt($cl['total']);
+                        $this->assertGreaterThanOrEqual(0, $cl['total']);
+                    }
+                }
+            }
+        }
+
+        Audit::auditRecordText("Test - Get Stats Most Used Clothes Daily", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Get Stats Most Used Clothes Daily", "TC-XXX", 'TC-XXX test_get_stats_most_used_clothes_daily', json_encode($data));
+    }
 }

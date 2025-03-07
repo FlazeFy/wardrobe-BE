@@ -154,4 +154,17 @@ class ClothesModel extends Model
 
         return $res;
     }
+
+    public static function getMostUsedClothesByDayAndType($user_id,$day){
+        $res = ClothesModel::selectRaw('clothes.id,clothes_name,clothes_type,clothes_image,clothes_category,COUNT(1) as total,MAX(clothes.created_at) as last_used')
+            ->join('clothes_used','clothes_used.clothes_id','=','clothes.id')
+            ->where('clothes.created_by',$user_id)
+            ->whereNull('deleted_at')
+            ->whereRaw('LEFT(DAYNAME(clothes_used.created_at),3) = ?', [$day])
+            ->groupBy('clothes_type')
+            ->orderby('clothes_type','ASC')
+            ->get();
+
+        return $res;
+    }
 }

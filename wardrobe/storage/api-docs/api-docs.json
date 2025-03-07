@@ -6952,6 +6952,132 @@
                 ]
             }
         },
+        "/api/v1/stats/clothes/most/used/daily": {
+            "get": {
+                "tags": [
+                    "Stats"
+                ],
+                "summary": "Get Most Used Daily Clothes By Type",
+                "description": "This request is used to get most used daily clothes by type. This request is using MySql database, have a protected routes",
+                "operationId": "0c90592ef5b65bd768b0b00f308e9eea",
+                "responses": {
+                    "200": {
+                        "description": "stats fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "stats fetched"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "day": {
+                                                        "type": "string",
+                                                        "example": "Sun"
+                                                    },
+                                                    "clothes": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string",
+                                                                    "example": "efbf49d9-78f4-436a-07ef-ca3aa661f9d7"
+                                                                },
+                                                                "clothes_name": {
+                                                                    "type": "string",
+                                                                    "example": "shirt A"
+                                                                },
+                                                                "clothes_type": {
+                                                                    "type": "string",
+                                                                    "example": "hat"
+                                                                },
+                                                                "clothes_image": {
+                                                                    "type": "string",
+                                                                    "example": "https://storage.googleapis.com/example.jpg",
+                                                                    "nullable": true
+                                                                },
+                                                                "clothes_category": {
+                                                                    "type": "string",
+                                                                    "example": "head"
+                                                                },
+                                                                "total": {
+                                                                    "type": "integer",
+                                                                    "example": 6
+                                                                },
+                                                                "last_used": {
+                                                                    "type": "string",
+                                                                    "example": "2025-01-10 14:30:40"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/user/my": {
             "get": {
                 "tags": [

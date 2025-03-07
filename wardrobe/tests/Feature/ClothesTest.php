@@ -1129,4 +1129,67 @@ class ClothesTest extends TestCase
         Audit::auditRecordText("Test - Get Unfinished Wash", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Get Unfinished Wash", "TC-XXX", 'TC-XXX test_get_unfinished_wash', json_encode($data));
     }
+
+    public function test_get_schedule_tomorrow(): void
+    {
+        // Exec
+        $day = "Sat";
+        $token = $this->login_trait("user");
+        $response = $this->httpClient->get("schedule/tomorrow/$day", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertArrayHasKey('data', $data);
+
+        $check_object = ['tomorrow','tomorrow_day','two_days_later','two_days_later_day'];
+        foreach ($check_object as $col) {
+            $this->assertArrayHasKey($col, $data['data']);
+        }
+
+        $check_not_null_str = ['tomorrow_day','two_days_later_day'];
+        foreach ($check_not_null_str as $col) {
+            $this->assertNotNull($data['data'][$col]);
+            $this->assertIsString($data['data'][$col]);
+        }
+
+        $check_nullable_arr = ['tomorrow','two_days_later'];
+        foreach ($check_nullable_arr as $col) {
+            if(!is_null($data['data'][$col])){
+                $this->assertIsArray($data['data'][$col]);
+
+                foreach ($data['data'][$col] as $cl) {
+                    $check_object_cl = ['id','clothes_name','clothes_type','clothes_image','day'];
+                    foreach ($check_object_cl as $col_cl) {
+                        $this->assertArrayHasKey($col_cl, $cl);
+                    }
+
+                    $check_not_null_str_cl = ['id','clothes_name','clothes_type','day'];
+                    foreach ($check_not_null_str_cl as $col_cl) {
+                        $this->assertNotNull($cl[$col_cl]);
+                        $this->assertIsString($cl[$col_cl]);
+                    }
+
+                    $check_nullable_str_cl = ['clothes_image'];
+                    foreach ($check_nullable_str_cl as $col_cl) {
+                        if(!is_null($cl[$col_cl])){
+                            $this->assertNotNull($cl[$col_cl]);
+                            $this->assertIsString($cl[$col_cl]);
+                        }
+                    }
+                }
+            }
+        }
+
+        Audit::auditRecordText("Test - Get Schedule Tomorrow", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Get Schedule Tomorrow", "TC-XXX", 'TC-XXX test_get_schedule_tomorrow', json_encode($data));
+    }
 }

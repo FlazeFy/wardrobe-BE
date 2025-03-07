@@ -4205,6 +4205,162 @@
                 }
             }
         },
+        "/api/v1/clothes/schedule/tomorrow/{day}": {
+            "get": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Get Tomorrow Schedule",
+                "description": "This request fetches the schedule for tomorrow and two days later from the outfit and clothes schedule. It uses a MySQL database and is protected by authentication.",
+                "operationId": "bdeebe1e4a15cbc38e791a949e5f18f0",
+                "parameters": [
+                    {
+                        "name": "day",
+                        "in": "path",
+                        "description": "Day of Today",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "Mon"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tomorrow schedule fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "tomorrow schedule fetched"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "tomorrow": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string",
+                                                                "example": "efbf49d9-78f4-436a-07ef-ca3aa661f9d7"
+                                                            },
+                                                            "clothes_name": {
+                                                                "type": "string",
+                                                                "example": "shirt A"
+                                                            },
+                                                            "clothes_type": {
+                                                                "type": "string",
+                                                                "example": "hat"
+                                                            },
+                                                            "clothes_image": {
+                                                                "type": "string",
+                                                                "example": "https://image.jpg"
+                                                            },
+                                                            "day": {
+                                                                "type": "string",
+                                                                "example": "Mon"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "tomorrow_day": {
+                                                    "type": "string",
+                                                    "example": "Mon"
+                                                },
+                                                "two_days_later": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "two_days_later_day": {
+                                                    "type": "string",
+                                                    "example": "Tue"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Protected route, requires authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Tomorrow schedule not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "tomorrow schedule not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/dct/{id}": {
             "delete": {
                 "tags": [

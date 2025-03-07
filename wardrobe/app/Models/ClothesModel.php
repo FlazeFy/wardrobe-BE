@@ -140,4 +140,18 @@ class ClothesModel extends Model
 
         return $res;
     }
+
+    public static function getLast($ctx,$user_id){
+        $res = ClothesModel::selectRaw("clothes_name, $ctx")
+            ->where('created_by', $user_id);
+
+        if($ctx == "deleted_at"){
+            $res = $res->whereNotNull('deleted_at');
+        }
+
+        $res = $res->orderby("$ctx",'DESC')
+            ->first();
+
+        return $res;
+    }
 }

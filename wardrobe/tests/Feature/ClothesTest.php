@@ -1167,12 +1167,12 @@ class ClothesTest extends TestCase
                 $this->assertIsArray($data['data'][$col]);
 
                 foreach ($data['data'][$col] as $cl) {
-                    $check_object_cl = ['id','clothes_name','clothes_type','clothes_image','day'];
+                    $check_object_cl = ['id','clothes_name','clothes_type','clothes_category','clothes_image','day'];
                     foreach ($check_object_cl as $col_cl) {
                         $this->assertArrayHasKey($col_cl, $cl);
                     }
 
-                    $check_not_null_str_cl = ['id','clothes_name','clothes_type','day'];
+                    $check_not_null_str_cl = ['id','clothes_name','clothes_type','clothes_category','day'];
                     foreach ($check_not_null_str_cl as $col_cl) {
                         $this->assertNotNull($cl[$col_cl]);
                         $this->assertIsString($cl[$col_cl]);
@@ -1191,5 +1191,41 @@ class ClothesTest extends TestCase
 
         Audit::auditRecordText("Test - Get Schedule Tomorrow", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Get Schedule Tomorrow", "TC-XXX", 'TC-XXX test_get_schedule_tomorrow', json_encode($data));
+    }
+
+    public function test_get_last_history(): void
+    {
+        // Exec
+        $token = $this->login_trait("user");
+        $response = $this->httpClient->get("last_history", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertArrayHasKey('data', $data);
+
+        $check_object = ['last_added_clothes','last_added_date','last_deleted_clothes','last_deleted_date'];
+        foreach ($check_object as $col) {
+            $this->assertArrayHasKey($col, $data['data']);
+        }
+
+        $check_nullable_str = ['last_added_clothes','last_added_date','last_deleted_clothes','last_deleted_date'];
+        foreach ($check_nullable_str as $col) {
+            if(!is_null($data['data'][$col])){
+                $this->assertNotNull($data['data'][$col]);
+                $this->assertIsString($data['data'][$col]);
+            }
+        }
+
+        Audit::auditRecordText("Test - Get Last History", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Get Last History", "TC-XXX", 'TC-XXX test_get_last_history', json_encode($data));
     }
 }

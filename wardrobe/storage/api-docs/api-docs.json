@@ -4258,6 +4258,10 @@
                                                                 "type": "string",
                                                                 "example": "hat"
                                                             },
+                                                            "clothes_category": {
+                                                                "type": "string",
+                                                                "example": "Upper Body"
+                                                            },
                                                             "clothes_image": {
                                                                 "type": "string",
                                                                 "example": "https://image.jpg"
@@ -4326,6 +4330,124 @@
                                         "message": {
                                             "type": "string",
                                             "example": "tomorrow schedule not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/clothes/last_history": {
+            "get": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Get Last History",
+                "description": "This request fetches the last history from clothes. It uses a MySQL database and is protected by authentication.",
+                "operationId": "6a07261ab56165652bcf6f625fb92a46",
+                "responses": {
+                    "200": {
+                        "description": "clothes last history fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes last history fetched"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "last_added_clothes": {
+                                                    "type": "string",
+                                                    "example": "Short Shoes"
+                                                },
+                                                "last_added_date": {
+                                                    "type": "string",
+                                                    "example": "2024-05-17 04:09:40"
+                                                },
+                                                "last_deleted_clothes": {
+                                                    "type": "string",
+                                                    "example": "Long Sleeves"
+                                                },
+                                                "last_deleted_date": {
+                                                    "type": "string",
+                                                    "example": "2024-05-17 04:09:40"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Protected route, requires authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "clothes last history not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes last history not found"
                                         }
                                     },
                                     "type": "object"

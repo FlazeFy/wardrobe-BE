@@ -46,6 +46,7 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/trash', [QueriesClothesApi::class, 'get_deleted_clothes']);
     Route::get('/schedule/{day}', [QueriesClothesApi::class, 'get_schedule_by_day']);
     Route::get('/schedule/tomorrow/{day}', [QueriesClothesApi::class, 'get_schedule_tomorrow']);
+    Route::get('/last_history', [QueriesClothesApi::class, 'get_last_history']);
     Route::put('/update_checkpoint/{id}', [CommandClothesApi::class, 'update_wash_by_clothes_id']);
     Route::put('/recover/{id}', [CommandClothesApi::class, 'recover_clothes_by_id']);
     Route::delete('/destroy/{id}', [CommandClothesApi::class, 'hard_delete_clothes_by_id']);

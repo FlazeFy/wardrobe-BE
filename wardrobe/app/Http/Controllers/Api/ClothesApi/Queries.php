@@ -1510,6 +1510,7 @@ class Queries extends Controller
      *                         @OA\Property(property="id", type="string", example="efbf49d9-78f4-436a-07ef-ca3aa661f9d7"),
      *                         @OA\Property(property="clothes_name", type="string", example="shirt A"),
      *                         @OA\Property(property="clothes_type", type="string", example="hat"),
+     *                         @OA\Property(property="clothes_category", type="string", example="Upper Body"),
      *                         @OA\Property(property="clothes_image", type="string", example="https://image.jpg"),
      *                         @OA\Property(property="day", type="string", example="Mon"),
      *                     )
@@ -1567,6 +1568,86 @@ class Queries extends Controller
                 'message' => Generator::getMessageTemplate("fetch", "tomorrow schedule"),
                 'data' => $res
             ], Response::HTTP_OK);
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @OA\GET(
+     *     path="/api/v1/clothes/last_history",
+     *     summary="Get Last History",
+     *     description="This request fetches the last history from clothes. It uses a MySQL database and is protected by authentication.",
+     *     tags={"Clothes"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="clothes last history fetched successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="clothes last history fetched"),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="last_added_clothes", type="string", example="Short Shoes"),
+     *                 @OA\Property(property="last_added_date", type="string", example="2024-05-17 04:09:40"),
+     *                 @OA\Property(property="last_deleted_clothes", type="string", example="Long Sleeves"),
+     *                 @OA\Property(property="last_deleted_date", type="string", example="2024-05-17 04:09:40")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Protected route, requires authentication token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="clothes last history not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="clothes last history not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function get_last_history(Request $request){
+        try { 
+            $user_id = $request->user()->id;
+
+            $res_last_added = ClothesModel::getLast('created_at',$user_id);
+            if($res_last_added){
+                $res_last_deleted = ClothesModel::getLast('deleted_at',$user_id);
+                $res = [
+                    'last_added_clothes' => $res_last_added->clothes_name,
+                    'last_added_date' => $res_last_added->created_at,
+                    'last_deleted_clothes' => $res_last_deleted ? $res_last_deleted->clothes_name : null,
+                    'last_deleted_date' => $res_last_deleted ? $res_last_deleted->deleted_at : null,
+                ];
+                
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("fetch", "clothes last history"),
+                    'data' => $res
+                ], Response::HTTP_OK);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("not_found", "clothes last history"),
+                ], Response::HTTP_NOT_FOUND);
+            }
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',

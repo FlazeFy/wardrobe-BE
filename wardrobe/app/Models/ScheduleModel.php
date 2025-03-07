@@ -35,7 +35,7 @@ class ScheduleModel extends Model
     }
 
     public static function getScheduleByDay($day, $user_id){
-        $res = ScheduleModel::select('clothes.id','clothes_name','clothes_type','clothes_image','day')
+        $res = ScheduleModel::select('clothes.id','clothes_name','clothes_category','clothes_type','clothes_image','day')
             ->join('clothes','clothes.id','=','schedule.clothes_id');
         
         if($day != 'all'){

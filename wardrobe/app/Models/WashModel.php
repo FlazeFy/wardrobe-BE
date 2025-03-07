@@ -70,7 +70,7 @@ class WashModel extends Model
         return $res;
     }
 
-    public static function getWashExport($user_id){
+    public static function getWashExport($user_id, $is_no_arr = true){
         $res = WashModel::select('clothes_name', 'wash_type', 'wash_note', 'wash_checkpoint', 'clothes_merk', 'clothes_made_from', 'clothes_color', 'clothes_type', 'wash.created_at as wash_at', 'finished_at')
             ->join('clothes','clothes.id','=','wash.clothes_id')
             ->where('wash.created_by',$user_id)
@@ -78,10 +78,15 @@ class WashModel extends Model
             ->get();
 
         $final_res = [];
-        foreach ($res as $dt) {    
-            $wash_checkpoint = $dt->wash_checkpoint;
-            $dt['wash_checkpoint'] = implode(', ', array_column($wash_checkpoint, 'checkpoint_name'));
-            $final_res[] = $dt; 
+
+        if($is_no_arr){
+            foreach ($res as $dt) {    
+                $wash_checkpoint = $dt->wash_checkpoint;
+                $dt['wash_checkpoint'] = implode(', ', array_column($wash_checkpoint, 'checkpoint_name'));
+                $final_res[] = $dt; 
+            }
+        } else {
+            $final_res = $res;
         }
 
         return collect($final_res);
@@ -99,5 +104,31 @@ class WashModel extends Model
         } else {
             return $res->paginate(14);
         }
+    }
+
+    public static function getLastWash($user_id){
+        $res = WashModel::select('clothes_name', 'wash.created_at as wash_at')
+            ->join('clothes','clothes.id','=','wash.clothes_id')
+            ->where('wash.created_by',$user_id)
+            ->whereNotNull('finished_at')
+            ->orderby('wash.created_at','desc')
+            ->first();
+
+        return $res;
+    }
+
+    public static function getWashSummary($user_id){
+        $res = WashModel::selectRaw('
+                COUNT(1) as total_wash, 
+                MAX(clothes_name) as most_wash, 
+                AVG(TIMESTAMPDIFF(HOUR, wash.created_at, wash.finished_at)) as avg_wash_dur_per_clothes,
+                (COUNT(1) / GREATEST(TIMESTAMPDIFF(WEEK, MIN(wash.created_at), MAX(wash.created_at)), 1)) as avg_wash_per_week
+            ')
+            ->join('clothes','clothes.id','=','wash.clothes_id')
+            ->where('wash.created_by',$user_id)
+            ->whereNotNull('finished_at')
+            ->first();
+
+        return $res;
     }
 }

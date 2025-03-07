@@ -249,4 +249,44 @@ class StatsTest extends TestCase
         Audit::auditRecordText("Test - Get Stats Outfit Yearly Most Used", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Get Stats Outfit Yearly Most Used", "TC-XXX", 'TC-XXX test_get_stats_outfit_yearly_most_used', json_encode($data));
     }
+
+    public function test_get_stats_wash_summary(): void
+    {
+        // Exec
+        $token = $this->login_trait("user");
+        $response = $this->httpClient->get("wash/summary", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertArrayHasKey('data', $data);
+
+        $check_object = ['last_wash_clothes','last_wash_date','most_wash','total_wash','avg_wash_dur_per_clothes','avg_wash_per_week'];
+        foreach ($check_object as $col) {
+            $this->assertArrayHasKey($col, $data['data']);
+            $this->assertNotNull($data['data'][$col]);
+        }
+
+        $check_not_null_str = ['last_wash_clothes','last_wash_date','most_wash'];
+        foreach ($check_not_null_str as $col) {
+            $this->assertIsString($data['data'][$col]);
+        }
+
+        $check_not_null_int = ['total_wash','avg_wash_dur_per_clothes','avg_wash_per_week'];
+        foreach ($check_not_null_int as $col) {
+            $this->assertIsInt($data['data'][$col]);
+            $this->assertGreaterThanOrEqual(0, $data['data'][$col]);
+        }
+
+        Audit::auditRecordText("Test - Get Stats Wash Summary", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Get Stats Wash Summary", "TC-XXX", 'TC-XXX test_get_stats_wash_summary', json_encode($data));
+    }
 }

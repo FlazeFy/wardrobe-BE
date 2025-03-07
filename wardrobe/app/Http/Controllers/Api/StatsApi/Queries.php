@@ -829,7 +829,95 @@ class Queries extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage(),
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @OA\GET(
+     *     path="/api/v1/stats/wash/summary",
+     *     summary="Get Wash Summary",
+     *     description="This request is used to get wash summary. This request is using MySql database, have a protected routes",
+     *     tags={"Stats"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="stats fetched",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="stats fetched"),
+     *             @OA\Property(property="data", type="array",
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="avg_wash_per_week", type="integer", example=10),
+     *                      @OA\Property(property="avg_wash_dur_per_clothes", type="integer", example=24),
+     *                      @OA\Property(property="total_wash", type="integer", example=32),
+     *                      @OA\Property(property="most_wash", type="string", example="Short Sleeves Oversized"),
+     *                      @OA\Property(property="last_wash_clothes", type="string", example="Short Sleeves Oversized"),
+     *                      @OA\Property(property="last_wash_date", type="string", example="2024-05-17 04:09:40"),
+     *                  )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="stats failed to fetched",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="stats not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function get_stats_wash_summary(Request $request){
+        try {
+            $user_id = $request->user()->id;
+
+            $res_last_wash = WashModel::getLastWash($user_id);
+            if ($res_last_wash) {
+                $res_summary = WashModel::getWashSummary($user_id);
+
+                $res = [
+                    'last_wash_clothes' => $res_last_wash->clothes_name,
+                    'last_wash_date' => $res_last_wash->wash_at,
+                    'total_wash' => $res_summary->total_wash,
+                    'most_wash' => $res_summary->most_wash,
+                    'avg_wash_dur_per_clothes' => round($res_summary->avg_wash_dur_per_clothes),
+                    'avg_wash_per_week' => round($res_summary->avg_wash_per_week)
+                ];
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                    'data' => $res,
+                ], Response::HTTP_OK);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("not_found", 'stats'),
+                    'data' => null
+                ], Response::HTTP_NOT_FOUND);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

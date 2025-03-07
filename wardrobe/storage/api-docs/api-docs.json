@@ -6545,6 +6545,135 @@
                 ]
             }
         },
+        "/api/v1/stats/wash/summary": {
+            "get": {
+                "tags": [
+                    "Stats"
+                ],
+                "summary": "Get Wash Summary",
+                "description": "This request is used to get wash summary. This request is using MySql database, have a protected routes",
+                "operationId": "77c005f6e05b9843cfe0181f325b8465",
+                "responses": {
+                    "200": {
+                        "description": "stats fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "stats fetched"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "avg_wash_per_week": {
+                                                        "type": "integer",
+                                                        "example": 10
+                                                    },
+                                                    "avg_wash_dur_per_clothes": {
+                                                        "type": "integer",
+                                                        "example": 24
+                                                    },
+                                                    "total_wash": {
+                                                        "type": "integer",
+                                                        "example": 32
+                                                    },
+                                                    "most_wash": {
+                                                        "type": "string",
+                                                        "example": "Short Sleeves Oversized"
+                                                    },
+                                                    "last_wash_clothes": {
+                                                        "type": "string",
+                                                        "example": "Short Sleeves Oversized"
+                                                    },
+                                                    "last_wash_date": {
+                                                        "type": "string",
+                                                        "example": "2024-05-17 04:09:40"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "stats failed to fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "stats not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/user/my": {
             "get": {
                 "tags": [

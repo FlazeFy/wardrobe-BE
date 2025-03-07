@@ -1361,9 +1361,12 @@ class Queries extends Controller
             $user_id = $request->user()->id;
             $perPage = request()->input('per_page', 14);
             $page = request()->input('page', 1);
+            $is_detailed = request()->input('is_detailed', false);
 
-            $res = WashModel::getWashExport($user_id)->map(function ($col) {
-                unset($col->wash_checkpoint, $col->wash_note, $col->clothes_merk);
+            $res = $is_detailed ? 
+                WashModel::getWashExport($user_id, false) : 
+                WashModel::getWashExport($user_id)->map(function ($col) {
+                    unset($col->wash_checkpoint, $col->wash_note, $col->clothes_merk);
                 return $col;
             });
 

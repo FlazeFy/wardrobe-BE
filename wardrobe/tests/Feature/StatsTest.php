@@ -343,4 +343,110 @@ class StatsTest extends TestCase
         Audit::auditRecordText("Test - Get Stats Most Used Clothes Daily", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Get Stats Most Used Clothes Daily", "TC-XXX", 'TC-XXX test_get_stats_most_used_clothes_daily', json_encode($data));
     }
+
+    public function test_get_stats_calendar(): void
+    {
+        // Exec
+        $token = $this->login_trait("user");
+        $month = "01";
+        $year = 2025;
+
+        $response = $this->httpClient->get("calendar/$month/$year", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertArrayHasKey('data', $data);
+
+        foreach ($data['data'] as $dt) {
+            $check_object = ['date','used_history','weekly_schedule','wash_schedule','buyed_history','add_wardrobe'];
+            foreach ($check_object as $col) {
+                $this->assertArrayHasKey($col, $dt);
+            }
+
+            $check_not_null_str = ['date'];
+            foreach ($check_not_null_str as $col) {
+                $this->assertIsString($dt[$col]);
+            }
+
+            $check_nullable_arr = ['used_history','weekly_schedule','wash_schedule','buyed_history','add_wardrobe'];
+            foreach ($check_nullable_arr as $col) {
+                if(!is_null($dt[$col])){
+                    foreach ($dt[$col] as $cl) {
+                        $check_not_null_str = ['id','clothes_name','clothes_type','clothes_category'];
+                        foreach ($check_not_null_str as $col) {
+                            $this->assertIsString($cl[$col]);
+                        }
+
+                        $check_nullable_str = ['clothes_image'];
+                        foreach ($check_nullable_str as $col) {
+                            if(!is_null($cl[$col])){
+                                $this->assertIsString($cl[$col]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Audit::auditRecordText("Test - Get Stats Calendar", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Get Stats Calendar", "TC-XXX", 'TC-XXX test_get_stats_calendar', json_encode($data));
+    }
+
+    public function test_get_stats_calendar_by_date(): void
+    {
+        // Exec
+        $token = $this->login_trait("user");
+        $date = "2025-03-03";
+
+        $response = $this->httpClient->get("calendar/detail/date/$date", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertArrayHasKey('data', $data);
+
+        $check_object = ['used_history','weekly_schedule','wash_schedule','buyed_history','add_wardrobe'];
+        foreach ($check_object as $col) {
+            $this->assertArrayHasKey($col, $data['data']);
+        }
+
+        $check_nullable_arr = ['used_history','weekly_schedule','wash_schedule','buyed_history','add_wardrobe'];
+        foreach ($check_nullable_arr as $col) {
+            if(!is_null($data['data'][$col])){
+                foreach ($data['data'][$col] as $cl) {
+                    $check_not_null_str = ['id','clothes_name','clothes_type','clothes_category'];
+                    foreach ($check_not_null_str as $col) {
+                        $this->assertIsString($cl[$col]);
+                    }
+
+                    $check_nullable_str = ['clothes_image'];
+                    foreach ($check_nullable_str as $col) {
+                        if(!is_null($cl[$col])){
+                            $this->assertIsString($cl[$col]);
+                        }
+                    }
+                }
+            }
+        }
+
+        Audit::auditRecordText("Test - Get Stats Calendar By Date", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Get Stats Calendar By Date", "TC-XXX", 'TC-XXX test_get_stats_calendar_by_date', json_encode($data));
+    }
 }

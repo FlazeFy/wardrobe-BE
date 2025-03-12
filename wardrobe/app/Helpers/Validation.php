@@ -13,6 +13,7 @@ use App\Rules\ClothesCategory;
 use App\Rules\ClothesType;
 use App\Rules\UsedContext;
 use App\Rules\DayName;
+use App\Rules\WashType;
 
 class Validation
 {
@@ -63,6 +64,20 @@ class Validation
                 'clothes_id' => 'required|string|max:36',
             ]); 
         }
+    }
+
+    public static function getValidateWash($request){
+        if($type == 'create'){
+            return Validator::make($request->all(), [
+                'wash_note' => 'nullable|string|max:75|min:2', 
+                'clothes_id' => 'required|string|max:36|min:36', 
+                'wash_type' => ['required', new WashType],
+                'wash_checkpoint' => ['nullable', 'array'], 
+                'wash_checkpoint.*.id' => ['required_with:wash_checkpoint', 'integer'], 
+                'wash_checkpoint.*.checkpoint_name' => ['required_with:wash_checkpoint', 'string'], 
+                'wash_checkpoint.*.is_finished' => ['required_with:wash_checkpoint', 'boolean'], 
+            ]); 
+        } 
     }
 
     public static function getValidateClothesUsed($request,$type){

@@ -1228,4 +1228,38 @@ class ClothesTest extends TestCase
         Audit::auditRecordText("Test - Get Last History", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Get Last History", "TC-XXX", 'TC-XXX test_get_last_history', json_encode($data));
     }
+
+    public function test_post_wash_clothes(): void
+    {
+        // Exec
+        $token = $this->login_trait("user");
+        $body = [
+            'clothes_id' => '10bacb64-e819-11ed-a05b-0242ac120003',
+            'wash_note' => 'test',
+            'wash_type' => 'Laundry',
+            'wash_checkpoint' => json_encode([
+                "id" => 1,
+                "checkpoint_name" => "rendam",
+                "is_finished" => false
+            ]),
+        ];
+        $response = $this->httpClient->post("wash", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ],
+            'json' => $body
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertEquals('clothes wash history created',$data['message']);
+
+        Audit::auditRecordText("Test - Post Wash Clothes", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Post Wash Clothes", "TC-XXX", 'TC-XXX test_post_wash_clothes', json_encode($data));
+    }
 }

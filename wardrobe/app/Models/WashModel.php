@@ -71,7 +71,7 @@ class WashModel extends Model
     }
 
     public static function getWashExport($user_id, $is_no_arr = true){
-        $res = WashModel::select('clothes_name', 'wash_type', 'wash_note', 'wash_checkpoint', 'clothes_merk', 'clothes_made_from', 'clothes_color', 'clothes_type', 'wash.created_at as wash_at', 'finished_at')
+        $res = WashModel::select('wash.id','clothes_name', 'wash_type', 'wash_note', 'wash_checkpoint', 'clothes_merk', 'clothes_made_from', 'clothes_color', 'clothes_type', 'wash.created_at as wash_at', 'finished_at')
             ->join('clothes','clothes.id','=','wash.clothes_id')
             ->where('wash.created_by',$user_id)
             ->orderby('wash.created_at','desc')

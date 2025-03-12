@@ -57,6 +57,7 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::delete('/destroy_schedule/{id}', [CommandClothesApi::class, 'hard_delete_schedule_by_id']);
     Route::post('/history', [CommandClothesApi::class, 'post_history_clothes']);
     Route::post('/', [CommandClothesApi::class, 'post_clothes']);
+    Route::post('/wash', [CommandClothesApi::class, 'post_wash_clothes']);
     Route::post('/schedule', [CommandClothesApi::class, 'post_schedule']);
     Route::post('/outfit/generate', [CommandClothesApi::class, 'post_generated_outfit']);
     Route::post('/outfit/save', [CommandClothesApi::class, 'post_save_outfit']);

@@ -1367,8 +1367,8 @@ class Queries extends Controller
                 WashModel::getWashExport($user_id, false) : 
                 WashModel::getWashExport($user_id)->map(function ($col) {
                     unset($col->wash_checkpoint, $col->wash_note, $col->clothes_merk);
-                return $col;
-            });
+                    return $col;
+                });
 
             $collection = collect($res);
             $collection = $collection->sortBy('wash_at')->values();

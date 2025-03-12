@@ -212,7 +212,10 @@ class Queries extends Controller
             $user = UserModel::getProfile($user_id);
             $file_name = "wash_history-$user->username-$datetime.xlsx";
 
-            $wash_history = WashModel::getWashExport($user_id);
+            $wash_history = WashModel::getWashExport($user_id)->map(function ($col) {
+                unset($col->id);
+                return $col;
+            });
 
             Excel::store(new class($wash_history) implements WithMultipleSheets {
                 private $wash_history;

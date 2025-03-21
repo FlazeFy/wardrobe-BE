@@ -19,6 +19,7 @@ class UserModelFactory extends Factory
             'email' => fake()->unique()->freeEmail(), 
             'telegram_user_id' => null,
             'telegram_is_valid' => 0,
+            'firebase_fcm_token' => null,
             'timezone' => Generator::getRandomTimezone(), 
             'created_at' => Generator::getRandomDate(0), 
             'updated_at' => Generator::getRandomDate($ran)

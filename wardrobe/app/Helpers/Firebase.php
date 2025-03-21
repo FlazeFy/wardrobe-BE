@@ -2,6 +2,8 @@
 namespace App\Helpers;
 use App\Helpers\Generator;
 use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
 use Illuminate\Support\Facades\Storage;
 
 class Firebase
@@ -58,5 +60,16 @@ class Firebase
         }
 
         return false; 
+    }
+
+    public static function sendNotif($token, $msg_body, $username, $id_context = null){
+        self::init();
+        $messaging = self::$factory->createMessaging();
+        $message = CloudMessage::withTarget('token', $token)
+            ->withNotification(Notification::create("Hello $username", $msg_body))
+            ->withData([
+                'id_context' => $id_context,
+            ]);
+        $response = $messaging->send($message);
     }
 }

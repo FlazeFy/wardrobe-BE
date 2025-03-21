@@ -7,9 +7,11 @@ use App\Http\Controllers\Controller;
 
 // Models
 use App\Models\FeedbackModel;
+use App\Models\UserModel;
 
 // Helpers
 use App\Helpers\Generator;
+use App\Helpers\Firebase;
 use App\Helpers\Validation;
 
 class Commands extends Controller
@@ -64,8 +66,15 @@ class Commands extends Controller
                     'created_at' => date("Y-m-d H:i:s"),
                     'created_by' => $user_id
                 ]);
-
+            
                 if($res){
+                    // Send FCM Notification
+                    $user = UserModel::getSocial($user_id);
+                    if($user->firebase_fcm_token){
+                        $msg_body = "Thank you for your feedback! We appreciate your time and effort in helping us improve. Your thoughts is valuable, and we'll use it to make things even better!";
+                        Firebase::sendNotif($user->firebase_fcm_token, $msg_body, $user->username, $res->id);
+                    }
+
                     return response()->json([
                         'status' => 'success',
                         'message' => Generator::getMessageTemplate("create", "feedback"),
@@ -80,7 +89,7 @@ class Commands extends Controller
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => Generator::getMessageTemplate("unknown_error", null),
+                'message' => $e->getMessage(),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

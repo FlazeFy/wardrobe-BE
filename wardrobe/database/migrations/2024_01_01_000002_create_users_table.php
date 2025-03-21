@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('email', 500)->unique();
             $table->string('telegram_user_id', 36)->nullable()->unique();
             $table->boolean('telegram_is_valid');
+            $table->string('firebase_fcm_token', 255)->nullable()->unique();
             $table->string('timezone', 9)->nullable();
 
             // Props

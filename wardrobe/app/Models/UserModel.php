@@ -24,7 +24,7 @@ class UserModel extends Authenticatable
 
     protected $table = 'users';
     protected $primaryKey = 'id';
-    protected $fillable = ['id', 'username', 'password', 'email', 'telegram_is_valid', 'telegram_user_id', 'created_at', 'updated_at'];
+    protected $fillable = ['id', 'username', 'password', 'email', 'telegram_is_valid', 'telegram_user_id', 'firebase_fcm_token', 'created_at', 'updated_at'];
 
     public static function getRandom($null){
         if($null == 0){
@@ -38,7 +38,7 @@ class UserModel extends Authenticatable
     }
 
     public static function getSocial($id){
-        $res = UserModel::select('username','telegram_user_id','telegram_is_valid','email')
+        $res = UserModel::select('username','telegram_user_id','telegram_is_valid','email','firebase_fcm_token')
             ->where('id',$id)
             ->first();
 

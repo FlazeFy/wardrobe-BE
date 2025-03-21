@@ -96,10 +96,18 @@ class Commands extends Controller
     {
         try {
             $user_id = $request->user()->id;
+            $clothes = ClothesModel::select('clothes_name')->where('id',$id)->first();
 
             $rows = ClothesModel::destroy($id);
 
             if($rows > 0){
+                // Send FCM Notification
+                $user = UserModel::getProfile($user_id);
+                if($user->firebase_fcm_token){
+                    $msg_body = "Your clothes called '$clothes->clothes_name' has been permentally removed from Wardrobe";
+                    Firebase::sendNotif($user->firebase_fcm_token, $msg_body, $user->username, $id);
+                }
+
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("permentally delete", 'clothes'),
@@ -327,6 +335,14 @@ class Commands extends Controller
                     ]);
     
                     if($res){
+                        // Send FCM Notification
+                        $user = UserModel::getProfile($user_id);
+                        if($user->firebase_fcm_token){
+                            $clothes = ClothesModel::select('clothes_name')->where('id',$clothes_id)->first();
+                            $msg_body = "Your clothes called '$clothes->clothes_name' has been added to weekly schedule and set to wear on every $day";
+                            Firebase::sendNotif($user->firebase_fcm_token, $msg_body, $user->username, $clothes_id);
+                        }
+
                         return response()->json([
                             'status' => 'success',
                             'message' => Generator::getMessageTemplate("create", "schedule"),
@@ -711,6 +727,13 @@ class Commands extends Controller
                         Audit::createHistory('Create', $request->clothes_name, $user_id);
                         $user = UserModel::getSocial($user_id);
 
+                        // Send FCM Notification
+                        $user = UserModel::getProfile($user_id);
+                        if($user->firebase_fcm_token){
+                            $msg_body = "Your clothes called $request->clothes_name has been added to wardrobe. You're set to wear it!";
+                            Firebase::sendNotif($user->firebase_fcm_token, $msg_body, $user->username, $id);
+                        }
+
                         $options = new DompdfOptions();
                         $options->set('defaultFont', 'Helvetica');
                         $dompdf = new Dompdf($options);
@@ -936,6 +959,13 @@ class Commands extends Controller
             if($rows > 0){
                 // History
                 Audit::createHistory('Recover', $clothes->clothes_name, $user_id);
+
+                // Send FCM Notification
+                $user = UserModel::getProfile($user_id);
+                if($user->firebase_fcm_token){
+                    $msg_body = "Your clothes called $clothes->clothes_name has been recovered from the trash";
+                    Firebase::sendNotif($user->firebase_fcm_token, $msg_body, $user->username, $id);
+                }
                 
                 return response()->json([
                     'status' => 'success',
@@ -1577,6 +1607,16 @@ class Commands extends Controller
                         }
                     }
                 }
+
+                if($success_outfit > 0){
+                    // Send FCM Notification
+                    $user = UserModel::getProfile($user_id);
+                    if($user->firebase_fcm_token){
+                        $outfit = OutfitModel::select('outfit_name')->where('id',$outfit_id)->first();
+                        $msg_body = "There is a clothes changes in outfit's '$outfit->outfit_name'";
+                        Firebase::sendNotif($user->firebase_fcm_token, $msg_body, $user->username, $outfit_id);
+                    }
+                }
     
                 if($failed_clothes == 0){
                     return response()->json([
@@ -1657,6 +1697,16 @@ class Commands extends Controller
             $rows = OutfitRelModel::deleteRelation($user_id,$clothes_id,$outfit_id);
 
             if($rows > 0){
+                // Send FCM Notification
+                $user = UserModel::getProfile($user_id);
+                if($user->firebase_fcm_token){
+                    $clothes = ClothesModel::select('clothes_name')->where('id',$clothes_id)->first();
+                    $outfit = OutfitModel::select('outfit_name')->where('id',$outfit_id)->first();
+                    
+                    $msg_body = "clothes '$clothes->clothes_name' has been removed from outfit '$outfit->outfit_name'";
+                    Firebase::sendNotif($user->firebase_fcm_token, $msg_body, $user->username, "$clothes_id-$outfit_id");
+                }
+
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("remove", 'clothes'),

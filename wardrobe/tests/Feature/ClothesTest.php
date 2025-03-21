@@ -414,8 +414,6 @@ class ClothesTest extends TestCase
     {
         // Exec
         $token = $this->login_trait("user");
-        $clothes_id = "2d98f524-de02-11ed-b5ea-0242ac120002";
-        $order = "desc";
         $response = $this->httpClient->get("trash", [
             'headers' => [
                 'Authorization' => "Bearer $token"
@@ -600,7 +598,7 @@ class ClothesTest extends TestCase
         $this->assertArrayHasKey('status', $data);
         $this->assertEquals('success', $data['status']);
         $this->assertArrayHasKey('message', $data);
-        $this->assertEquals('clothes created',$data['message']);
+        $this->assertEquals('clothes history created',$data['message']);
 
         Audit::auditRecordText("Test - Post History Clothes", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Post History Clothes", "TC-XXX", 'TC-XXX test_post_history_clothes', json_encode($data));

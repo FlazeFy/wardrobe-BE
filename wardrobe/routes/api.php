@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\UserApi\Queries as QueriesUserApi;
 use App\Http\Controllers\Api\ChatApi\Commands as CommandChatApi;
 use App\Http\Controllers\Api\ExportApi\Queries as QueriesExportApi;
 use App\Http\Controllers\Api\QuestionApi\Queries as QueriesQuestionApi;
+use App\Http\Controllers\Api\QuestionApi\Commands as CommandQuestionApi;
 
 ######################### Public Route #########################
 
@@ -27,6 +28,7 @@ Route::post('/v1/login', [CommandAuthApi::class, 'login']);
 
 Route::prefix('/v1/question')->group(function () {
     Route::get('/faq', [QueriesQuestionApi::class, 'get_question_faq']);
+    Route::post('/', [CommandQuestionApi::class, 'post_question']);
 });
 
 ######################### Private Route #########################

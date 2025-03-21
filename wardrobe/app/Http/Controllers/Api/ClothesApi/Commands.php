@@ -250,7 +250,7 @@ class Commands extends Controller
                 if($res){
                     return response()->json([
                         'status' => 'success',
-                        'message' => Generator::getMessageTemplate("create", "clothes"),
+                        'message' => Generator::getMessageTemplate("create", "clothes history"),
                         'data' => $res
                     ], Response::HTTP_CREATED);
                 } else {

@@ -37,6 +37,14 @@ class Validation
         }
     }
 
+    public static function getValidateQuestion($request,$type){
+        if($type == 'create'){
+            return Validator::make($request->all(), [
+                'question' => 'required|string|max:144|min:2',
+            ]);  
+        } 
+    }
+
     public static function getValidateClothes($request,$type){
         if($type == 'create'){
             return Validator::make($request->all(), [

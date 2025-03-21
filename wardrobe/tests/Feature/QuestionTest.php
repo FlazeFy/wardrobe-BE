@@ -53,4 +53,27 @@ class QuestionTest extends TestCase
         Audit::auditRecordText("Test - Get Question FAQ", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Get Question FAQ", "TC-XXX", 'TC-XXX test_get_question_faq', json_encode($data));
     }
+
+    public function test_post_question(): void
+    {
+        // Exec
+        $body = [
+            "question" => "how i use this apps?"
+        ];
+        $response = $this->httpClient->post("", [
+            'json' => $body
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertEquals('question created',$data['message']);
+
+        Audit::auditRecordText("Test - Post Question", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Post Question", "TC-XXX", 'TC-XXX test_post_question', json_encode($data));
+    }
 }

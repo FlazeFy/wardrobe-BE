@@ -1850,6 +1850,122 @@
                 }
             }
         },
+        "/api/v1/clothes/wash": {
+            "post": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Create clothes wash history",
+                "operationId": "5ac0afec805377af5a2e23bf03a78f5b",
+                "responses": {
+                    "201": {
+                        "description": "clothes wash created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes wash history created"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Data is already exist",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes is already at wash"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "{validation_msg}",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "{field validation message}"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/clothes/header/{category}/{order}": {
             "get": {
                 "tags": [
@@ -5547,6 +5663,96 @@
                 ]
             }
         },
+        "/api/v1/question": {
+            "post": {
+                "tags": [
+                    "Question"
+                ],
+                "summary": "Post question",
+                "description": "Create a new question. This request is using MySQL database.",
+                "operationId": "ea075b478e97878daa3cc257293b7d9e",
+                "responses": {
+                    "201": {
+                        "description": "question created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "question created"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "oneOf": [
+                                        {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "failed"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "question name must be at least 2 characters"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "failed"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "question is a required field"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/question/faq": {
             "get": {
                 "tags": [
@@ -6320,7 +6526,7 @@
                     "Stats"
                 ],
                 "summary": "Get calendar history for used history, weekly schedule, wash history, buyed history, and add to wardrobe",
-                "description": "This request is used to get yearly stats activity. This request is using MySql database, have a protected routes",
+                "description": "This request is used to get calendar history for used history, weekly schedule, wash history, buyed history, and add to wardrobe. This request is using MySql database, have a protected routes",
                 "operationId": "c23887dd1cf6f1669b4ff770d6e5a1de",
                 "responses": {
                     "200": {
@@ -6488,6 +6694,233 @@
                                                 },
                                                 "type": "object"
                                             }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "stats failed to fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "stats not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/stats/calendar/detail/date/{date}": {
+            "get": {
+                "tags": [
+                    "Stats"
+                ],
+                "summary": "Get calendar history for used history, weekly schedule, wash history, buyed history, and add to wardrobe for a specific date",
+                "description": "This request is used to get calendar history for used history, weekly schedule, wash history, buyed history, and add to wardrobe for a specific date. This request is using MySql database, have a protected routes",
+                "operationId": "70bc391d3f6b80745a8b8488be4c6f0b",
+                "responses": {
+                    "200": {
+                        "description": "stats fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "stats fetched"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "used_history": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "17963858-9771-11ee-8f4a-3216422910r4"
+                                                        },
+                                                        "clothes_name": {
+                                                            "type": "string",
+                                                            "example": "Reebok Black Hat"
+                                                        },
+                                                        "clothes_category": {
+                                                            "type": "string",
+                                                            "example": "head"
+                                                        },
+                                                        "clothes_type": {
+                                                            "type": "string",
+                                                            "example": "hat"
+                                                        },
+                                                        "created_at": {
+                                                            "type": "string",
+                                                            "example": "2024-05-10 22:10:56"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "weekly_schedule": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "17963858-9771-11ee-8f4a-3216422910r4"
+                                                        },
+                                                        "clothes_name": {
+                                                            "type": "string",
+                                                            "example": "Reebok Black Hat"
+                                                        },
+                                                        "clothes_category": {
+                                                            "type": "string",
+                                                            "example": "head"
+                                                        },
+                                                        "clothes_type": {
+                                                            "type": "string",
+                                                            "example": "hat"
+                                                        },
+                                                        "day": {
+                                                            "type": "string",
+                                                            "example": "Sun"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "wash_schedule": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "17963858-9771-11ee-8f4a-3216422910r4"
+                                                        },
+                                                        "clothes_name": {
+                                                            "type": "string",
+                                                            "example": "Reebok Black Hat"
+                                                        },
+                                                        "clothes_category": {
+                                                            "type": "string",
+                                                            "example": "head"
+                                                        },
+                                                        "clothes_type": {
+                                                            "type": "string",
+                                                            "example": "hat"
+                                                        },
+                                                        "created_at": {
+                                                            "type": "string",
+                                                            "example": "2024-05-10 22:10:56"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "buyed_history": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "17963858-9771-11ee-8f4a-3216422910r4"
+                                                        },
+                                                        "clothes_name": {
+                                                            "type": "string",
+                                                            "example": "Reebok Black Hat"
+                                                        },
+                                                        "clothes_category": {
+                                                            "type": "string",
+                                                            "example": "head"
+                                                        },
+                                                        "clothes_type": {
+                                                            "type": "string",
+                                                            "example": "hat"
+                                                        },
+                                                        "created_at": {
+                                                            "type": "string",
+                                                            "example": "2024-05-10 22:10:56"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "add_wardrobe": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "17963858-9771-11ee-8f4a-3216422910r4"
+                                                        },
+                                                        "clothes_name": {
+                                                            "type": "string",
+                                                            "example": "Reebok Black Hat"
+                                                        },
+                                                        "clothes_category": {
+                                                            "type": "string",
+                                                            "example": "head"
+                                                        },
+                                                        "clothes_type": {
+                                                            "type": "string",
+                                                            "example": "hat"
+                                                        },
+                                                        "created_at": {
+                                                            "type": "string",
+                                                            "example": "2024-05-10 22:10:56"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"

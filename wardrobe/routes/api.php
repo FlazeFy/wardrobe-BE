@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\ErrorApi\Queries as QueriesErrorController;
 use App\Http\Controllers\Api\StatsApi\Commands as CommandStatsApi;
 use App\Http\Controllers\Api\StatsApi\Queries as QueriesStatsApi;
 use App\Http\Controllers\Api\UserApi\Queries as QueriesUserApi;
+use App\Http\Controllers\Api\UserApi\Commands as CommandUserApi;
 use App\Http\Controllers\Api\ChatApi\Commands as CommandChatApi;
 use App\Http\Controllers\Api\ExportApi\Queries as QueriesExportApi;
 use App\Http\Controllers\Api\QuestionApi\Queries as QueriesQuestionApi;
@@ -118,6 +119,7 @@ Route::prefix('/v1/feedback')->middleware(['auth:sanctum'])->group(function () {
 Route::prefix('/v1/user')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/my', [QueriesUserApi::class, 'get_my_profile']);
     Route::get('/my_year', [QueriesUserApi::class, 'get_my_available_year_filter']);
+    Route::put('/fcm', [CommandUserApi::class, 'update_user_fcm']);
 });
 
 Route::prefix('/v1/export')->middleware(['auth:sanctum'])->group(function () {

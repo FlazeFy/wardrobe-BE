@@ -7511,6 +7511,96 @@
                 ]
             }
         },
+        "/api/v1/user/fcm": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update user FCM token",
+                "description": "Update user's Firebase Cloud Messaging token from mobile. This request is using MySQL database.",
+                "operationId": "d1a3e00f356a22524d3de3dacdf7b52b",
+                "responses": {
+                    "200": {
+                        "description": "fcm updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "fcm updated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "oneOf": [
+                                        {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "failed"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "firebase_fcm_token must be less than 255 characters"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "failed"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "firebase_fcm_token is a required field"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/user/my": {
             "get": {
                 "tags": [

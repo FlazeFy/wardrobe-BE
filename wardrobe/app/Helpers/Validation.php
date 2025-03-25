@@ -24,6 +24,14 @@ class Validation
         ]);
     }
 
+    public static function getValidateUser($request, $type){
+        if($type == "update_fcm"){
+            return Validator::make($request->all(), [
+                'firebase_fcm_token' => 'nullable|min:10|max:255|string',
+            ]);
+        }
+    }
+
     public static function getValidateDictionary($request,$type){
         if($type == 'create'){
             return Validator::make($request->all(), [

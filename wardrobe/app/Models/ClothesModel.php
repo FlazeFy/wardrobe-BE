@@ -108,6 +108,17 @@ class ClothesModel extends Model
         return $res;
     }
 
+    public static function getMonthlyClothesUsed($user_id, $year){
+        $res = ClothesModel::selectRaw("COUNT(1) as total, MONTH(clothes_used.created_at) as context")
+            ->join('clothes_used','clothes_used.clothes_id','=','clothes.id')
+            ->whereYear('clothes_used.created_at', '=', $year)
+            ->where('clothes_used.created_by', $user_id)
+            ->groupByRaw("MONTH(clothes_used.created_at)")
+            ->get();
+
+        return $res;
+    }
+
     public static function getYearlyClothesCreatedBuyed($user_id, $target){
         $res = ClothesModel::selectRaw("COUNT(1) as total, DATE($target) as context")
             ->whereRaw("DATE($target) >= DATE_SUB(CURDATE(), INTERVAL 365 DAY)")

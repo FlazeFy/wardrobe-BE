@@ -83,6 +83,7 @@ Route::prefix('/v1/stats')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/clothes/summary', [QueriesStatsApi::class, 'get_stats_summary']);
     Route::get('/clothes/yearly/{ctx}', [QueriesStatsApi::class, 'get_stats_yearly_context']);
     Route::get('/clothes/monthly/created_buyed/{year}', [QueriesStatsApi::class, 'get_stats_clothes_monthly_created_buyed']);
+    Route::get('/clothes/monthly/used/{year}', [QueriesStatsApi::class, 'get_stats_clothes_monthly_used']);
     Route::get('/calendar/{month}/{year}', [QueriesStatsApi::class, 'get_stats_calendar']);
     Route::get('/calendar/detail/date/{date}', [QueriesStatsApi::class, 'get_stats_calendar_by_date']);
     Route::get('/outfit/monthly/by_outfit/{year}/{outfit_id}', [QueriesStatsApi::class, 'get_stats_outfit_monthly_by_outfit_id']);

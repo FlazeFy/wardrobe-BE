@@ -185,7 +185,7 @@ class ClothesTest extends TestCase
         $this->assertArrayHasKey('data', $data);
 
         foreach ($data['data'] as $dt) {
-            $check_object = ['clothes_name','clothes_note','used_context','created_at'];
+            $check_object = ['id','clothes_name','clothes_note','used_context','created_at'];
             foreach ($check_object as $col) {
                 $this->assertArrayHasKey($col, $dt);
             }

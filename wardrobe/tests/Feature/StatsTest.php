@@ -166,6 +166,49 @@ class StatsTest extends TestCase
         Audit::auditRecordSheet("Test - Get Clothes Monthly Created Buyed", "TC-XXX", 'TC-XXX test_get_stats_clothes_monthly_created_buyed', json_encode($data));
     }
 
+    public function test_get_stats_clothes_monthly_used(): void
+    {
+        // Exec
+        $year = "2025";
+
+        $token = $this->login_trait("user");
+        $response = $this->httpClient->get("clothes/monthly/used/$year", [
+            'headers' => [
+                'Authorization' => "Bearer $token"
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayHasKey('status', $data);
+        $this->assertEquals('success', $data['status']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertArrayHasKey('data', $data);
+
+        foreach ($data['data'] as $dt) {
+            $check_object = ['context','total'];
+            foreach ($check_object as $col) {
+                $this->assertArrayHasKey($col, $dt);
+                $this->assertNotNull($dt[$col]);
+            }
+
+            $this->assertIsString($dt['context']);
+
+            $this->assertTrue(in_array($dt['context'], $this->month));
+
+            $check_not_null_int = ['total'];
+            foreach ($check_not_null_int as $col) {
+                $this->assertIsInt($dt[$col]);
+                $this->assertGreaterThanOrEqual(0, $dt[$col]);
+            }
+        }
+
+        Audit::auditRecordText("Test - Get Clothes Monthly Used", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Get Clothes Monthly Used", "TC-XXX", 'TC-XXX test_get_stats_clothes_monthly_used', json_encode($data));
+    }
+
     public function test_get_stats_outfit_monthly_by_outfit_id(): void
     {
         // Exec

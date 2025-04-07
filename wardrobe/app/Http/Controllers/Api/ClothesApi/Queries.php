@@ -497,7 +497,7 @@ class Queries extends Controller
             $user_id = $request->user()->id;
             $page = request()->query('page');  
 
-            $res = ClothesUsedModel::select('clothes_name','clothes_type','clothes_note','used_context','clothes.created_at')
+            $res = ClothesUsedModel::select('clothes_used.id','clothes_name','clothes_type','clothes_note','used_context','clothes.created_at')
                 ->join('clothes','clothes.id','=','clothes_used.clothes_id');
 
             if($clothes_id != "all"){

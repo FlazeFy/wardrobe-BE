@@ -167,4 +167,35 @@ class ClothesModel extends Model
 
         return $res;
     }
+
+    public static function getMostUsedColor($id = null){
+        $res = ClothesModel::select('clothes_color');
+        if($id){
+            $res = $res->whereNot('id', $id);
+        }
+        $res = $res->pluck('clothes_color');
+
+        $colorCounts = [];
+        foreach ($res as $colorString) {
+            $individualColors = array_map('trim', explode(',', $colorString));
+            foreach ($individualColors as $color) {
+                if (!isset($colorCounts[$color])) {
+                    $colorCounts[$color] = 0;
+                }
+                $colorCounts[$color]++;
+            }
+        }
+
+        $final_res = collect($colorCounts)
+            ->sortDesc()
+            ->map(function ($count, $color) {
+                return [
+                    'context' => $color,
+                    'total' => $count
+                ];
+            })
+            ->values();
+
+        return $final_res;
+    }
 }

@@ -676,9 +676,12 @@ class ClothesTest extends TestCase
                 }
             }
 
-            $this->assertNotNull($dt['total_used']);
-            $this->assertIsInt($dt['total_used']);
-            $this->assertGreaterThanOrEqual(0, $dt['total_used']);
+            $check_not_null_str = ['total_used','score'];
+            foreach ($check_not_null_str as $col) {
+                $this->assertNotNull($dt[$col]);
+                $this->assertIsInt($dt[$col]);
+                $this->assertGreaterThanOrEqual(0, $dt[$col]);
+            }
         }
 
         Audit::auditRecordText("Test - Post Generated Outfit", "TC-XXX", "Result : ".json_encode($data));
@@ -969,18 +972,18 @@ class ClothesTest extends TestCase
         }
 
         foreach ($data['data']['clothes'] as $clo) {
-            $check_object = ['clothes_name','clothes_type','clothes_image','clothes_desc','is_favorite','has_washed','has_ironed','is_faded','clothes_merk'];
+            $check_object = ['id','clothes_name','clothes_type','clothes_image','is_favorite','has_washed','has_ironed','is_faded','clothes_merk'];
             foreach ($check_object as $col) {
                 $this->assertArrayHasKey($col, $clo);
             }
 
-            $check_not_null_str = ['clothes_name','clothes_type'];
+            $check_not_null_str = ['id','clothes_name','clothes_type'];
             foreach ($check_not_null_str as $col) {
                 $this->assertNotNull($clo[$col]);
                 $this->assertIsString($clo[$col]);
             }
 
-            $check_nullable_str = ['clothes_image','clothes_desc','clothes_merk'];
+            $check_nullable_str = ['clothes_image','clothes_merk'];
             foreach ($check_nullable_str as $col) {
                 if(!is_null($clo[$col])){
                     $this->assertIsString($clo[$col]);

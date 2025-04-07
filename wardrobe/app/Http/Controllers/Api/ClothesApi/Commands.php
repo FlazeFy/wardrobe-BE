@@ -30,6 +30,7 @@ use App\Helpers\Generator;
 use App\Helpers\Validation;
 use App\Helpers\Audit;
 use App\Helpers\Firebase;
+use App\Helpers\Formula;
 
 // Jobs
 use App\Jobs\ProcessMailer;
@@ -101,6 +102,9 @@ class Commands extends Controller
             $rows = ClothesModel::destroy($id);
 
             if($rows > 0){
+                // History
+                Audit::createHistory('Permanentally Delete', $clothes->clothes_name, $user_id);
+
                 // Send FCM Notification
                 $user = UserModel::getProfile($user_id);
                 if($user->firebase_fcm_token){
@@ -177,6 +181,7 @@ class Commands extends Controller
     {
         try{
             $user_id = $request->user()->id;
+            $clothes = ClothesModel::select('clothes_name')->where('id',$id)->first();
 
             $rows = ClothesModel::where('id', $id)
                 ->where('created_by', $user_id)
@@ -185,6 +190,9 @@ class Commands extends Controller
             ]);
 
             if($rows > 0){                
+                // History
+                Audit::createHistory('Delete', $clothes->clothes_name, $user_id);
+                
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("delete", 'clothes'),
@@ -1117,29 +1125,65 @@ class Commands extends Controller
         try{
             $user_id = $request->user()->id;
             $type = $request->clothes_type;
+            $temperature = $request->temperature ?? null;
+            $humidity = $request->humidity ?? null;
+            $weather = $request->weather ?? null;
+            $day = $request->day ?? date('l');
 
-            $clothes = ClothesModel::selectRaw('clothes.id, clothes_name,clothes_category,clothes_type,clothes_merk,clothes_made_from,clothes_color,clothes_image,
-                MAX(clothes_used.created_at) as last_used, CAST(SUM(CASE WHEN clothes_used.id IS NOT NULL THEN 1 ELSE 0 END) as UNSIGNED) as total_used')
-                ->leftjoin('clothes_used','clothes_used.clothes_id','=','clothes.id');
+            // Schedule Fetch
+            $scheduleIds = ScheduleModel::where('day', substr($day, 0, 3))->pluck('clothes_id')->toArray();
 
-            if(strpos($type, ',')){
-                $dcts = explode(",", $type);
-                foreach ($dcts as $dt) {
-                    $clothes = $clothes->orwhere('clothes_type',$dt); 
-                }
+            // Clothes Fetch
+            $query = ClothesModel::selectRaw('clothes.id, clothes_name, clothes_category, clothes_type, clothes_merk, clothes_made_from, clothes_color, clothes_image,
+                MAX(clothes_used.created_at) as last_used,
+                CAST(SUM(CASE WHEN clothes_used.id IS NOT NULL THEN 1 ELSE 0 END) as UNSIGNED) as total_used')
+                ->leftJoin('clothes_used', 'clothes_used.clothes_id', '=', 'clothes.id')
+                ->whereNotIn('clothes_type', ['swimsuit', 'underwear', 'tie', 'belt'])
+                ->where('has_washed', 1);
+            if (strpos($type, ',')) {
+                $types = explode(",", $type);
+                $query->whereIn('clothes_type', $types);
             } else {
-                $clothes = $clothes->where('clothes_type',$type); 
+                $query->where('clothes_type', $type);
+            }
+            $clothes = $query->groupBy('clothes.id')->get();
+
+            $scored = [];
+            foreach ($clothes as $dt) {
+                $score = 0;
+
+                // If clothes found on today schedule
+                if (in_array($dt->id, $scheduleIds)) $score += 20;
+                $score += $dt->total_used ?? 0;
+
+                if ($dt->last_used) {
+                    // If the clothes has been used. The more long last day used, the more high the score
+                    $days = now()->diffInDays($dt->last_used);
+                    $score += $days < 31 ? floor($days / 7) : floor($days / 30) + ($days % 30 > 0 ? 1 : 0);
+                } else {
+                    // If the clothes never been used
+                    $score += 20;
+                }
+
+                // Other formula
+                $score += Formula::getTemperatureScore($dt->clothes_type, $temperature);
+                $score += Formula::getHumidityScore($dt->clothes_type, $humidity);
+                $score += Formula::getWeatherScore($dt->clothes_type, $weather);
+                $score += Formula::getColorScore($dt->clothes_color, $dt->id);
+
+                $scored[] = array_merge($dt->toArray(), ['score' => $score]);
             }
 
-            $res = $clothes->where('has_washed',1)
-                ->groupby('clothes_type')
-                ->get();
+            $final_res = collect($scored)
+                ->sortByDesc('score')
+                ->unique('clothes_category')
+                ->values();
 
-            if(count($res) > 0){
+            if ($final_res->count() > 0) {
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("generate", 'outfit'),
-                    'data' => $res
+                    'data' => $final_res
                 ], Response::HTTP_CREATED);
             } else {
                 return response()->json([

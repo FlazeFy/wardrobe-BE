@@ -1122,7 +1122,7 @@ class Queries extends Controller
             $res = OutfitModel::getOneOutfit('direct',$id,$user_id);
 
             if ($res) {                
-                $clothes = OutfitRelModel::select('clothes.id as clothes_id','clothes_name','clothes_type','clothes_image','clothes_desc','is_favorite','has_washed','has_ironed','is_faded','clothes_merk')
+                $clothes = OutfitRelModel::select('clothes.id as id','clothes_name','clothes_type','clothes_image','is_favorite','has_washed','has_ironed','is_faded','clothes_merk')
                     ->join('clothes', 'clothes.id', '=', 'outfit_relation.clothes_id')
                     ->where('outfit_id', $res->id)
                     ->get();

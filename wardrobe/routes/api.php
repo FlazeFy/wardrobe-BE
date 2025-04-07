@@ -32,6 +32,11 @@ Route::prefix('/v1/question')->group(function () {
     Route::post('/', [CommandQuestionApi::class, 'post_question']);
 });
 
+Route::prefix('/v1/stats')->group(function () {
+    Route::get('/all', [QueriesStatsApi::class, 'get_all_stats']);
+    Route::get('/feedback/top', [QueriesStatsApi::class, 'get_top_feedback']);
+});
+
 ######################### Private Route #########################
 
 Route::get('/v1/logout', [QueryAuthApi::class, 'logout'])->middleware(['auth:sanctum']);
@@ -84,11 +89,6 @@ Route::prefix('/v1/stats')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/outfit/most/used/{year}', [QueriesStatsApi::class, 'get_stats_outfit_yearly_most_used']);
     Route::get('/wash/summary', [QueriesStatsApi::class, 'get_stats_wash_summary']);
     Route::get('/clothes/most/used/daily', [QueriesStatsApi::class, 'get_stats_most_used_clothes_daily']);
-});
-
-Route::prefix('/v1/stats')->group(function () {
-    Route::get('/all', [QueriesStatsApi::class, 'get_all_stats']);
-    Route::get('/feedback/top', [QueriesStatsApi::class, 'get_top_feedback']);
 });
 
 Route::prefix('/v1/chat')->middleware(['auth:sanctum'])->group(function () {

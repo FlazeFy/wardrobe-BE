@@ -14,4 +14,16 @@ class UserRequestModel extends Model
     protected $table = 'user_request';
     protected $primaryKey = 'id';
     protected $fillable = ['id', 'request_token', 'request_context', 'created_at', 'created_by', 'validated_at'];
+
+    public static function validateToken($username, $token, $context){
+        $res = UserRequestModel::select('user_request.created_at','user_request.id')
+            ->join('users','users.id','=','user_request.created_by')
+            ->where('username',$username)
+            ->where('request_token',$token)
+            ->where('request_context',$context)
+            ->whereNull('validated_at')
+            ->first();
+        
+        return $res ? $res : null;
+    }
 }

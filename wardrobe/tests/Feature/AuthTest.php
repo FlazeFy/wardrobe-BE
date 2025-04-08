@@ -73,7 +73,7 @@ class AuthTest extends TestCase
 
         // Test Parameter
         $this->assertEquals(201, $response->getStatusCode());
-        $this->assertArrayHasKey('token', $data);
+        $this->assertEquals("account has been registered, check your email to get a token validation",$data['message']);
         $this->assertArrayHasKey('result', $data);
 
         $check_object = ['id','username','email','created_at'];
@@ -89,6 +89,27 @@ class AuthTest extends TestCase
         
         Audit::auditRecordText("Test - Post Register", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Post Register", "TC-XXX", json_encode($param), json_encode($data));
+    }
+
+    public function test_post_validate_register(): void
+    {
+        // Exec
+        $param = [
+            'username' => 'flazefy123',
+            'token' => 'NGRD0Z',
+        ];
+        $response = $this->httpClient->post("/api/v1/register/validate", [
+            'json' => $param
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals("account has been validated. Welcome ".$param['username'], $data['message']);
+        
+        Audit::auditRecordText("Test - Post Validate Register", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Post Validate Register", "TC-XXX", json_encode($param), json_encode($data));
     }
 
     // TC-002

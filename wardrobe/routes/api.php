@@ -26,7 +26,10 @@ use App\Http\Controllers\Api\QuestionApi\Commands as CommandQuestionApi;
 ######################### Public Route #########################
 
 Route::post('/v1/login', [CommandAuthApi::class, 'login']);
-Route::post('/v1/register', [CommandAuthApi::class, 'register']);
+Route::prefix('/v1/register')->group(function () {
+    Route::post('/', [CommandAuthApi::class, 'register']);
+    Route::post('/validate', [CommandAuthApi::class, 'validate_register']);
+});
 
 Route::prefix('/v1/question')->group(function () {
     Route::get('/faq', [QueriesQuestionApi::class, 'get_question_faq']);

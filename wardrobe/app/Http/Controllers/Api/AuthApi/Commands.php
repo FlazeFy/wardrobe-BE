@@ -6,6 +6,7 @@ use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Carbon\Carbon;
 
 // Models
 use App\Models\UserModel;
@@ -183,7 +184,6 @@ class Commands extends Controller
                 return response()->json([
                     'status' => 'failed',
                     'result' => $errors,
-                    'token' => null
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             } else {
                 $validPass = Validation::hasNumber($request->password);
@@ -231,7 +231,8 @@ class Commands extends Controller
 
                             return response()->json([
                                 'status' => 'success',
-                                'result' => $user,             
+                                'result' => $user,    
+                                'message' => Generator::getMessageTemplate("custom", "account has been registered, check your email to get a token validation")      
                             ], Response::HTTP_CREATED);
                         } else {
                             return response()->json([
@@ -254,7 +255,103 @@ class Commands extends Controller
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'message' => Generator::getMessageTemplate("unknown_error", null)
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @OA\POST(
+     *     path="/api/v1/register/validate",
+     *     summary="Validate the registered account",
+     *     tags={"Auth"},
+     *     @OA\Response(
+     *         response=201,
+     *         description="validate token successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="account has been validated. Welcome flazefy")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="{validation_msg} | token is expired",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="{field validation message} | token is expired")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="invalid token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="invalid token")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function validate_register(Request $request)
+    {
+        try {
+            $validator = Validation::getValidateRegisterToken($request);
+
+            if ($validator->fails()) {
+                $errors = $validator->messages();
+
+                return response()->json([
+                    'status' => 'failed',
+                    'result' => $errors,
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            } else {
+                $is_exist = UserRequestModel::validateToken($request->username, $request->token, 'register');
+
+                if ($is_exist == null) {
+                    return response()->json([
+                        'status' => 'failed',
+                        'result' => Generator::getMessageTemplate("custom", 'invalid token'),
+                    ], Response::HTTP_NOT_FOUND);
+                } else {
+                    $date_request = $is_exist->created_at;
+                    $date_now = Carbon::now();
+                    $is_expired = $date_now->diffInMinutes($date_request) > 20;
+
+                    if ($is_expired) {
+                        return response()->json([
+                            'status' => 'failed',
+                            'message' => Generator::getMessageTemplate("custom", 'the token has expired')
+                        ], Response::HTTP_BAD_REQUEST);
+                    } else {
+                        $res = UserRequestModel::where('id',$is_exist->id)->update([
+                            'validated_at' => date('Y-m-d H:i:s')
+                        ]);
+
+                        if($res > 0){
+                            return response()->json([
+                                'status' => 'success',
+                                'message' => Generator::getMessageTemplate("custom", "account has been validated. Welcome $request->username")      
+                            ], Response::HTTP_OK);
+                        } else {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => Generator::getMessageTemplate("unknown_error", null)
+                            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                        }
+                    }
+                }
+            }
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null)
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

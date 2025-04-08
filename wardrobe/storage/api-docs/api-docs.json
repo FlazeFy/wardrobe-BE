@@ -244,6 +244,97 @@
                 }
             }
         },
+        "/api/v1/register/validate": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Validate the registered account",
+                "operationId": "325b5ef485ca0b33ecf7aad93c7f8e82",
+                "responses": {
+                    "201": {
+                        "description": "validate token successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "account has been validated. Welcome flazefy"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "{validation_msg} | token is expired",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "{field validation message} | token is expired"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "invalid token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/logout": {
             "get": {
                 "tags": [

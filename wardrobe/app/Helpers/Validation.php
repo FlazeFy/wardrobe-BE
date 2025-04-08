@@ -24,6 +24,14 @@ class Validation
         ]);
     }
 
+    public static function getValidateRegister($request){
+        return Validator::make($request->all(), [
+            'username' => 'required|min:6|max:30|string',
+            'password' => 'required|min:6|string',
+            'email' => 'required|min:10|max:255|email|string'
+        ]);
+    }
+
     public static function getValidateUser($request, $type){
         if($type == "update_fcm"){
             return Validator::make($request->all(), [
@@ -132,5 +140,11 @@ class Validation
                 'context' => ['required', new YearlyContextColumn],
             ]); 
         }
+    }
+
+    public static function hasNumber($val) {
+        $pattern = '/\d/';
+      
+        return preg_match($pattern, $val);
     }
 }

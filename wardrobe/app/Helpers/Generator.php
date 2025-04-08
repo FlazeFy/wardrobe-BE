@@ -18,6 +18,18 @@ class Generator
         return $uuid;
     }
 
+    public static function getToken(){
+        $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $res = '';
+        
+        $charCount = strlen($characters);
+        for ($i = 0; $i < 6; $i++) {
+            $res .= $characters[rand(0, $charCount - 1)];
+        }
+        
+        return $res;
+    }
+
     public static function getMessageTemplate($type, $ctx){
         if (in_array($type, ['create', 'update', 'delete', 'permentally delete', 'fetch','recover','analyze','generate','remove'])) {
             $ext = in_array($type, ['fetch','recover']) ? "ed" : "d";

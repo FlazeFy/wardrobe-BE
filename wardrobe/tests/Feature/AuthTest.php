@@ -57,6 +57,40 @@ class AuthTest extends TestCase
         return $data['token'];
     }
 
+    public function test_post_register(): void
+    {
+        // Exec
+        $param = [
+            'username' => 'flazefy123',
+            'password' => 'nopass123',
+            'email' => 'flazen.work@gmail.com'
+        ];
+        $response = $this->httpClient->post("/api/v1/register", [
+            'json' => $param
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Test Parameter
+        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertArrayHasKey('token', $data);
+        $this->assertArrayHasKey('result', $data);
+
+        $check_object = ['id','username','email','created_at'];
+        foreach ($check_object as $col) {
+            $this->assertArrayHasKey($col, $data['result']);
+        }
+
+        $check_not_null_str = ['id','username','email','created_at'];
+        foreach ($check_not_null_str as $col) {
+            $this->assertNotNull($col, $data['result'][$col]);
+            $this->assertIsString($col, $data['result'][$col]);
+        }
+        
+        Audit::auditRecordText("Test - Post Register", "TC-XXX", "Result : ".json_encode($data));
+        Audit::auditRecordSheet("Test - Post Register", "TC-XXX", json_encode($param), json_encode($data));
+    }
+
     // TC-002
     public function test_get_sign_out(): void
     {

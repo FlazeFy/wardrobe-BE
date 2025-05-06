@@ -89,7 +89,7 @@ class AuditSchedule
             foreach($admin as $dt){
                 $message = "[ADMIN] Hello $dt->username, the system just run an audit error, with result of $total error found. Here's the document";
                 
-                if($dt->telegram_user_id){
+                if($dt->telegram_user_id && $dt->telegram_is_valid == 1){
                     $response = Telegram::sendDocument([
                         'chat_id' => $dt->telegram_user_id,
                         'document' => $inputFile,
@@ -100,6 +100,28 @@ class AuditSchedule
             }
     
             unlink($pdfFilePath);
+        }
+    }
+
+    public static function audit_apps(){
+        $days = 7;
+        $summary = AdminModel::getAppsSummaryForLastNDays($days);
+
+        if($summary){
+            $admin = AdminModel::getAllContact();
+
+            foreach($admin as $dt){
+                $message_template = "[ADMIN] Hello $dt->username, here's the apps summary for the last $days days:";
+                $message = "$message_template\n\n- Clothes Created: $summary->clothes_created\n- Outfit Generated: $summary->outfit_generated\n- Wash Created: $summary->wash_created\n- Clothes Used: $summary->clothes_used\n- New User : $summary->new_user\n- Question Created : $summary->question_created\n- Error Happen : $summary->error_happen";
+
+                if($dt->telegram_user_id && $dt->telegram_is_valid == 1){
+                    $response = Telegram::sendMessage([
+                        'chat_id' => $dt->telegram_user_id,
+                        'text' => $message,
+                        'parse_mode' => 'HTML'
+                    ]);
+                }
+            }
         }
     }
 }

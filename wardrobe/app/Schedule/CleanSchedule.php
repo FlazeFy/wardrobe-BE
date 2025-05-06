@@ -39,7 +39,8 @@ class CleanSchedule
     public static function clean_deleted_clothes()
     {
         $days = 30;
-        $total = 0;
+        $total_clothes = 0;
+        $total_user = 0;
         $plan = ClothesModel::getClothesPlanDestroy($days);
         $admin = AdminModel::getAllContact();
 
@@ -52,6 +53,7 @@ class CleanSchedule
                 OutfitRelModel::hardDeleteOutfitRelByClothesId($dt->id);
                 WashModel::hardDeleteWashByClothesId($dt->id);
                 ClothesUsedModel::hardDeleteClothesUsedByClothesId($dt->id);
+                $total_clothes++;
 
                 if ($user_before == "" || $user_before == $dt->username) {
                     $list_clothes .= "- $dt->clothes_name\n";
@@ -61,7 +63,7 @@ class CleanSchedule
                 $is_last_or_diff_user = !$next || $next->username != $dt->username;
 
                 if ($is_last_or_diff_user) {
-                    $message = "Hello $dt->username, We've recently cleaned up your deleted clothes. Here are the details:\n$list_clothes";
+                    $message = "Hello $dt->username, We've recently cleaned up your deleted clothes. Here are the details:\n\n$list_clothes";
 
                     if ($dt->telegram_user_id && $dt->telegram_is_valid == 1) {
                         Telegram::sendMessage([
@@ -72,6 +74,7 @@ class CleanSchedule
                     }
 
                     $list_clothes = "";
+                    $total_user++;
                 }
 
                 $user_before = $dt->username;
@@ -80,7 +83,7 @@ class CleanSchedule
 
         if($admin){
             foreach($admin as $dt){
-                $message = "[ADMIN] Hello $dt->username, the system just run a clean deleted clothes, with result of $total clothes executed";
+                $message = "[ADMIN] Hello $dt->username, the system just run a clean deleted clothes, with result of $total_clothes clothes executed from $total_user user";
 
                 if($dt->telegram_user_id && $dt->telegram_is_valid == 1){
                     $response = Telegram::sendMessage([

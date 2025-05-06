@@ -212,9 +212,21 @@ class ClothesModel extends Model
     }
 
     public static function getClothesPlanDestroy($days){
-        $res = ClothesModel::select('clothes.id','clothes_name','deleted_at','username','telegram_user_id','telegram_is_valid','firebase_fcm_token')
+        $res = ClothesModel::select('clothes.id','clothes_name','username','telegram_user_id','telegram_is_valid','firebase_fcm_token')
             ->join('users','users.id','=','clothes.created_by')
             ->whereDate('deleted_at', '<', Carbon::now()->subDays($days))
+            ->orderby('username','asc')
+            ->get();
+
+        return count($res) > 0 ? $res : null;
+    }
+
+    public static function getClothesPrePlanDestroy($days){
+        $res = ClothesModel::selectRaw('clothes_name, deleted_at, count(1) as total_outfit_attached, username, telegram_user_id, telegram_is_valid, firebase_fcm_token')
+            ->join('users','users.id','=','clothes.created_by')
+            ->leftjoin('outfit_relation','outfit_relation.clothes_id','=','clothes.id')
+            ->whereDate('deleted_at', Carbon::now()->subDays($days))
+            ->groupby('clothes.id')
             ->orderby('username','asc')
             ->get();
 

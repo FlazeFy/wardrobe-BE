@@ -74,4 +74,10 @@ class ClothesUsedModel extends Model
 
         return $res;
     }
+
+    public static function hardDeleteClothesUsedByClothesId($clothes_id){
+        $res = ClothesUsedModel::where('clothes_id',$clothes_id)->delete();
+
+        return $res;
+    }
 }

@@ -7,6 +7,7 @@ Schedule::call(function () {
     // \App\Schedule\AuditSchedule::audit_error();
     // \App\Schedule\AuditSchedule::audit_apps();
     // \App\Schedule\CleanSchedule::clean_history();
+    \App\Schedule\CleanSchedule::clean_deleted_clothes();
 })->everyMinute();
 
 // For Production
@@ -18,5 +19,6 @@ Schedule::call(function () {
 
 Schedule::call(function () {
     \App\Schedule\CleanSchedule::clean_history();
+    \App\Schedule\CleanSchedule::clean_deleted_clothes();
 })->dailyAt('2:00');
 */

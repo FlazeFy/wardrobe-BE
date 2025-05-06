@@ -131,4 +131,10 @@ class WashModel extends Model
 
         return $res;
     }
+
+    public static function hardDeleteWashByClothesId($clothes_id){
+        $res = WashModel::where('clothes_id',$clothes_id)->delete();
+
+        return $res;
+    }
 }

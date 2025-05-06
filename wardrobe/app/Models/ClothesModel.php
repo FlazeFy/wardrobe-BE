@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -208,5 +209,15 @@ class ClothesModel extends Model
             ->values();
 
         return $final_res;
+    }
+
+    public static function getClothesPlanDestroy($days){
+        $res = ClothesModel::select('clothes.id','clothes_name','deleted_at','username','telegram_user_id','telegram_is_valid','firebase_fcm_token')
+            ->join('users','users.id','=','clothes.created_by')
+            ->whereDate('deleted_at', '<', Carbon::now()->subDays($days))
+            ->orderby('username','asc')
+            ->get();
+
+        return count($res) > 0 ? $res : null;
     }
 }

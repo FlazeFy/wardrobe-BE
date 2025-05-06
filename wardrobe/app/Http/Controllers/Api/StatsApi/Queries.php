@@ -29,7 +29,7 @@ class Queries extends Controller
     public function __construct()
     {
         $this->months = [
-            '01' => 'January', '02' => 'February', '03' => 'March', '04' => 'April', '05' => 'May', '06' => 'June', '07' => 'July', '08' => 'August', '09' => 'September', '10' => 'October', '11' => 'November', '12' => 'December'
+            '01' => 'Jan', '02' => 'Feb', '03' => 'Mar', '04' => 'Apr', '05' => 'May', '06' => 'Jun', '07' => 'Jul', '08' => 'Aug', '09' => 'Sep', '10' => 'Oct', '11' => 'Nov', '12' => 'Dec'
         ];
     }
 
@@ -388,7 +388,7 @@ class Queries extends Controller
      *             @OA\Property(property="message", type="string", example="stats fetched"),
      *             @OA\Property(property="data", type="array",
      *                  @OA\Items(type="object",
-     *                      @OA\Property(property="context", type="string", example="January"),
+     *                      @OA\Property(property="context", type="string", example="Jan"),
      *                      @OA\Property(property="total_created", type="integer", example=2),
      *                      @OA\Property(property="total_buyed", type="integer", example=1)
      *                  )
@@ -486,7 +486,7 @@ class Queries extends Controller
      *             @OA\Property(property="message", type="string", example="stats fetched"),
      *             @OA\Property(property="data", type="array",
      *                  @OA\Items(type="object",
-     *                      @OA\Property(property="context", type="string", example="January"),
+     *                      @OA\Property(property="context", type="string", example="Jan"),
      *                      @OA\Property(property="total", type="integer", example=2),
      *                  )
      *             )
@@ -907,7 +907,7 @@ class Queries extends Controller
      *             @OA\Property(property="message", type="string", example="stats fetched"),
      *             @OA\Property(property="data", type="array",
      *                  @OA\Items(type="object",
-     *                      @OA\Property(property="context", type="string", example="January"),
+     *                      @OA\Property(property="context", type="string", example="Jan"),
      *                      @OA\Property(property="total", type="integer", example=2)
      *                  )
      *             )

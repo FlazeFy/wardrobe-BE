@@ -504,7 +504,8 @@ class Queries extends Controller
                 $res = $res->where('clothes_id',$clothes_id);
             } 
             
-            $res = $res->orderBy('clothes_used.created_at', $order)
+            $res = $res->where('clothes_used.created_by',$user_id)
+                ->orderBy('clothes_used.created_at', $order)
                 ->orderBy('clothes_name', $order);
 
             if($clothes_id != "all" || $page != "all"){

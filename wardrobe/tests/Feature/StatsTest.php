@@ -21,7 +21,7 @@ class StatsTest extends TestCase
             'base_uri' => 'http://127.0.0.1:8000/api/v1/stats/',
             'http_errors' => false
         ]);
-        $this->month = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        $this->month = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     }
 
     public function test_get_stats_clothes_most_context(): void

@@ -1,8 +1,15 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
+ 
+// For Testing
+Schedule::call(function () {
+    // \App\Schedule\AuditSchedule::audit_error();
+})->everyMinute();
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote')->hourly();
+// For Production
+/*
+Schedule::call(function () {
+    \App\Schedule\AuditSchedule::audit_error();
+})->weeklyOn(1, '1:00');
+*/

@@ -585,12 +585,12 @@ class Commands extends Controller
             if($rows > 0){
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("permentally delete", 'clothes used'),
+                    'message' => Generator::getMessageTemplate("permentally delete", 'clothes used history'),
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", 'clothes used'),
+                    'message' => Generator::getMessageTemplate("not_found", 'clothes used history'),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {

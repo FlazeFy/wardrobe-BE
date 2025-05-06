@@ -242,4 +242,19 @@ class ClothesModel extends Model
 
         return count($res) > 0 ? $res : null;
     }
+
+    public static function getUnironedClothes(){
+        $ironable_clothes_made_from = ['cotton','linen','silk','rayon'];
+        $ironable_clothes_type = ['pants','shirt','jacket','shorts','skirt','dress','blouse','sweater','hoodie','tie','coat','vest','t-shirt','jeans','leggings','cardigan'];
+
+        $res = ClothesModel::select('clothes_name','clothes_made_from','has_washed','is_favorite','is_scheduled','username','telegram_user_id','telegram_is_valid','firebase_fcm_token')
+            ->join('users','users.id','=','clothes.created_by')
+            ->where('has_ironed', 0)
+            ->whereIn('clothes_made_from', $ironable_clothes_made_from)
+            ->whereIn('clothes_type', $ironable_clothes_type)
+            ->orderby('username','asc')
+            ->get();
+
+        return count($res) > 0 ? $res : null;
+    }
 }

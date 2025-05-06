@@ -39,7 +39,7 @@ class AdminModel extends Authenticatable
         $res = AdminModel::select('id','username','email','telegram_user_id','telegram_is_valid')
             ->get();
 
-        return $res;
+        return count($res) > 0 ? $res : null;
     }
 
     public static function getAppsSummaryForLastNDays($days){

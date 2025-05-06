@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -29,6 +30,13 @@ class HistoryModel extends Model
             ->where('created_by',$user_id)
             ->orderby('created_at', 'DESC')
             ->get();
+
+        return $res;
+    }
+
+    public static function deleteHistoryForLastNDays($days){
+        $res = HistoryModel::whereDate('created_at', '<', Carbon::now()->subDays($days))
+            ->delete();
 
         return $res;
     }

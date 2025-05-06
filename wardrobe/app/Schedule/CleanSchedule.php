@@ -56,7 +56,7 @@ class CleanSchedule
                 $total_clothes++;
 
                 if ($user_before == "" || $user_before == $dt->username) {
-                    $list_clothes .= "- $dt->clothes_name\n";
+                    $list_clothes .= "- ".ucwords($dt->clothes_name)."\n";
                 }
 
                 $next = $plan[$idx + 1] ?? null;

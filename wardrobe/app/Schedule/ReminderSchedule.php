@@ -27,7 +27,7 @@ class ReminderSchedule
                     if($dt->total_outfit_attached > 0){
                         $extra_desc .= " (attached in $dt->total_outfit_attached outfit)";
                     }
-                    $list_clothes .= "- $dt->clothes_name$extra_desc\n";
+                    $list_clothes .= "- ".ucwords($dt->clothes_name)."$extra_desc\n";
                 }
 
                 $next = $plan[$idx + 1] ?? null;
@@ -35,6 +35,66 @@ class ReminderSchedule
 
                 if ($is_last_or_diff_user) {
                     $message = "Hello $dt->username, We're here to remind you. That some of your clothes are set to deleted in $pre_remind_days days from now. Here are the details:\n\n$list_clothes";
+
+                    if ($dt->telegram_user_id && $dt->telegram_is_valid == 1) {
+                        Telegram::sendMessage([
+                            'chat_id' => $dt->telegram_user_id,
+                            'text' => $message,
+                            'parse_mode' => 'HTML'
+                        ]);
+                    }
+
+                    $list_clothes = "";
+                }
+
+                $user_before = $dt->username;
+            }
+        }
+    }
+
+    public static function remind_unwashed_clothes()
+    {
+        $clothes = ClothesModel::getUnwashedClothes();
+
+        if($clothes){
+            $user_before = "";
+            $list_clothes = "";
+            
+            foreach ($clothes as $idx => $dt) {
+                if ($user_before == "" || $user_before == $dt->username) {
+                    $extra_desc = "";
+                    if($dt->clothes_buy_at || $dt->is_favorite == 1 || $dt->is_scheduled == 1){
+                        $extra_desc .= " (";
+                    }
+
+                    if($dt->clothes_buy_at){
+                        $extra_desc .= "buy at $dt->clothes_buy_at";
+                    }
+                    if($dt->is_favorite == 1){
+                        if($dt->clothes_buy_at){
+                            $extra_desc .= ", ";
+                        }
+                        $extra_desc .= "is your favorited";
+                    }
+                    if($dt->is_scheduled == 1){
+                        if($dt->clothes_buy_at || $dt->is_favorite == 1){
+                            $extra_desc .= ", ";
+                        }
+                        $extra_desc .= "attached to schedule";
+                    }
+
+                    if($dt->clothes_buy_at || $dt->is_favorite == 1 || $dt->is_scheduled == 1){
+                        $extra_desc .= ")";
+                    }
+
+                    $list_clothes .= "- ".ucwords($dt->clothes_name)."$extra_desc\n";
+                }
+
+                $next = $clothes[$idx + 1] ?? null;
+                $is_last_or_diff_user = !$next || $next->username != $dt->username;
+
+                if ($is_last_or_diff_user) {
+                    $message = "Hello $dt->username, We're here to remind you. You have some clothes that has not been washed yet. Here are the details:\n\n$list_clothes";
 
                     if ($dt->telegram_user_id && $dt->telegram_is_valid == 1) {
                         Telegram::sendMessage([

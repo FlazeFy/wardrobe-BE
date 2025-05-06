@@ -9,6 +9,7 @@ Schedule::call(function () {
     // \App\Schedule\CleanSchedule::clean_history();
     // \App\Schedule\CleanSchedule::clean_deleted_clothes();
     // \App\Schedule\ReminderSchedule::remind_predeleted_clothes();
+    // \App\Schedule\ReminderSchedule::remind_unwashed_clothes();
 })->everyMinute();
 
 // For Production
@@ -25,5 +26,6 @@ Schedule::call(function () {
 
 Schedule::call(function () {
     \App\Schedule\ReminderSchedule::remind_predeleted_clothes();
+    \App\Schedule\ReminderSchedule::remind_unwashed_clothes();
 })->dailyAt('3:00');
 */

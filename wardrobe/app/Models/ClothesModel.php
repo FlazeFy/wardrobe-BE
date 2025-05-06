@@ -232,4 +232,14 @@ class ClothesModel extends Model
 
         return count($res) > 0 ? $res : null;
     }
+
+    public static function getUnwashedClothes(){
+        $res = ClothesModel::select('clothes_name','clothes_buy_at','is_favorite','is_scheduled','username','telegram_user_id','telegram_is_valid','firebase_fcm_token')
+            ->join('users','users.id','=','clothes.created_by')
+            ->where('has_washed', 0)
+            ->orderby('username','asc')
+            ->get();
+
+        return count($res) > 0 ? $res : null;
+    }
 }

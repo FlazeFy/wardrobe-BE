@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -62,5 +63,19 @@ class ScheduleModel extends Model
         }
 
         return $res->get();
+    }
+
+    public static function getPlanSchedule($day){
+        $res = ScheduleModel::selectRaw('clothes_name,clothes_type,schedule_note,is_favorite,has_washed,username,telegram_user_id,telegram_is_valid,firebase_fcm_token')
+            ->join('users','users.id','=','schedule.created_by')
+            ->join('clothes','schedule.clothes_id','=','clothes.id')
+            ->leftjoin('clothes_used','clothes_used.clothes_id','=','clothes.id')
+            ->where('day', $day)
+            ->where('is_remind', 1)
+            ->groupBy('clothes.id')
+            ->orderBy('username','asc')
+            ->get();
+            
+        return count($res) > 0 ? $res : null;
     }
 }

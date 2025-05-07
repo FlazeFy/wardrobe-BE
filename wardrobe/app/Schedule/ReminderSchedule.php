@@ -8,6 +8,7 @@ use Telegram\Bot\Laravel\Facades\Telegram;
 use App\Helpers\Generator;
 
 use App\Models\ClothesModel;
+use App\Models\ScheduleModel;
 
 class ReminderSchedule
 {
@@ -198,6 +199,55 @@ class ReminderSchedule
 
                 if ($is_last_or_diff_user) {
                     $message = "Hello $dt->username, We're here to remind you. You have some clothes that has never been used since $days days after washed or being added to Wardrobe. Here are the details:\n\n$list_clothes\n\nUse and wash it again to keep your clothes at good quality and not smell musty";
+
+                    if ($dt->telegram_user_id && $dt->telegram_is_valid == 1) {
+                        Telegram::sendMessage([
+                            'chat_id' => $dt->telegram_user_id,
+                            'text' => $message,
+                            'parse_mode' => 'HTML'
+                        ]);
+                    }
+
+                    $list_clothes = "";
+                }
+
+                $user_before = $dt->username;
+            }
+        }
+    }
+
+    public static function remind_weekly_schedule()
+    {
+        $today = date('Y-m-d');
+        $tomorrow = Carbon::parse($today)->addDay()->format('D');
+        $clothes = ScheduleModel::getPlanSchedule($tomorrow);
+
+        if($clothes){
+            $user_before = "";
+            $list_clothes = "";
+            
+            foreach ($clothes as $idx => $dt) {
+                if ($user_before == "" || $user_before == $dt->username) {
+                    $extra_desc = " (";
+
+                    if($dt->is_favorite == 1){
+                        $extra_desc .= "is your favorited, ";
+                    }
+                    if($dt->has_washed == 1){
+                        $extra_desc .= "has";
+                    } else {
+                        $extra_desc .= "has'nt";
+                    }
+                    $extra_desc .= " been washed)";
+
+                    $list_clothes .= "- ".ucwords($dt->clothes_name)." (".ucwords($dt->clothes_type).")\nNotes: <i>$extra_desc</i>";
+                }
+
+                $next = $clothes[$idx + 1] ?? null;
+                $is_last_or_diff_user = !$next || $next->username != $dt->username;
+
+                if ($is_last_or_diff_user) {
+                    $message = "Hello $dt->username, We're here to remind you. You have some schedule for tommorow (".ucfirst($tomorrow).") to follow. Here are the details:\n\n$list_clothes";
 
                     if ($dt->telegram_user_id && $dt->telegram_is_valid == 1) {
                         Telegram::sendMessage([

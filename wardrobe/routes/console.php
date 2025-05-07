@@ -11,6 +11,7 @@ Schedule::call(function () {
     // \App\Schedule\ReminderSchedule::remind_predeleted_clothes();
     // \App\Schedule\ReminderSchedule::remind_unwashed_clothes();
     // \App\Schedule\ReminderSchedule::remind_unironed_clothes();
+    \App\Schedule\ReminderSchedule::remind_unused_clothes();
 })->everyMinute();
 
 // For Production
@@ -24,6 +25,10 @@ Schedule::call(function () {
     \App\Schedule\CleanSchedule::clean_history();
     \App\Schedule\CleanSchedule::clean_deleted_clothes();
 })->dailyAt('2:00');
+
+Schedule::call(function () {
+    \App\Schedule\ReminderSchedule::remind_unused_clothes();
+})->weeklyOn(0, '2:20')->weeklyOn(2, '2:20')->weeklyOn(5, '2:20');
 
 Schedule::call(function () {
     \App\Schedule\ReminderSchedule::remind_predeleted_clothes();

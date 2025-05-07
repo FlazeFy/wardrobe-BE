@@ -168,4 +168,50 @@ class ReminderSchedule
             }
         }
     }
+
+    public static function remind_unused_clothes()
+    {
+        $days = 60;
+        $clothes = ClothesModel::getUnusedClothes($days);
+
+        if($clothes){
+            $user_before = "";
+            $list_clothes = "";
+            
+            foreach ($clothes as $idx => $dt) {
+                if ($user_before == "" || $user_before == $dt->username) {
+                    if($dt->total_used > 0){
+                        $extra_desc = "Last used at ".date('Y-m-d',strtotime($dt->last_used));
+                    } else {
+                        $extra_desc = "Never been used";
+                    }
+
+                    $extra_space = "";
+                    if($idx < count($clothes) - 1){
+                        $extra_space = "\n\n";
+                    }
+                    $list_clothes .= "- ".ucwords($dt->clothes_name)." (".ucwords($dt->clothes_type).")\nNotes: <i>$extra_desc</i>$extra_space";
+                }
+
+                $next = $clothes[$idx + 1] ?? null;
+                $is_last_or_diff_user = !$next || $next->username != $dt->username;
+
+                if ($is_last_or_diff_user) {
+                    $message = "Hello $dt->username, We're here to remind you. You have some clothes that has never been used since $days days after washed or being added to Wardrobe. Here are the details:\n\n$list_clothes\n\nUse and wash it again to keep your clothes at good quality and not smell musty";
+
+                    if ($dt->telegram_user_id && $dt->telegram_is_valid == 1) {
+                        Telegram::sendMessage([
+                            'chat_id' => $dt->telegram_user_id,
+                            'text' => $message,
+                            'parse_mode' => 'HTML'
+                        ]);
+                    }
+
+                    $list_clothes = "";
+                }
+
+                $user_before = $dt->username;
+            }
+        }
+    }
 }

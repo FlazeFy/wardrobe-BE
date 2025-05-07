@@ -257,4 +257,22 @@ class ClothesModel extends Model
 
         return count($res) > 0 ? $res : null;
     }
+
+    public static function getUnusedClothes($days){
+        $res = ClothesModel::selectRaw('clothes_name,clothes_type,
+            CASE 
+                WHEN clothes_used.created_at IS NOT NULL THEN MAX(clothes_used.created_at) 
+                ELSE clothes.created_at 
+            END AS last_used,
+            COUNT(clothes_used.id) as total_used,
+            username,telegram_user_id,telegram_is_valid,firebase_fcm_token')
+            ->join('users','users.id','=','clothes.created_by')
+            ->leftjoin('clothes_used','clothes.id','=','clothes_used.clothes_id')
+            ->groupby('clothes.id')
+            ->orderby('username','asc')
+            ->havingRaw('last_used < ?', [Carbon::now()->subDays($days)])
+            ->get();
+
+        return count($res) > 0 ? $res : null;
+    }
 }

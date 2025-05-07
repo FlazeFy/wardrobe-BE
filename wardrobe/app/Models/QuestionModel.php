@@ -25,4 +25,13 @@ class QuestionModel extends Model
 
         return $res;
     }
+
+    public  static function getUnansweredQuestion(){
+        $res = QuestionModel::select('question', 'created_at')
+            ->whereNull('answer')
+            ->orderby('created_at','desc')
+            ->get();
+
+        return count($res) > 0 ? $res : null;
+    }
 }

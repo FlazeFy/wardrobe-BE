@@ -9,6 +9,8 @@ use App\Helpers\Generator;
 
 use App\Models\ClothesModel;
 use App\Models\ScheduleModel;
+use App\Models\QuestionModel;
+use App\Models\AdminModel;
 
 class ReminderSchedule
 {
@@ -261,6 +263,34 @@ class ReminderSchedule
                 }
 
                 $user_before = $dt->username;
+            }
+        }
+    }
+
+    public static function remind_unanswered_question()
+    {
+        $question = QuestionModel::getUnansweredQuestion();
+
+        if($question){
+            $list_question = "";
+            
+            foreach ($question as $idx => $dt) {
+                $list_question .= "- ".ucfirst($dt->question)."\nNotes: <i>ask at $dt->created_at</i>\n\n";
+            }
+
+            $admin = AdminModel::getAllContact();
+            if($admin){
+                foreach($admin as $dt){
+                    $message = "[ADMIN] Hello $dt->username, We're here to remind you. You have some unanswered question that needed to be answer. Here are the details:\n\n$list_question";
+    
+                    if($dt->telegram_user_id && $dt->telegram_is_valid == 1){
+                        $response = Telegram::sendMessage([
+                            'chat_id' => $dt->telegram_user_id,
+                            'text' => $message,
+                            'parse_mode' => 'HTML'
+                        ]);
+                    }
+                }
             }
         }
     }

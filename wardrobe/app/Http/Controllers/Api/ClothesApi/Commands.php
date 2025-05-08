@@ -1139,6 +1139,7 @@ class Commands extends Controller
                 CAST(SUM(CASE WHEN clothes_used.id IS NOT NULL THEN 1 ELSE 0 END) as UNSIGNED) as total_used')
                 ->leftJoin('clothes_used', 'clothes_used.clothes_id', '=', 'clothes.id')
                 ->whereNotIn('clothes_type', ['swimsuit', 'underwear', 'tie', 'belt'])
+                ->where('clothes.created_by', $user_id)
                 ->where('has_washed', 1);
             if (strpos($type, ',')) {
                 $types = explode(",", $type);

@@ -120,4 +120,18 @@ class UserModel extends Authenticatable
 
         return $res;
     }
+
+    public static function getUserReadyGeneratedOutfit(){
+        $res = UserModel::selectRaw("
+                users.id,username,telegram_is_valid,telegram_user_id,firebase_fcm_token,
+                CAST(SUM(CASE WHEN clothes_category = 'upper_body' THEN 1 ELSE 0 END) AS UNSIGNED) AS total_upper_body,
+                CAST(SUM(CASE WHEN clothes_category = 'bottom_body' THEN 1 ELSE 0 END) AS UNSIGNED) AS total_bottom_body,
+                CAST(SUM(CASE WHEN clothes_category = 'foot' THEN 1 ELSE 0 END) AS UNSIGNED) AS total_foot
+            ")
+            ->join('clothes', 'clothes.created_by', '=', 'users.id')
+            ->groupBy('users.id')
+            ->get();
+
+        return count($res) > 0 ? $res : null;
+    }
 }

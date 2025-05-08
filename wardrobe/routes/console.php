@@ -14,6 +14,7 @@ Schedule::call(function () {
     // \App\Schedule\ReminderSchedule::remind_unused_clothes();
     // \App\Schedule\ReminderSchedule::remind_weekly_schedule();
     // \App\Schedule\ReminderSchedule::remind_unanswered_question();
+    // \App\Schedule\GeneratorSchedule::generate_outfit();
 })->everyMinute();
 
 // For Production
@@ -47,5 +48,6 @@ Schedule::call(function () {
 
 Schedule::call(function () {
     \App\Schedule\ReminderSchedule::remind_weekly_schedule();
+    \App\Schedule\GeneratorSchedule::generate_outfit();
 })->dailyAt('18:00');
 */

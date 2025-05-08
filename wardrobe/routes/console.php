@@ -15,10 +15,15 @@ Schedule::call(function () {
     // \App\Schedule\ReminderSchedule::remind_weekly_schedule();
     // \App\Schedule\ReminderSchedule::remind_unanswered_question();
     // \App\Schedule\GeneratorSchedule::generate_outfit();
+    // \App\Schedule\WeatherSchedule::weather_routine_fetch();
 })->everyMinute();
 
 // For Production
 /*
+Schedule::call(function () {
+    \App\Schedule\WeatherSchedule::weather_routine_fetch();
+})->dailyAt('0:10');
+
 Schedule::call(function () {
     \App\Schedule\AuditSchedule::audit_error();
     \App\Schedule\AuditSchedule::audit_apps();

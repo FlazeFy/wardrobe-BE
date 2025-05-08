@@ -14,6 +14,7 @@ use App\Models\OutfitRelModel;
 use App\Models\OutfitUsedModel;
 use App\Models\WashModel;
 use App\Models\ScheduleModel;
+use App\Models\UserTrackModel;
 
 class UserModel extends Authenticatable
 {
@@ -133,5 +134,10 @@ class UserModel extends Authenticatable
             ->get();
 
         return count($res) > 0 ? $res : null;
+    }
+
+    public function latestTrack()
+    {
+        return $this->hasOne(UserTrackModel::class, 'created_by')->latestOfMany('created_at');
     }
 }

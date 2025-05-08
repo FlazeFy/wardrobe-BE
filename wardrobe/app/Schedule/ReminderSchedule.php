@@ -11,6 +11,7 @@ use App\Models\ClothesModel;
 use App\Models\ScheduleModel;
 use App\Models\QuestionModel;
 use App\Models\AdminModel;
+use App\Models\UserTrackModel;
 
 class ReminderSchedule
 {
@@ -290,6 +291,26 @@ class ReminderSchedule
                             'parse_mode' => 'HTML'
                         ]);
                     }
+                }
+            }
+        }
+    }
+
+    public static function remind_old_last_track()
+    {
+        $days = 5;
+        $old_track = UserTrackModel::getOldLastTrack($days);
+
+        if($old_track){            
+            foreach ($old_track as $dt) {
+                $message = "Hello ".$dt['username'].", We've noticed that your last location record when using Wardrobe is at ".date("Y-m-d H:i",strtotime($dt['last_track'])).".\n\nKeep update your location via opened the Wardrobe Web or Mobile version. Or maybe just send your current location via Wardrobe Telegram BOT.";
+    
+                if($dt['telegram_user_id'] && $dt['telegram_is_valid'] == 1){
+                    $response = Telegram::sendMessage([
+                        'chat_id' => $dt['telegram_user_id'],
+                        'text' => $message,
+                        'parse_mode' => 'HTML'
+                    ]);
                 }
             }
         }

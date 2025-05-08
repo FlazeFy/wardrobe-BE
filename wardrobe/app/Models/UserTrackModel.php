@@ -38,4 +38,25 @@ class UserTrackModel extends Model
 
         return $res;
     }
+
+    public static function getOldLastTrack($days){
+        $users = UserModel::with('latestTrack')->get();
+
+        $res = $users->map(function ($user) {
+            if (!$user->latestTrack) return null;
+
+            return [
+                'track_lat' => $user->latestTrack->track_lat,
+                'track_long' => $user->latestTrack->track_long,
+                'last_track' => $user->latestTrack->created_at,
+                'user_id' => $user->id,
+                'username' => $user->username,
+                'telegram_is_valid' => $user->telegram_is_valid,
+                'telegram_user_id' => $user->telegram_user_id,
+                'firebase_fcm_token' => $user->firebase_fcm_token
+            ];
+        })->filter();
+
+        return count($res) > 0 ? $res : null;
+    }
 }

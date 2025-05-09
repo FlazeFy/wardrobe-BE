@@ -51,9 +51,9 @@ class AuditSchedule
                 $options = new DompdfOptions();
                 $options->set('defaultFont', 'Helvetica');
                 $dompdf = new Dompdf($options);
-                $header_template = Generator::generateDocTemplate('header');
-                $style_template = Generator::generateDocTemplate('style');
-                $footer_template = Generator::generateDocTemplate('footer');
+                $header_template = Generator::getDocTemplate('header');
+                $style_template = Generator::getDocTemplate('style');
+                $footer_template = Generator::getDocTemplate('footer');
         
                 $html = "
                 <html>

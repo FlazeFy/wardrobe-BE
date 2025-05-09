@@ -7,13 +7,13 @@ class Document
     public static function documentDailyWeeklyReport($header_template,$style_template,$footer_template,$type,$date,$used_history,$wash_schedule,$weekly_schedule,$buyed_history,$add_wardrobe){ 
         $datetime = now();
         if($header_template == null){
-            $header_template = Generator::generateDocTemplate('header');
+            $header_template = Generator::getDocTemplate('header');
         }
         if($style_template == null){
-            $style_template = Generator::generateDocTemplate('style');
+            $style_template = Generator::getDocTemplate('style');
         }
         if($footer_template == null){
-            $footer_template = Generator::generateDocTemplate('footer');
+            $footer_template = Generator::getDocTemplate('footer');
         }
 
         function generateTable($title, $data) {
@@ -69,13 +69,13 @@ class Document
     public static function documentClothesDetail($header_template,$style_template,$footer_template,$clothes,$used_history,$wash_history,$last_used,$schedule,$outfit){
         $datetime = now();
         if($header_template == null){
-            $header_template = Generator::generateDocTemplate('header');
+            $header_template = Generator::getDocTemplate('header');
         }
         if($style_template == null){
-            $style_template = Generator::generateDocTemplate('style');
+            $style_template = Generator::getDocTemplate('style');
         }
         if($footer_template == null){
-            $footer_template = Generator::generateDocTemplate('footer');
+            $footer_template = Generator::getDocTemplate('footer');
         }
 
         $tbody_used_history = "";

@@ -5,6 +5,9 @@ namespace App\Schedule;
 use Carbon\Carbon;
 use DateTime;
 use Telegram\Bot\Laravel\Facades\Telegram;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
 
 use App\Models\ClothesModel;
 use App\Models\ClothesUsedModel;
@@ -71,6 +74,13 @@ class CleanSchedule
                             'text' => $message,
                             'parse_mode' => 'HTML'
                         ]);
+                    }
+                    if($dt->firebase_fcm_token){
+                        $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
+                        $messaging = $factory->createMessaging();
+                        $message_fcm = CloudMessage::withTarget('token', $dt->firebase_fcm_token)
+                            ->withNotification(Notification::create($message, $dt->id));
+                        $response = $messaging->send($message_fcm);
                     }
 
                     $list_clothes = "";

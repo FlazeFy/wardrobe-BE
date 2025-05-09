@@ -88,7 +88,7 @@ class Generator
         } else if($type == 'clothes_category'){
             $seed = ['upper_body','bottom_body','head','foot','hand'];
         } else if($type == 'wash_type'){
-            $seed = ['laundry','self'];
+            $seed = ['Laundry','Self-Wash'];
         }
 
         $ran = mt_rand(0, count($seed)-1);

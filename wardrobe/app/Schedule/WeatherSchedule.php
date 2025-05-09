@@ -5,6 +5,9 @@ namespace App\Schedule;
 use Carbon\Carbon;
 use DateTime;
 use Telegram\Bot\Laravel\Facades\Telegram;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
 use GuzzleHttp\Client;
 
 use App\Models\UserTrackModel;
@@ -58,11 +61,21 @@ class WeatherSchedule
                     if ($res) {
                         $message = "Hello ".$dt['username'].", from your last coordinate ".$dt['track_lat'].", ".$dt['track_long']." at ".date("Y-m-d H:i",strtotime($dt['created_at'])).". We've have checked the weather for today, and the result is:\n\nTemperature: $weather->temp °C\nHumidity: $weather->humidity%\nCity: $weather->city\nWeather Condition: $weather->condition";
                 
-                        Telegram::sendMessage([
-                            'chat_id' => $dt['telegram_user_id'],
-                            'text' => $message,
-                            'parse_mode' => 'HTML'
-                        ]);
+                        if($dt['telegram_user_id'] && $dt['telegram_is_valid'] == 1){
+                            Telegram::sendMessage([
+                                'chat_id' => $dt['telegram_user_id'],
+                                'text' => $message,
+                                'parse_mode' => 'HTML'
+                            ]);
+                        }
+
+                        if($dt['firebase_fcm_token']){
+                            $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
+                            $messaging = $factory->createMessaging();
+                            $message_fcm = CloudMessage::withTarget('token', $dt['firebase_fcm_token'])
+                                ->withNotification(Notification::create($message, $res->id));
+                            $response = $messaging->send($message_fcm);
+                        }
                     }
                 }                
             }

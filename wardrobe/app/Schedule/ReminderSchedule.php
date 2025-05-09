@@ -5,8 +5,14 @@ namespace App\Schedule;
 use Carbon\Carbon;
 use DateTime;
 use Telegram\Bot\Laravel\Facades\Telegram;
-use App\Helpers\Generator;
+use Telegram\Bot\FileUpload\InputFile;
+use Dompdf\Dompdf;
+use Dompdf\Options;
+use Dompdf\Canvas\Factory as CanvasFactory;
+use Dompdf\Options as DompdfOptions;
+use Dompdf\Adapter\CPDF;
 
+use App\Helpers\Generator;
 use App\Models\ClothesModel;
 use App\Models\ClothesUsedModel;
 use App\Models\ScheduleModel;
@@ -47,6 +53,13 @@ class ReminderSchedule
                             'text' => $message,
                             'parse_mode' => 'HTML'
                         ]);
+                    }
+                    if($dt->firebase_fcm_token){
+                        $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
+                        $messaging = $factory->createMessaging();
+                        $message_fcm = CloudMessage::withTarget('token', $dt->firebase_fcm_token)
+                            ->withNotification(Notification::create($message, $dt->firebase_fcm_token));
+                        $response = $messaging->send($message_fcm);
                     }
 
                     $list_clothes = "";
@@ -108,6 +121,13 @@ class ReminderSchedule
                             'parse_mode' => 'HTML'
                         ]);
                     }
+                    if($dt->firebase_fcm_token){
+                        $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
+                        $messaging = $factory->createMessaging();
+                        $message_fcm = CloudMessage::withTarget('token', $dt->firebase_fcm_token)
+                            ->withNotification(Notification::create($message, $dt->firebase_fcm_token));
+                        $response = $messaging->send($message_fcm);
+                    }
 
                     $list_clothes = "";
                 }
@@ -165,6 +185,13 @@ class ReminderSchedule
                             'parse_mode' => 'HTML'
                         ]);
                     }
+                    if($dt->firebase_fcm_token){
+                        $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
+                        $messaging = $factory->createMessaging();
+                        $message_fcm = CloudMessage::withTarget('token', $dt->firebase_fcm_token)
+                            ->withNotification(Notification::create($message, $dt->firebase_fcm_token));
+                        $response = $messaging->send($message_fcm);
+                    }
 
                     $list_clothes = "";
                 }
@@ -210,6 +237,13 @@ class ReminderSchedule
                             'text' => $message,
                             'parse_mode' => 'HTML'
                         ]);
+                    }
+                    if($dt->firebase_fcm_token){
+                        $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
+                        $messaging = $factory->createMessaging();
+                        $message_fcm = CloudMessage::withTarget('token', $dt->firebase_fcm_token)
+                            ->withNotification(Notification::create($message, $dt->firebase_fcm_token));
+                        $response = $messaging->send($message_fcm);
                     }
 
                     $list_clothes = "";
@@ -262,6 +296,14 @@ class ReminderSchedule
                     }
 
                     $list_clothes = "";
+
+                    if($dt->firebase_fcm_token){
+                        $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
+                        $messaging = $factory->createMessaging();
+                        $message_fcm = CloudMessage::withTarget('token', $dt->firebase_fcm_token)
+                            ->withNotification(Notification::create($message, $dt->firebase_fcm_token));
+                        $response = $messaging->send($message_fcm);
+                    }
                 }
 
                 $user_before = $dt->username;
@@ -275,24 +317,75 @@ class ReminderSchedule
 
         if($question){
             $list_question = "";
+            $audit_tbody = "";
             
             foreach ($question as $idx => $dt) {
                 $list_question .= "- ".ucfirst($dt->question)."\nNotes: <i>ask at $dt->created_at</i>\n\n";
+
+                $audit_tbody .= "
+                    <tr>
+                        <td style='width: 140px; text-align:center;'>$dt->created_at</td>
+                        <td>".ucfirst($dt->question)."</td>
+                        <td style='width: 450px;'></td>
+                    </tr>
+                ";
             }
 
             $admin = AdminModel::getAllContact();
             if($admin){
+                $datetime = date("Y-m-d H:i:s");    
+                $options = new DompdfOptions();
+                $options->set('defaultFont', 'Helvetica');
+                $dompdf = new Dompdf($options);
+                $header_template = Generator::generateDocTemplate('header');
+                $style_template = Generator::generateDocTemplate('style');
+                $footer_template = Generator::generateDocTemplate('footer');
+
+                $html = "
+                <html>
+                    <head>
+                        $style_template
+                    </head>
+                    <body>
+                        $header_template
+                        <h2>Reminder - Unanswered Question</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style='width: 140px;'>Date</th>
+                                    <th>Question</th>
+                                    <th>Answer</th>
+                                </tr>
+                            </thead>
+                            <tbody>$audit_tbody</tbody>
+                        </table>
+                        $footer_template
+                    </body>
+                </html>";
+        
+                $dompdf->loadHtml($html);
+                $dompdf->setPaper('A4', 'landscape');
+                $dompdf->render();
+        
+                $pdfContent = $dompdf->output();
+                $pdfFilePath = public_path("reminder_unanswered_question_$datetime.pdf");
+                file_put_contents($pdfFilePath, $pdfContent);
+                $inputFile = InputFile::create($pdfFilePath, $pdfFilePath);
+
                 foreach($admin as $dt){
                     $message = "[ADMIN] Hello $dt->username, We're here to remind you. You have some unanswered question that needed to be answer. Here are the details:\n\n$list_question";
     
                     if($dt->telegram_user_id && $dt->telegram_is_valid == 1){
-                        $response = Telegram::sendMessage([
+                        $response = Telegram::sendDocument([
                             'chat_id' => $dt->telegram_user_id,
-                            'text' => $message,
+                            'document' => $inputFile,
+                            'caption' => $message,
                             'parse_mode' => 'HTML'
                         ]);
                     }
                 }
+
+                unlink($pdfFilePath);
             }
         }
     }
@@ -357,6 +450,13 @@ class ReminderSchedule
                             'text' => $message,
                             'parse_mode' => 'HTML'
                         ]);
+                    }
+                    if($dt->firebase_fcm_token){
+                        $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
+                        $messaging = $factory->createMessaging();
+                        $message_fcm = CloudMessage::withTarget('token', $dt->firebase_fcm_token)
+                            ->withNotification(Notification::create($message, $dt->firebase_fcm_token));
+                        $response = $messaging->send($message_fcm);
                     }
 
                     $list_clothes = "";

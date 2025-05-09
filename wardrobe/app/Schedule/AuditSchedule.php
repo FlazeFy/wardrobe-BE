@@ -4,7 +4,6 @@ namespace App\Schedule;
 
 use Carbon\Carbon;
 use DateTime;
-use Illuminate\Support\Facades\Mail;
 use Telegram\Bot\Laravel\Facades\Telegram;
 use Telegram\Bot\FileUpload\InputFile;
 use Dompdf\Dompdf;

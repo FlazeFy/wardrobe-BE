@@ -14,7 +14,8 @@ Schedule::call(function () {
     // \App\Schedule\ReminderSchedule::remind_unused_clothes();
     // \App\Schedule\ReminderSchedule::remind_weekly_schedule();
     // \App\Schedule\ReminderSchedule::remind_unanswered_question();
-    \App\Schedule\ReminderSchedule::remind_old_last_track();
+    // \App\Schedule\ReminderSchedule::remind_old_last_track();
+    // \App\Schedule\ReminderSchedule::remind_wash_used_clothes();
     // \App\Schedule\GeneratorSchedule::generate_outfit();
     // \App\Schedule\WeatherSchedule::weather_routine_fetch();
 })->everyMinute();
@@ -47,6 +48,7 @@ Schedule::call(function () {
 Schedule::call(function () {
     \App\Schedule\ReminderSchedule::remind_predeleted_clothes();
     \App\Schedule\ReminderSchedule::remind_unwashed_clothes();
+    \App\Schedule\ReminderSchedule::remind_wash_used_clothes();
 })->dailyAt('3:00');
 
 Schedule::call(function () {

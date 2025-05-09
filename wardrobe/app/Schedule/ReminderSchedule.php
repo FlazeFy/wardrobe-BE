@@ -8,6 +8,7 @@ use Telegram\Bot\Laravel\Facades\Telegram;
 use App\Helpers\Generator;
 
 use App\Models\ClothesModel;
+use App\Models\ClothesUsedModel;
 use App\Models\ScheduleModel;
 use App\Models\QuestionModel;
 use App\Models\AdminModel;
@@ -312,6 +313,56 @@ class ReminderSchedule
                         'parse_mode' => 'HTML'
                     ]);
                 }
+            }
+        }
+    }
+
+    public static function remind_wash_used_clothes(){
+        $days = 7;
+        $clothes = ClothesUsedModel::getUsedClothesReadyToWash($days);
+
+        if($clothes){          
+            $user_before = "";
+            $list_clothes = "";
+
+            foreach ($clothes as $idx => $dt) {
+                if ($user_before == "" || $user_before == $dt->username) {
+                    $extra_desc = "";
+
+                    if($dt->is_scheduled == 1){
+                        $extra_desc .= "is on scheduled!";
+                    }
+                    if($dt->is_faded == 1){
+                        if($dt->is_scheduled == 1){
+                            $extra_desc .= ", ";
+                        }
+                        $extra_desc .= "is faded!";
+                    }
+                    if($dt->is_scheduled == 1 || $dt->is_faded){
+                        $extra_desc = ", $extra_desc";
+                    }
+
+                    $list_clothes .= "- <b>".ucwords($dt->clothes_name)."</b> (".ucwords($dt->clothes_type)." - ".ucwords($dt->clothes_made_from).")\n<i>Used Context: $dt->used_context\nNotes: Last used at ".date("Y-m-d",strtotime($dt->created_at))."$extra_desc</i>\n\n";
+                }
+
+                $next = $clothes[$idx + 1] ?? null;
+                $is_last_or_diff_user = !$next || $next->username != $dt->username;
+
+                if ($is_last_or_diff_user) {
+                    $message = "Hello $dt->username, We've noticed that some of your clothes are not washed after being used after $days days from now. Don't forget to wash your used clothes, here's the detail:\n\n$list_clothes";
+    
+                    if($dt->telegram_user_id && $dt->telegram_is_valid == 1){
+                        $response = Telegram::sendMessage([
+                            'chat_id' => $dt->telegram_user_id,
+                            'text' => $message,
+                            'parse_mode' => 'HTML'
+                        ]);
+                    }
+
+                    $list_clothes = "";
+                }
+
+                $user_before = $dt->username;
             }
         }
     }

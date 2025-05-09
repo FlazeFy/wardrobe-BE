@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class ClothesUsedModel extends Model
 {
@@ -74,6 +76,36 @@ class ClothesUsedModel extends Model
 
         return $res;
     }
+
+    public static function getUsedClothesReadyToWash($days){
+        $latestUsage = ClothesUsedModel::selectRaw('clothes_id, MAX(created_at) as latest_used_at')
+            ->groupBy('clothes_id');
+    
+        $res = ClothesUsedModel::selectRaw('clothes_name,clothes_type,clothes_made_from,clothes_used.used_context,is_faded,is_scheduled,clothes_used.created_at,
+            username,telegram_is_valid,telegram_user_id,firebase_fcm_token')
+            ->joinSub($latestUsage, 'latest_usage', function($join) {
+                $join->on('clothes_used.clothes_id', '=', 'latest_usage.clothes_id')
+                     ->on('clothes_used.created_at', '=', 'latest_usage.latest_used_at');
+            })
+            ->join('clothes', 'clothes.id', '=', 'clothes_used.clothes_id')
+            ->join('users', 'users.id', '=', 'clothes_used.created_by')
+            ->whereDate('clothes_used.created_at', '<', Carbon::now()->subDays($days))
+            ->whereNotExists(function ($query) use ($days) {
+                $query->select(DB::raw(1))
+                    ->from('wash')
+                    ->whereColumn('wash.clothes_id', 'clothes_used.clothes_id')
+                    ->whereBetween('wash.finished_at', [
+                        DB::raw('clothes_used.created_at'),
+                        DB::raw('NOW()')
+                    ]);
+            })
+            ->orderBy('username', 'asc')
+            ->orderBy('clothes_used.created_at', 'desc')
+            ->get();
+    
+        return count($res) > 0 ? $res : null;
+    }    
+    
 
     public static function hardDeleteClothesUsedByClothesId($clothes_id){
         $res = ClothesUsedModel::where('clothes_id',$clothes_id)->delete();

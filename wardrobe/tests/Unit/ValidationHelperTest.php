@@ -50,7 +50,7 @@ class ValidationHelperTest extends TestCase
     // getValidateRegisterToken
     public function test_validate_register_token_success_with_valid_data()
     {
-        $request = Request::create('/register/token', 'POST', [
+        $request = Request::create('/test', 'POST', [
             'username' => 'validuser',
             'token' => 'ABC123'
         ]);
@@ -60,7 +60,7 @@ class ValidationHelperTest extends TestCase
     }
     public function test_validate_register_token_failed_with_invalid_token()
     {
-        $request = Request::create('/register/token', 'POST', [
+        $request = Request::create('/test', 'POST', [
             'username' => 'validuser',
             'token' => '123' 
         ]);
@@ -73,7 +73,7 @@ class ValidationHelperTest extends TestCase
     // getValidateRegister
     public function test_validate_register_success_with_valid_data()
     {
-        $request = Request::create('/register', 'POST', [
+        $request = Request::create('/test', 'POST', [
             'username' => 'validuser',
             'password' => 'validpass',
             'email' => 'user@example.com'
@@ -84,7 +84,7 @@ class ValidationHelperTest extends TestCase
     }
     public function test_validate_register_failed_with_invalid_email()
     {
-        $request = Request::create('/register', 'POST', [
+        $request = Request::create('/test', 'POST', [
             'username' => 'validuser',
             'password' => 'validpass',
             'email' => 'invalid-email'
@@ -94,9 +94,9 @@ class ValidationHelperTest extends TestCase
         $this->assertTrue($validator->fails());
         $this->assertArrayHasKey('email', $validator->errors()->toArray());
     }
-    public function test_validate_register_failed_with_long_char_username()
+    public function test_validate_register_failed_with_invalid_long_char_username()
     {
-        $request = Request::create('/register', 'POST', [
+        $request = Request::create('/test', 'POST', [
             'username' => 'validuservaliduservaliduservalid',
             'password' => 'validpass',
             'email' => 'user@gmail.com'
@@ -105,5 +105,100 @@ class ValidationHelperTest extends TestCase
         $validator = Validation::getValidateRegister($request);
         $this->assertTrue($validator->fails());
         $this->assertArrayHasKey('username', $validator->errors()->toArray());
+    }
+
+    // getValidateUser
+    public function test_validate_user_update_fcm_success_with_valid_data()
+    {
+        $request = Request::create('/test', 'POST', [
+            'firebase_fcm_token' => 'a90su1a9d09109u3',
+        ]);
+
+        $validator = Validation::getValidateUser($request,"update_fcm");
+        $this->assertFalse($validator->fails());
+    }
+    public function test_validate_user_update_fcm_failed_with_invalid_long_char_fcm()
+    {
+        $request = Request::create('/test', 'POST', [
+            'firebase_fcm_token' => 'a90',
+        ]);
+
+        $validator = Validation::getValidateUser($request,"update_fcm");
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('firebase_fcm_token', $validator->errors()->toArray());
+    }
+
+    // getValidateDictionary
+    public function test_validate_dictionary_create_success_with_valid_data()
+    {
+        $request = Request::create('/test', 'POST', [
+            'dictionary_name' => 'test',
+            'dictionary_type' => 'wash_type',
+        ]);
+
+        $validator = Validation::getValidateDictionary($request,"create");
+        $this->assertFalse($validator->fails());
+    }
+    public function test_validate_dictionary_create_failed_with_invalid_long_char_dictionary_name()
+    {
+        $request = Request::create('/test', 'POST', [
+            'dictionary_name' => 't',
+            'dictionary_type' => 'wash_type',
+        ]);
+
+        $validator = Validation::getValidateDictionary($request,"create");
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('dictionary_name', $validator->errors()->toArray());
+    }
+    public function test_validate_dictionary_create_failed_with_invalid_rules_dictionary_type()
+    {
+        $request = Request::create('/test', 'POST', [
+            'dictionary_name' => 'test',
+            'dictionary_type' => 'wash_note',
+        ]);
+
+        $validator = Validation::getValidateDictionary($request,"create");
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('dictionary_type', $validator->errors()->toArray());
+    }
+    public function test_validate_dictionary_delete_success_with_valid_data()
+    {
+        $request = Request::create('/test', 'POST', [
+            'id' => 'a7Fq2XpR9vLEcYz81NMKoh6dsWJpUtgBXie3',
+        ]);
+
+        $validator = Validation::getValidateDictionary($request,"delete");
+        $this->assertFalse($validator->fails());
+    }
+    public function test_validate_dictionary_delete_failed_with_invalid_long_char_id()
+    {
+        $request = Request::create('/test', 'POST', [
+            'id' => 'a7Fq2XpR9vLEcYz81NMKoh6dsWJpUtgBXie34A',
+        ]);
+
+        $validator = Validation::getValidateDictionary($request,"delete");
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('id', $validator->errors()->toArray());
+    }
+
+    // getValidateQuestion
+    public function test_validate_question_create_success_with_valid_data()
+    {
+        $request = Request::create('/test', 'POST', [
+            'question' => 'test',
+        ]);
+
+        $validator = Validation::getValidateQuestion($request,"create");
+        $this->assertFalse($validator->fails());
+    }
+    public function test_validate_question_create_failed_with_invalid_long_char_question()
+    {
+        $request = Request::create('/test', 'POST', [
+            'question' => '1',
+        ]);
+
+        $validator = Validation::getValidateQuestion($request,"create");
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('question', $validator->errors()->toArray());
     }
 }

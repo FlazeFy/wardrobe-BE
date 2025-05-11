@@ -201,4 +201,137 @@ class ValidationHelperTest extends TestCase
         $this->assertTrue($validator->fails());
         $this->assertArrayHasKey('question', $validator->errors()->toArray());
     }
+
+    // getValidateSchedule
+    public function test_validate_schedule_create_success_with_valid_data()
+    {
+        $request = Request::create('/test', 'POST', [
+            'is_remind' => 1,
+            'schedule_note' => 'test',
+            'day' => 'Sun'
+        ]);
+
+        $validator = Validation::getValidateSchedule($request,'create');
+        $this->assertFalse($validator->fails());
+    }
+    public function test_validate_schedule_create_failed_with_invalid_is_remind()
+    {
+        $request = Request::create('/test', 'POST', [
+            'is_remind' => 2,
+            'schedule_note' => 'test',
+            'day' => 'Sun'
+        ]);
+
+        $validator = Validation::getValidateSchedule($request,'create');
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('is_remind', $validator->errors()->toArray());
+    }
+    public function test_validate_schedule_create_failed_with_missing_day()
+    {
+        $request = Request::create('/test', 'POST', [
+            'is_remind' => 1,
+            'schedule_note' => 'test'
+        ]);
+
+        $validator = Validation::getValidateSchedule($request,'create');
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('day', $validator->errors()->toArray());
+    }
+    public function test_validate_schedule_create_failed_with_invalid_rules_day()
+    {
+        $request = Request::create('/test', 'POST', [
+            'is_remind' => 1,
+            'schedule_note' => 'test',
+            'day' => 'Sunday'
+        ]);
+
+        $validator = Validation::getValidateSchedule($request,'create');
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('day', $validator->errors()->toArray());
+    }
+
+    // getValidateFeedback
+    public function test_validate_feedback_success_with_valid_data()
+    {
+        $request = Request::create('/test', 'POST', [
+            'feedback_rate' => 4,
+            'feedback_body' => 'test',
+        ]);
+
+        $validator = Validation::getValidateFeedback($request);
+        $this->assertFalse($validator->fails());
+    }
+    public function test_validate_feedback_failed_with_invalid_feedback_rate()
+    {
+        $request = Request::create('/test', 'POST', [
+            'feedback_rate' => 6,
+            'feedback_body' => 'test',
+        ]);
+
+        $validator = Validation::getValidateFeedback($request);
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('feedback_rate', $validator->errors()->toArray());
+    }
+    public function test_validate_feedback_failed_with_missing_feedback_body()
+    {
+        $request = Request::create('/test', 'POST', [
+            'feedback_rate' => 4,
+        ]);
+
+        $validator = Validation::getValidateFeedback($request);
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('feedback_body', $validator->errors()->toArray());
+    }
+
+    // getValidateStats
+    public function test_validate_stats_most_context_success_with_valid_data()
+    {
+        $request = Request::create('/test', 'POST', [
+            'context' => 'clothes_merk',
+        ]);
+
+        $validator = Validation::getValidateStats($request,"most_context");
+        $this->assertFalse($validator->fails());
+    }
+    public function test_validate_stats_most_context_failed_with_invalid_rules_context()
+    {
+        $request = Request::create('/test', 'POST', [
+            'context' => 'clothes_name',
+        ]);
+
+        $validator = Validation::getValidateStats($request,"most_context");
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('context', $validator->errors()->toArray());
+    }
+    public function test_validate_stats_yearly_context_success_with_valid_data()
+    {
+        $request = Request::create('/test', 'POST', [
+            'context' => 'clothes_created_at',
+        ]);
+
+        $validator = Validation::getValidateStats($request,"yearly_context");
+        $this->assertFalse($validator->fails());
+    }
+    public function test_validate_stats_yearly_context_failed_with_invalid_rules_context()
+    {
+        $request = Request::create('/test', 'POST', [
+            'context' => 'clothes_created_by',
+        ]);
+
+        $validator = Validation::getValidateStats($request,"yearly_context");
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('context', $validator->errors()->toArray());
+    }
+
+    // hasNumber
+    public function test_validate_has_number_with_valid_data()
+    {
+        $validator = Validation::hasNumber("as241ad");
+        $this->assertEquals($validator,true);
+    }
+    public function test_validate_has_number_with_invalid_data()
+    {
+        $validator = Validation::hasNumber("asad");
+        $this->assertEquals($validator,false);
+    }
 }

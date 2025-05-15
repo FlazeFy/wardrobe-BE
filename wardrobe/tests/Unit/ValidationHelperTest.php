@@ -202,6 +202,178 @@ class ValidationHelperTest extends TestCase
         $this->assertArrayHasKey('question', $validator->errors()->toArray());
     }
 
+    // getValidateClothes
+    public function test_validate_clothes_create_success_with_valid_data()
+    {
+        $request = Request::create('/test', 'POST', [
+            'clothes_name' => 'T-Shirt',
+            'clothes_desc' => 'Casual cotton shirt',
+            'clothes_merk' => 'Merk A',
+            'clothes_size' => 'M',
+            'clothes_gender' => 'male',
+            'clothes_made_from' => 'cotton',
+            'clothes_color' => 'black',
+            'clothes_category' => 'upper_body',
+            'clothes_type' => 'shirt',
+            'clothes_price' => 199000,
+            'clothes_buy_at' => '2024-01-01',
+            'clothes_qty' => 3,
+            'is_faded' => false,
+            'has_washed' => true,
+            'has_ironed' => true,
+            'is_favorite' => false,
+        ]);
+
+        $validator = Validation::getValidateClothes($request, 'create');
+        $this->assertFalse($validator->fails());
+    }
+    public function test_validate_clothes_create_failed_with_long_char_clothes_price()
+    {
+        $request = Request::create('/test', 'POST', [
+            'clothes_name' => 'T-Shirt',
+            'clothes_desc' => 'Casual cotton shirt',
+            'clothes_merk' => 'Merk A',
+            'clothes_size' => 'M',
+            'clothes_gender' => 'male',
+            'clothes_made_from' => 'cotton',
+            'clothes_color' => 'black',
+            'clothes_category' => 'upper_body',
+            'clothes_type' => 'shirt',
+            'clothes_price' => 9999999999,
+            'clothes_buy_at' => '2024-01-01',
+            'clothes_qty' => 3,
+            'is_faded' => false,
+            'has_washed' => true,
+            'has_ironed' => true,
+            'is_favorite' => false,
+        ]);
+
+        $validator = Validation::getValidateClothes($request, 'create');
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('clothes_price', $validator->errors()->toArray());
+    }
+    public function test_validate_clothes_create_failed_with_invalid_rules_clothes_size()
+    {
+        $request = Request::create('/test', 'POST', [
+            'clothes_name' => 'T-Shirt',
+            'clothes_desc' => 'Casual cotton shirt',
+            'clothes_merk' => 'Merk A',
+            'clothes_size' => 'ML',
+            'clothes_gender' => 'male',
+            'clothes_made_from' => 'cotton',
+            'clothes_color' => 'black',
+            'clothes_category' => 'upper_body',
+            'clothes_type' => 'shirt',
+            'clothes_price' => 199000,
+            'clothes_buy_at' => '2024-01-01',
+            'clothes_qty' => 3,
+            'is_faded' => false,
+            'has_washed' => true,
+            'has_ironed' => true,
+            'is_favorite' => false,
+        ]);
+
+        $validator = Validation::getValidateClothes($request, 'create');
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('clothes_size', $validator->errors()->toArray());
+    }
+    public function test_validate_clothes_create_failed_with_invalid_clothes_buy_at()
+    {
+        $request = Request::create('/test', 'POST', [
+            'clothes_name' => 'T-Shirt',
+            'clothes_desc' => 'Casual cotton shirt',
+            'clothes_merk' => 'Merk A',
+            'clothes_size' => 'M',
+            'clothes_gender' => 'male',
+            'clothes_made_from' => 'cotton',
+            'clothes_color' => 'black',
+            'clothes_category' => 'upper_body',
+            'clothes_type' => 'shirt',
+            'clothes_price' => 199000,
+            'clothes_buy_at' => '2024-01',
+            'clothes_qty' => 3,
+            'is_faded' => false,
+            'has_washed' => true,
+            'has_ironed' => true,
+            'is_favorite' => false,
+        ]);
+
+        $validator = Validation::getValidateClothes($request, 'create');
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('clothes_buy_at', $validator->errors()->toArray());
+    }
+    public function test_validate_clothes_create_outfit_relation_success_with_valid_data()
+    {
+        $request = Request::create('/test', 'POST', [
+            'clothes_name' => 'T-Shirt',
+            'clothes_type' => 'shirt',
+            'clothes_id' => '10bacb64-e819-11ed-a05b-0242ac120003',
+        ]);
+
+        $validator = Validation::getValidateClothes($request, 'create_outfit_relation');
+        $this->assertFalse($validator->fails());
+    }
+    public function test_validate_clothes_create_outfit_relation_failed_with_invalid_rules_clothes_type()
+    {
+        $request = Request::create('/test', 'POST', [
+            'clothes_name' => 'T-Shirt',
+            'clothes_type' => 't-pants',
+            'clothes_id' => '10bacb64-e819-11ed-a05b-0242ac120003',
+        ]);
+
+        $validator = Validation::getValidateClothes($request, 'create_outfit_relation');
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('clothes_type', $validator->errors()->toArray());
+    }
+    public function test_validate_clothes_create_outfit_relation_failed_with_invalid_clothes_id()
+    {
+        $request = Request::create('/test', 'POST', [
+            'clothes_name' => 'T-Shirt',
+            'clothes_type' => 'shirt',
+            'clothes_id' => '10bacb64-e819-11ed-a05b-0242ac120003sa',
+        ]);
+
+        $validator = Validation::getValidateClothes($request, 'create_outfit_relation');
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('clothes_id', $validator->errors()->toArray());
+    }
+
+    // getValidateClothesUsed
+    public function test_validate_clothes_used_create_success_with_valid_data()
+    {
+        $request = Request::create('/test', 'POST', [
+            'clothes_note' => 'test note',
+            'used_context' => 'Work',
+        ]);
+
+        $validator = Validation::getValidateClothesUsed($request, 'create');
+        $this->assertFalse($validator->fails());
+    }
+
+    public function test_validate_clothes_used_create_failed_with_long_clothes_note()
+    {
+        $request = Request::create('/test', 'POST', [
+            'clothes_note' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat',
+            'used_context' => 'test note',
+        ]);
+
+        $validator = Validation::getValidateClothesUsed($request, 'create');
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('clothes_note', $validator->errors()->toArray());
+    }
+
+    public function test_validate_clothes_used_create_failed_with_invalid_used_context()
+    {
+        $request = Request::create('/test', 'POST', [
+            'clothes_note' => 'test note',
+            'used_context' => 'test',
+        ]);
+
+        $validator = Validation::getValidateClothesUsed($request, 'create');
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('used_context', $validator->errors()->toArray());
+    }
+
     // getValidateSchedule
     public function test_validate_schedule_create_success_with_valid_data()
     {

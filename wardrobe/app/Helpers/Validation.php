@@ -80,8 +80,8 @@ class Validation
                 'clothes_color' => 'required|string|max:36',
                 'clothes_category' => ['required', new ClothesCategory],
                 'clothes_type' => ['required', new ClothesType],
-                'clothes_price' => 'required|integer|min:0',
-                'clothes_buy_at' => 'nullable|date',
+                'clothes_price' => 'required|integer|min:0|max:999999999',
+                'clothes_buy_at' => 'nullable|date_format:Y-m-d',
                 'clothes_qty' => 'required|integer|min:0|max:999',
                 'is_faded' => 'required|boolean',
                 'has_washed' => 'required|boolean',
@@ -92,7 +92,7 @@ class Validation
             return Validator::make($request->all(), [
                 'clothes_name' => 'required|string|max:75|min:2',
                 'clothes_type' => ['required', new ClothesType],
-                'clothes_id' => 'required|string|max:36',
+                'clothes_id' => 'required|string|min:36|max:36',
             ]); 
         }
     }

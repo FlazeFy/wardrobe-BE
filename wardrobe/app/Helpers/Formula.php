@@ -76,12 +76,12 @@ class Formula
         if ($weather === null) return 0;
         $weather = strtolower($weather);
         $map = [
-            'Clouds' => ['hoodie'=>10,'jacket'=>10,'sweater'=>10,'cardigan'=>10,'hat'=>5],
-            'Rain' => ['raincoat'=>10,'poncho'=>10,'boots'=>10,'hoodie'=>5],
-            'Clear' => ['t-shirt'=>10,'shorts'=>10,'sandals'=>10,'hat'=>10],
-            'Snow' => ['coat'=>10,'gloves'=>10,'boots'=>10,'scarf'=>10,'socks'=>10],
-            'Mist' => ['hoodie'=>10,'jacket'=>10,'hat'=>5],
-            'Thunderstorm' => ['raincoat'=>10,'poncho'=>10,'boots'=>10]
+            'clouds' => ['hoodie'=>10,'jacket'=>10,'sweater'=>10,'cardigan'=>10,'hat'=>5],
+            'rain' => ['raincoat'=>10,'poncho'=>10,'boots'=>10,'hoodie'=>5],
+            'clear' => ['t-shirt'=>10,'shorts'=>10,'sandals'=>10,'hat'=>10],
+            'snow' => ['coat'=>10,'gloves'=>10,'boots'=>10,'scarf'=>10,'socks'=>10],
+            'mist' => ['hoodie'=>10,'jacket'=>10,'hat'=>5],
+            'thunderstorm' => ['raincoat'=>10,'poncho'=>10,'boots'=>10]
         ];
         return $map[$weather][$type] ?? 5;
     }

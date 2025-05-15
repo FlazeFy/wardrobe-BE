@@ -338,6 +338,98 @@ class ValidationHelperTest extends TestCase
         $this->assertArrayHasKey('clothes_id', $validator->errors()->toArray());
     }
 
+    // getValidateWash
+    public function test_validate_wash_create_success_with_valid_data()
+    {
+        $request = Request::create('/test', 'POST', [
+            'wash_note' => 'Weekly wash',
+            'clothes_id' => '123e4567-e89b-12d3-a456-426614174000',
+            'wash_type' => 'Laundry',
+            'wash_checkpoint' => [
+                [
+                    'id' => 1,
+                    'checkpoint_name' => 'Sorting',
+                    'is_finished' => true
+                ],
+                [
+                    'id' => 2,
+                    'checkpoint_name' => 'Drying',
+                    'is_finished' => false
+                ]
+            ]
+        ]);
+
+        $validator = Validation::getValidateWash($request, 'create');
+        $this->assertFalse($validator->fails());
+    }
+    public function test_validate_wash_create_failed_with_long_char_wash_note()
+    {
+        $request = Request::create('/test', 'POST', [
+            'wash_note' => 'A',
+            'clothes_id' => '123e4567-e89b-12d3-a456-426614174000',
+            'wash_type' => 'Laundry',
+            'wash_checkpoint' => [
+                [
+                    'id' => 1,
+                    'checkpoint_name' => 'Sorting',
+                    'is_finished' => true
+                ],
+                [
+                    'id' => 2,
+                    'checkpoint_name' => 'Drying',
+                    'is_finished' => false
+                ]
+            ]
+        ]);
+
+        $validator = Validation::getValidateWash($request, 'create');
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('wash_note', $validator->errors()->toArray());
+    }
+    public function test_validate_wash_create_failed_with_invalid_wash_type()
+    {
+        $request = Request::create('/test', 'POST', [
+            'wash_note' => 'Weekly wash',
+            'clothes_id' => '123e4567-e89b-12d3-a456-426614174000',
+            'wash_type' => 'Clothes',
+            'wash_checkpoint' => [
+                [
+                    'id' => 1,
+                    'checkpoint_name' => 'Sorting',
+                    'is_finished' => true
+                ],
+                [
+                    'id' => 2,
+                    'checkpoint_name' => 'Drying',
+                    'is_finished' => false
+                ]
+            ]
+        ]);
+
+        $validator = Validation::getValidateWash($request, 'create');
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('wash_type', $validator->errors()->toArray());
+    }
+    public function test_validate_wash_create_failed_with_invalid_wash_checkpoint_structure()
+    {
+        $request = Request::create('/test', 'POST', [
+            'wash_note' => 'Weekly wash',
+            'clothes_id' => '123e4567-e89b-12d3-a456-426614174000',
+            'wash_type' => 'Laundry',
+            'wash_checkpoint' => [
+                [
+                    'id' => 1,
+                    'checkpoint_name' => null,
+                    'is_finished' => true
+                ]
+            ]
+        ]);
+
+        $validator = Validation::getValidateWash($request, 'create');
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('wash_checkpoint.0.checkpoint_name', $validator->errors()->toArray());
+    }
+
     // getValidateClothesUsed
     public function test_validate_clothes_used_create_success_with_valid_data()
     {
@@ -349,7 +441,6 @@ class ValidationHelperTest extends TestCase
         $validator = Validation::getValidateClothesUsed($request, 'create');
         $this->assertFalse($validator->fails());
     }
-
     public function test_validate_clothes_used_create_failed_with_long_clothes_note()
     {
         $request = Request::create('/test', 'POST', [
@@ -361,7 +452,6 @@ class ValidationHelperTest extends TestCase
         $this->assertTrue($validator->fails());
         $this->assertArrayHasKey('clothes_note', $validator->errors()->toArray());
     }
-
     public function test_validate_clothes_used_create_failed_with_invalid_used_context()
     {
         $request = Request::create('/test', 'POST', [

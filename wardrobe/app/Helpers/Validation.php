@@ -97,7 +97,7 @@ class Validation
         }
     }
 
-    public static function getValidateWash($request){
+    public static function getValidateWash($request,$type){
         if($type == 'create'){
             return Validator::make($request->all(), [
                 'wash_note' => 'nullable|string|max:75|min:2', 

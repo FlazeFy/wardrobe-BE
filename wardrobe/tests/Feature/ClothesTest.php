@@ -332,7 +332,7 @@ class ClothesTest extends TestCase
         $this->assertArrayHasKey('status', $data);
         $this->assertEquals('success', $data['status']);
         $this->assertArrayHasKey('message', $data);
-        $this->assertEquals('schedule permentally deleted',$data['message']);
+        $this->assertEquals('schedule permanently deleted',$data['message']);
 
         Audit::auditRecordText("Test - Hard Delete Schedule By ID", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Hard Delete Schedule By ID", "TC-XXX", 'TC-XXX test_hard_delete_schedule_by_id', json_encode($data));
@@ -380,7 +380,7 @@ class ClothesTest extends TestCase
         $this->assertArrayHasKey('status', $data);
         $this->assertEquals('success', $data['status']);
         $this->assertArrayHasKey('message', $data);
-        $this->assertEquals('clothes permentally deleted',$data['message']);
+        $this->assertEquals('clothes permanently deleted',$data['message']);
 
         Audit::auditRecordText("Test - Hard Delete Clothes By ID", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Hard Delete Clothes By ID", "TC-XXX", 'TC-XXX test_hard_delete_clothes_by_id', json_encode($data));
@@ -404,7 +404,7 @@ class ClothesTest extends TestCase
         $this->assertArrayHasKey('status', $data);
         $this->assertEquals('success', $data['status']);
         $this->assertArrayHasKey('message', $data);
-        $this->assertEquals('clothes wash permentally deleted',$data['message']);
+        $this->assertEquals('clothes wash permanently deleted',$data['message']);
 
         Audit::auditRecordText("Test - Hard Delete Wash By ID", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Hard Delete Wash By ID", "TC-XXX", 'TC-XXX test_hard_delete_wash_by_id', json_encode($data));
@@ -890,7 +890,7 @@ class ClothesTest extends TestCase
         $this->assertArrayHasKey('status', $data);
         $this->assertEquals('success', $data['status']);
         $this->assertArrayHasKey('message', $data);
-        $this->assertEquals('outfit history permentally deleted',$data['message']);
+        $this->assertEquals('outfit history permanently deleted',$data['message']);
 
         Audit::auditRecordText("Test - Hard Delete Used Outfit By ID", "TC-XXX", "Result : ".json_encode($data));
         Audit::auditRecordSheet("Test - Hard Delete Used Outfit By ID", "TC-XXX", 'TC-XXX test_hard_delete_used_outfit_by_id', json_encode($data));

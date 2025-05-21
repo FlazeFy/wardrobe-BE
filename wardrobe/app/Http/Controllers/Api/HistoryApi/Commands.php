@@ -29,10 +29,10 @@ class Commands extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="history permentally deleted",
+     *         description="history permanently deleted",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="message", type="string", example="history permentally deleted")
+     *             @OA\Property(property="message", type="string", example="history permanently deleted")
      *         )
      *     ),
      *     @OA\Response(
@@ -45,7 +45,7 @@ class Commands extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="history failed to permentally deleted",
+     *         description="history failed to permanently deleted",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="failed"),
      *             @OA\Property(property="message", type="string", example="history not found")
@@ -71,7 +71,7 @@ class Commands extends Controller
             if($rows > 0){
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("permentally delete", 'history'),
+                    'message' => Generator::getMessageTemplate("permanently delete", 'history'),
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([

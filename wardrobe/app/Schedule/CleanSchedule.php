@@ -12,6 +12,7 @@ use Kreait\Firebase\Messaging\Notification;
 use App\Models\ClothesModel;
 use App\Models\ClothesUsedModel;
 use App\Models\OutfitRelModel;
+use App\Models\ScheduleModel;
 use App\Models\WashModel;
 use App\Models\HistoryModel;
 use App\Models\AdminModel;
@@ -55,6 +56,7 @@ class CleanSchedule
                 ClothesModel::destroy($dt->id);
                 OutfitRelModel::hardDeleteOutfitRelByClothesId($dt->id);
                 WashModel::hardDeleteWashByClothesId($dt->id);
+                ScheduleModel::hardDeleteScheduleByClothesId($dt->id);
                 ClothesUsedModel::hardDeleteClothesUsedByClothesId($dt->id);
                 $total_clothes++;
 

@@ -111,6 +111,7 @@ class Queries extends Controller
             }
             
             $res = $res->where('created_by',$user_id)
+                ->whereNull('deleted_at')
                 ->orderBy('is_favorite', 'desc')
                 ->orderBy('clothes_name', $order)
                 ->orderBy('created_at', $order);

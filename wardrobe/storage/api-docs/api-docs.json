@@ -391,7 +391,7 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Permentally delete clothes by id",
+                "summary": "Permanently delete clothes by id",
                 "operationId": "0be4ac99b269208881a230fccce5939a",
                 "parameters": [
                     {
@@ -407,7 +407,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "clothes permentally deleted",
+                        "description": "clothes permanently deleted",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -418,7 +418,7 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "clothes permentally deleted"
+                                            "example": "clothes permanently deleted"
                                         }
                                     },
                                     "type": "object"
@@ -842,7 +842,7 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Permentally delete wash by id",
+                "summary": "Permanently delete wash by id",
                 "operationId": "e20b948df0f84e247e136a5b2441e4eb",
                 "parameters": [
                     {
@@ -858,7 +858,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "clothes wash permentally deleted",
+                        "description": "clothes wash permanently deleted",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -869,7 +869,7 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "clothes wash permentally deleted"
+                                            "example": "clothes wash permanently deleted"
                                         }
                                     },
                                     "type": "object"
@@ -945,7 +945,7 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Permentally delete clothes used by id",
+                "summary": "Permanently delete clothes used by id",
                 "operationId": "17068b2f02994a621aba37e53c5e00e2",
                 "parameters": [
                     {
@@ -961,7 +961,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "clothes used permentally deleted",
+                        "description": "clothes used permanently deleted",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -972,7 +972,7 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "clothes used permentally deleted"
+                                            "example": "clothes used permanently deleted"
                                         }
                                     },
                                     "type": "object"
@@ -1272,7 +1272,7 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Permentally delete schedule by id",
+                "summary": "Permanently delete schedule by id",
                 "operationId": "00fdd9dbd5d743962258fab7d3666b8b",
                 "parameters": [
                     {
@@ -1288,7 +1288,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "schedule permentally deleted",
+                        "description": "schedule permanently deleted",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1299,7 +1299,7 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "schedule permentally deleted"
+                                            "example": "schedule permanently deleted"
                                         }
                                     },
                                     "type": "object"
@@ -1626,7 +1626,7 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Permentally delete outfit history by id",
+                "summary": "Permanently delete outfit history by id",
                 "operationId": "35ff7ca826d9d9edb9f6f498f3fe126f",
                 "parameters": [
                     {
@@ -1642,7 +1642,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "outfit history permentally deleted",
+                        "description": "outfit history permanently deleted",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1653,7 +1653,7 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "outfit history permentally deleted"
+                                            "example": "outfit history permanently deleted"
                                         }
                                     },
                                     "type": "object"
@@ -1956,7 +1956,7 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Permentally remove clothes by id",
+                "summary": "Permanently remove clothes by id",
                 "operationId": "0b11e09739a06e35a4870c3ec7928655",
                 "parameters": [
                     {
@@ -4824,7 +4824,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "dictionary permentally deleted",
+                        "description": "dictionary permanently deleted",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4835,7 +4835,7 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "dictionary permentally deleted"
+                                            "example": "dictionary permanently deleted"
                                         }
                                     },
                                     "type": "object"
@@ -4864,7 +4864,7 @@
                         }
                     },
                     "404": {
-                        "description": "dictionary failed to permentally deleted",
+                        "description": "dictionary failed to permanently deleted",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5649,7 +5649,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "history permentally deleted",
+                        "description": "history permanently deleted",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5660,7 +5660,7 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "history permentally deleted"
+                                            "example": "history permanently deleted"
                                         }
                                     },
                                     "type": "object"
@@ -5689,7 +5689,7 @@
                         }
                     },
                     "404": {
-                        "description": "history failed to permentally deleted",
+                        "description": "history failed to permanently deleted",
                         "content": {
                             "application/json": {
                                 "schema": {

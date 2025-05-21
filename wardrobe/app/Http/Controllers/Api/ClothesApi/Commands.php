@@ -49,7 +49,7 @@ class Commands extends Controller
     /**
      * @OA\DELETE(
      *     path="/api/v1/clothes/destroy/{id}",
-     *     summary="Permentally delete clothes by id",
+     *     summary="Permanently delete clothes by id",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="id",
@@ -61,10 +61,10 @@ class Commands extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="clothes permentally deleted",
+     *         description="clothes permanently deleted",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="message", type="string", example="clothes permentally deleted")
+     *             @OA\Property(property="message", type="string", example="clothes permanently deleted")
      *         )
      *     ),
      *     @OA\Response(
@@ -102,19 +102,25 @@ class Commands extends Controller
             $rows = ClothesModel::destroy($id);
 
             if($rows > 0){
+                // Others Relation
+                ClothesUsedModel::where('clothes_id',$id);
+                ScheduleModel::where('clothes_id',$id);
+                OutfitRelModel::where('clothes_id',$id);
+                WashModel::where('clothes_id',$id);
+
                 // History
                 Audit::createHistory('Permanentally Delete', $clothes->clothes_name, $user_id);
 
                 // Send FCM Notification
                 $user = UserModel::getProfile($user_id);
                 if($user->firebase_fcm_token){
-                    $msg_body = "Your clothes called '$clothes->clothes_name' has been permentally removed from Wardrobe";
+                    $msg_body = "Your clothes called '$clothes->clothes_name' has been permanently removed from Wardrobe";
                     Firebase::sendNotif($user->firebase_fcm_token, $msg_body, $user->username, $id);
                 }
 
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("permentally delete", 'clothes'),
+                    'message' => Generator::getMessageTemplate("permanently delete", 'clothes'),
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
@@ -458,7 +464,7 @@ class Commands extends Controller
      /**
      * @OA\DELETE(
      *     path="/api/v1/clothes/destroy_wash/{id}",
-     *     summary="Permentally delete wash by id",
+     *     summary="Permanently delete wash by id",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="id",
@@ -470,10 +476,10 @@ class Commands extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="clothes wash permentally deleted",
+     *         description="clothes wash permanently deleted",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="message", type="string", example="clothes wash permentally deleted")
+     *             @OA\Property(property="message", type="string", example="clothes wash permanently deleted")
      *         )
      *     ),
      *     @OA\Response(
@@ -511,7 +517,7 @@ class Commands extends Controller
             if($rows > 0){
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("permentally delete", 'clothes wash'),
+                    'message' => Generator::getMessageTemplate("permanently delete", 'clothes wash'),
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
@@ -530,7 +536,7 @@ class Commands extends Controller
     /**
      * @OA\DELETE(
      *     path="/api/v1/clothes/destroy_used/{id}",
-     *     summary="Permentally delete clothes used by id",
+     *     summary="Permanently delete clothes used by id",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="id",
@@ -542,10 +548,10 @@ class Commands extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="clothes used permentally deleted",
+     *         description="clothes used permanently deleted",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="message", type="string", example="clothes used permentally deleted")
+     *             @OA\Property(property="message", type="string", example="clothes used permanently deleted")
      *         )
      *     ),
      *     @OA\Response(
@@ -585,7 +591,7 @@ class Commands extends Controller
             if($rows > 0){
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("permentally delete", 'clothes used history'),
+                    'message' => Generator::getMessageTemplate("permanently delete", 'clothes used history'),
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
@@ -996,7 +1002,7 @@ class Commands extends Controller
     /**
      * @OA\DELETE(
      *     path="/api/v1/clothes/destroy_schedule/{id}",
-     *     summary="Permentally delete schedule by id",
+     *     summary="Permanently delete schedule by id",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="id",
@@ -1008,10 +1014,10 @@ class Commands extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="schedule permentally deleted",
+     *         description="schedule permanently deleted",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="message", type="string", example="schedule permentally deleted")
+     *             @OA\Property(property="message", type="string", example="schedule permanently deleted")
      *         )
      *     ),
      *     @OA\Response(
@@ -1052,7 +1058,7 @@ class Commands extends Controller
             if($rows > 0){
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("permentally delete", 'schedule'),
+                    'message' => Generator::getMessageTemplate("permanently delete", 'schedule'),
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
@@ -1346,7 +1352,7 @@ class Commands extends Controller
     /**
      * @OA\DELETE(
      *     path="/api/v1/clothes/outfit/history/by/{id}",
-     *     summary="Permentally delete outfit history by id",
+     *     summary="Permanently delete outfit history by id",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="id",
@@ -1358,10 +1364,10 @@ class Commands extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="outfit history permentally deleted",
+     *         description="outfit history permanently deleted",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="message", type="string", example="outfit history permentally deleted")
+     *             @OA\Property(property="message", type="string", example="outfit history permanently deleted")
      *         )
      *     ),
      *     @OA\Response(
@@ -1401,7 +1407,7 @@ class Commands extends Controller
             if($rows > 0){
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("permentally delete", 'outfit history'),
+                    'message' => Generator::getMessageTemplate("permanently delete", 'outfit history'),
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
@@ -1691,7 +1697,7 @@ class Commands extends Controller
     /**
      * @OA\DELETE(
      *     path="/api/v1/clothes/outfit/remove/{clothes_id}",
-     *     summary="Permentally remove clothes by id",
+     *     summary="Permanently remove clothes by id",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="clothes_id",

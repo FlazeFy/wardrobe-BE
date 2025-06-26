@@ -22,7 +22,10 @@ class UserTrackModel extends Model
         $users = UserModel::with('latestTrack')->get();
 
         $res = $users->map(function ($user) {
-            if (!$user->latestTrack) return null;
+            $track = $user->latestTrack;
+            if (!$track || !$track->track_lat || !$track->track_long) {
+                return null;
+            } 
 
             return [
                 'track_lat' => $user->latestTrack->track_lat,

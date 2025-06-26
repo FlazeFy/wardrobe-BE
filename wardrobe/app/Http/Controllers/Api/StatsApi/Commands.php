@@ -106,6 +106,8 @@ class Commands extends Controller
             foreach ($list_ctx as $ctx) {
                 $rows = ClothesModel::selectRaw("REPLACE(CONCAT(UPPER(SUBSTRING($ctx, 1, 1)), LOWER(SUBSTRING($ctx, 2))), '_', ' ') as context, COUNT(1) as total")
                     ->where('created_by', $user_id)
+                    ->where($ctx,'!=','')
+                    ->whereNotNull($ctx)
                     ->groupBy($ctx)
                     ->orderBy('total', 'desc')
                     ->limit(7)

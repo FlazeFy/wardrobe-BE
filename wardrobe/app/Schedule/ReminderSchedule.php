@@ -431,7 +431,7 @@ class ReminderSchedule
                         }
                         $extra_desc .= "is faded!";
                     }
-                    if($dt->is_scheduled == 1 || $dt->is_faded){
+                    if($dt->is_scheduled == 1 || $dt->is_faded == 1){
                         $extra_desc = ", $extra_desc";
                     }
 

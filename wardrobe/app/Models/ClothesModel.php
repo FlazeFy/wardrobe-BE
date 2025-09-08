@@ -28,13 +28,16 @@ class ClothesModel extends Model
         return $res;
     }
 
-    public static function getStatsSummary($user_id){
+    public static function getStatsSummary($user_id = null){
         $res = ClothesModel::selectRaw('
-            COUNT(1) as total_clothes, MAX(clothes_price) as max_price, CAST(AVG(clothes_price) as UNSIGNED) as avg_price, CAST(SUM(clothes_qty) as UNSIGNED) as sum_clothes_qty')
-            ->where('created_by',$user_id)
-            ->first();
+            COUNT(1) as total_clothes, MAX(clothes_price) as max_price, CAST(AVG(clothes_price) as UNSIGNED) as avg_price, CAST(SUM(clothes_qty) as UNSIGNED) as sum_clothes_qty');
 
-        return $res;
+        if($user_id){
+            $res = $res->where('created_by',$user_id);
+
+        }
+            
+        return $res->first();
     }
 
     public static function getDeletedClothes($user_id){

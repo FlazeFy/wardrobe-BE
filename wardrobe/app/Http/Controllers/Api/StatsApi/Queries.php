@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\StatsApi;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use DateTime;
 use DateInterval;
@@ -83,7 +84,13 @@ class Queries extends Controller
     public function get_stats_summary(Request $request)
     {
         try{
-            $user_id = $request->user()->id;
+            if ($request->hasHeader('Authorization')) {
+                $user = Auth::guard('sanctum')->user(); 
+                $user_id = $user ? $user->id : null;
+            } else {
+                $user_id = null;
+            }
+            
             $res = ClothesModel::getStatsSummary($user_id);
             
             if ($res) {

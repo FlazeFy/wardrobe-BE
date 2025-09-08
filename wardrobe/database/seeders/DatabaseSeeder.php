@@ -10,6 +10,7 @@ use App\Models\ClothesModel;
 use App\Models\ClothesUsedModel;
 use App\Models\WashModel;
 use App\Models\FeedbackModel;
+use App\Models\HistoryModel;
 
 use Illuminate\Support\Facades\DB;
 
@@ -23,6 +24,7 @@ class DatabaseSeeder extends Seeder
         ClothesUsedModel::truncate();
         WashModel::query()->delete();
         ClothesModel::truncate();
+        HistoryModel::truncate();
         UserModel::truncate();
         AdminModel::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
@@ -34,5 +36,6 @@ class DatabaseSeeder extends Seeder
         WashModel::factory(30)->create();
         ClothesUsedModel::factory(30)->create();
         FeedbackModel::factory(30)->create();
+        HistoryModel::factory(50)->create();
     }
 }

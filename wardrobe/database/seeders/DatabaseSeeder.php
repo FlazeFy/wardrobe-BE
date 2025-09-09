@@ -12,6 +12,7 @@ use App\Models\WashModel;
 use App\Models\FeedbackModel;
 use App\Models\HistoryModel;
 use App\Models\QuestionModel;
+use App\Models\UserTrackModel;
 
 use Illuminate\Support\Facades\DB;
 
@@ -27,6 +28,7 @@ class DatabaseSeeder extends Seeder
         WashModel::query()->delete();
         ClothesModel::truncate();
         HistoryModel::truncate();
+        UserTrackModel::truncate();
         UserModel::truncate();
         AdminModel::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
@@ -40,5 +42,6 @@ class DatabaseSeeder extends Seeder
         FeedbackModel::factory(30)->create();
         HistoryModel::factory(50)->create();
         QuestionModel::factory(20)->create();
+        UserTrackModel::factory(20)->create();
     }
 }

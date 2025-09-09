@@ -18,7 +18,7 @@ class TrackSource implements Rule
 
     public function passes($attribute, $value)
     {
-        $type = ['Web','Telegram'];
+        $type = ["Web", "Mobile", "Telegram Bot", "Line Bot"];
 
         foreach ($type as $format) {
             if ($format === $value) {

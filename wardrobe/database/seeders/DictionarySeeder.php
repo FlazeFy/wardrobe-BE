@@ -22,7 +22,9 @@ class DictionarySeeder extends Seeder
             'clothes_made_from' => ['cotton','wool','silk','linen','polyester','denim','leather','nylon','rayon','synthetic','cloth'],
             'clothes_type' => ['hat', 'pants', 'shirt', 'jacket', 'shoes', 'socks', 'scarf', 'gloves', 'shorts', 'skirt', 'dress', 'blouse', 'sweater', 'hoodie', 'tie', 'belt', 
             'coat', 'underwear', 'swimsuit', 'vest', 't-shirt', 'jeans', 'leggings', 'boots', 'sandals', 'sneakers', 'raincoat', 'poncho', 'cardigan'],
-            'used_context' => ['Worship','Shopping','Work','School','Campus','Sport','Party']
+            'used_context' => ['Worship','Shopping','Work','School','Campus','Sport','Party'],
+            'weather_hit_from' => ["Task Schedule", "Manual"],
+            'weather_condition' => ["Thunderstorm", "Drizzle", "Rain", "Snow", "Mist", "Smoke", "Haze", "Dust", "Fog", "Sand", "Ash", "Squall", "Tornado", "Clear", "Clouds"] 
         ];
         $now = Carbon::now();
 

@@ -13,6 +13,7 @@ use App\Models\FeedbackModel;
 use App\Models\HistoryModel;
 use App\Models\QuestionModel;
 use App\Models\UserTrackModel;
+use App\Models\UserWeatherModel;
 
 use Illuminate\Support\Facades\DB;
 
@@ -28,6 +29,7 @@ class DatabaseSeeder extends Seeder
         WashModel::query()->delete();
         ClothesModel::truncate();
         HistoryModel::truncate();
+        UserWeatherModel::truncate();
         UserTrackModel::truncate();
         UserModel::truncate();
         AdminModel::truncate();
@@ -43,5 +45,6 @@ class DatabaseSeeder extends Seeder
         HistoryModel::factory(50)->create();
         QuestionModel::factory(20)->create();
         UserTrackModel::factory(20)->create();
+        UserWeatherModel::factory(20)->create();
     }
 }

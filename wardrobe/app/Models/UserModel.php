@@ -19,7 +19,6 @@ use App\Models\UserTrackModel;
 class UserModel extends Authenticatable
 {
     use HasFactory;
-    //use HasUuids;
     use HasApiTokens;
     public $incrementing = false;
 
@@ -39,11 +38,9 @@ class UserModel extends Authenticatable
     }
 
     public static function getSocial($id){
-        $res = UserModel::select('username','telegram_user_id','telegram_is_valid','email','firebase_fcm_token')
+        return UserModel::select('username','telegram_user_id','telegram_is_valid','email','firebase_fcm_token')
             ->where('id',$id)
             ->first();
-
-        return $res;
     }
 
     public static function getRandomWhoHaveClothes($null){

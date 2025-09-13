@@ -303,9 +303,15 @@ class Queries extends Controller
                     'message' => $validator->errors()
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             } else {
-                $user_id = $request->user()->id;
                 $date_now = new DateTime();            
                 $list_date = [];
+
+                if ($request->hasHeader('Authorization')) {
+                    $user = Auth::guard('sanctum')->user(); 
+                    $user_id = $user ? $user->id : null;
+                } else {
+                    $user_id = null;
+                }
                 
                 for ($i=1; $i <= 365; $i++) { 
                     $list_date[] = $date_now->format('Y-m-d');
@@ -430,9 +436,14 @@ class Queries extends Controller
      */
     public function get_stats_clothes_monthly_created_buyed(Request $request, $year) {
         try {
-            $user_id = $request->user()->id;
             $date_now = new DateTime();
             $list_date = [];
+            if ($request->hasHeader('Authorization')) {
+                $user = Auth::guard('sanctum')->user(); 
+                $user_id = $user ? $user->id : null;
+            } else {
+                $user_id = null;
+            }
     
             $res_created = ClothesModel::getMonthlyClothesCreatedBuyed($user_id, $year, 'created_at');
             $res_buyed = ClothesModel::getMonthlyClothesCreatedBuyed($user_id, $year, 'clothes_buy_at');
@@ -948,20 +959,16 @@ class Queries extends Controller
      */
     public function get_stats_outfit_monthly_by_outfit_id(Request $request, $year, $outfit_id){
         try {
-            $user_id = $request->user()->id;
+            if ($request->hasHeader('Authorization')) {
+                $user = Auth::guard('sanctum')->user(); 
+                $user_id = $user ? $user->id : null;
+            } else {
+                $user_id = null;
+            }
             $date_now = new DateTime();
             $list_date = [];
     
-            $res = OutfitUsedModel::selectRaw("COUNT(1) as total, MONTH(created_at) as context")
-                ->whereRaw("YEAR(created_at) = ?", [$year]);
-
-            if($outfit_id != "all"){
-                $res = $res->where('outfit_id', $outfit_id);
-            }
-                
-            $res = $res->where('created_by', $user_id)
-                ->groupByRaw("MONTH(created_at)")
-                ->get();
+            $res = OutfitUsedModel::getMonthlyUsedOutfitByOutfitID($year, $outfit_id, $user_id);
     
             if ($res->isNotEmpty()) {
                 $final_res = [];

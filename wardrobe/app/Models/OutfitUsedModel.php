@@ -40,4 +40,21 @@ class OutfitUsedModel extends Model
 
         return $res;
     }
+
+    public static function getMonthlyUsedOutfitByOutfitID($year, $outfit_id, $user_id = null){
+        $res = OutfitUsedModel::selectRaw("COUNT(1) as total, MONTH(created_at) as context")
+            ->whereRaw("YEAR(created_at) = ?", [$year]);
+
+        if($outfit_id != "all"){
+            $res = $res->where('outfit_id', $outfit_id);
+        }
+        if($user_id){
+            $res = $res->where('created_by', $user_id);
+        }
+            
+        $res = $res->groupByRaw("MONTH(created_at)")
+            ->get();
+
+        return $res;
+    }
 }

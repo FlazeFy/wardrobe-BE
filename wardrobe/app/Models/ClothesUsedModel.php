@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\DB;
 class ClothesUsedModel extends Model
 {
     use HasFactory;
-
     public $incrementing = false;
     public $timestamps = false;
 
@@ -28,12 +27,10 @@ class ClothesUsedModel extends Model
     }
 
     public static function getLastUsed($user_id){
-        $res = ClothesUsedModel::select('created_at')
+        return ClothesUsedModel::select('created_at')
             ->where('created_by',$user_id)
             ->orderby('created_at','ASC')
             ->first();
-
-        return $res;
     }
 
     public static function getClothesUsedHistoryCalendar($user_id, $year, $month = null, $date = null){
@@ -57,11 +54,15 @@ class ClothesUsedModel extends Model
         return $res;
     }
 
-    public static function getYearlyClothesUsed($user_id){
+    public static function getYearlyClothesUsed($user_id = null){
         $res = ClothesUsedModel::selectRaw("COUNT(1) as total, DATE(created_at) as context")
-            ->whereRaw("DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 365 DAY)")
-            ->where('created_by',$user_id)
-            ->groupByRaw("DATE(created_at)")
+            ->whereRaw("DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 365 DAY)");
+
+        if($user_id){
+            $res = $res->where('created_by',$user_id);
+        }
+
+        $res = $res->groupByRaw("DATE(created_at)")
             ->get();
 
         return $res;
@@ -108,8 +109,6 @@ class ClothesUsedModel extends Model
     
 
     public static function hardDeleteClothesUsedByClothesId($clothes_id){
-        $res = ClothesUsedModel::where('clothes_id',$clothes_id)->delete();
-
-        return $res;
+        return ClothesUsedModel::where('clothes_id',$clothes_id)->delete();
     }
 }

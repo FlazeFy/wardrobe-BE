@@ -16,14 +16,12 @@ class QuestionModel extends Model
     protected $fillable = ['id', 'question', 'answer', 'is_show', 'created_at', 'created_by'];
 
     public static function getFAQ(){
-        $res = QuestionModel::select('question', 'answer', 'created_at')
+        return QuestionModel::select('question', 'answer', 'created_at')
             ->whereNotNull('answer')
             ->where('is_show',1)
             ->orderby('created_at','desc')
             ->limit(8)
             ->get();
-
-        return $res;
     }
 
     public  static function getUnansweredQuestion(){

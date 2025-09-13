@@ -72,8 +72,6 @@ class OutfitRelModel extends Model
     }
 
     public static function hardDeleteOutfitRelByClothesId($clothes_id){
-        $res = OutfitRelModel::where('clothes_id',$clothes_id)->delete();
-
-        return $res;
+        return OutfitRelModel::where('clothes_id',$clothes_id)->delete();
     }
 }

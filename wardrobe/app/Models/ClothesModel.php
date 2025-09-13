@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 class ClothesModel extends Model
 {
     use HasFactory;
-
     public $incrementing = false;
     public $timestamps = false;
 
@@ -101,11 +100,15 @@ class ClothesModel extends Model
         return $res;
     }
 
-    public static function getMonthlyClothesCreatedBuyed($user_id, $year, $col){
+    public static function getMonthlyClothesCreatedBuyed($user_id = null, $year, $col){
         $res = ClothesModel::selectRaw("COUNT(1) as total, MONTH($col) as context")
-            ->whereYear($col, '=', $year)
-            ->where('created_by', $user_id)
-            ->whereNotNull($col)
+            ->whereYear($col, '=', $year);
+
+        if($user_id){
+            $res = $res->where('created_by', $user_id);
+        }
+
+        $res = $res->whereNotNull($col)
             ->groupByRaw("MONTH($col)")
             ->get();
 
@@ -123,11 +126,15 @@ class ClothesModel extends Model
         return $res;
     }
 
-    public static function getYearlyClothesCreatedBuyed($user_id, $target){
+    public static function getYearlyClothesCreatedBuyed($user_id = null, $target){
         $res = ClothesModel::selectRaw("COUNT(1) as total, DATE($target) as context")
-            ->whereRaw("DATE($target) >= DATE_SUB(CURDATE(), INTERVAL 365 DAY)")
-            ->where('created_by', $user_id)
-            ->groupByRaw("DATE($target)")
+            ->whereRaw("DATE($target) >= DATE_SUB(CURDATE(), INTERVAL 365 DAY)");
+
+        if($user_id){
+            $res = $res->where('created_by', $user_id);
+        }
+
+        $res = $res->groupByRaw("DATE($target)")
             ->get();
 
         return $res;

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\StatsApi;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 // Models
 use App\Models\ClothesModel;
@@ -72,6 +73,13 @@ class Commands extends Controller
     public function get_stats_clothes_most_context(Request $request, $ctx)
     {
         try {
+            if ($request->hasHeader('Authorization')) {
+                $user = Auth::guard('sanctum')->user(); 
+                $user_id = $user ? $user->id : null;
+            } else {
+                $user_id = null;
+            }
+
             // Validator
             if (strpos($ctx, ",") !== false) {
                 $list_ctx = explode(",", $ctx);
@@ -99,14 +107,17 @@ class Commands extends Controller
                 }
             }
 
-            $user_id = $request->user()->id;
             $final_res = [];
 
             // Query
             foreach ($list_ctx as $ctx) {
-                $rows = ClothesModel::selectRaw("REPLACE(CONCAT(UPPER(SUBSTRING($ctx, 1, 1)), LOWER(SUBSTRING($ctx, 2))), '_', ' ') as context, COUNT(1) as total")
-                    ->where('created_by', $user_id)
-                    ->where($ctx,'!=','')
+                $rows = ClothesModel::selectRaw("REPLACE(CONCAT(UPPER(SUBSTRING($ctx, 1, 1)), LOWER(SUBSTRING($ctx, 2))), '_', ' ') as context, COUNT(1) as total");
+
+                if($user_id){
+                    $rows = $rows->where('created_by', $user_id);
+                } 
+
+                $rows = $rows->where($ctx,'!=','')
                     ->whereNotNull($ctx)
                     ->groupBy($ctx)
                     ->orderBy('total', 'desc')

@@ -80,8 +80,6 @@ class ScheduleModel extends Model
     }
 
     public static function hardDeleteScheduleByClothesId($clothes_id){
-        $res = ScheduleModel::where('clothes_id',$clothes_id)->delete();
-
-        return $res;
+        return ScheduleModel::where('clothes_id',$clothes_id)->delete();
     }
 }

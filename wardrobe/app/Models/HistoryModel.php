@@ -35,9 +35,6 @@ class HistoryModel extends Model
     }
 
     public static function deleteHistoryForLastNDays($days){
-        $res = HistoryModel::whereDate('created_at', '<', Carbon::now()->subDays($days))
-            ->delete();
-
-        return $res;
+        return HistoryModel::whereDate('created_at', '<', Carbon::now()->subDays($days))->delete();
     }
 }

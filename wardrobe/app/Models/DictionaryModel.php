@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class DictionaryModel extends Model
 {
     use HasFactory;
-
     public $incrementing = false;
     public $timestamps = false;
 

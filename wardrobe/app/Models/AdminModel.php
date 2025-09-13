@@ -19,7 +19,6 @@ use App\Models\QuestionModel;
 class AdminModel extends Authenticatable
 {
     use HasFactory;
-    //use HasUuids;
     use HasApiTokens;
     public $incrementing = false;
 
@@ -28,11 +27,9 @@ class AdminModel extends Authenticatable
     protected $fillable = ['id', 'username', 'password', 'email', 'telegram_user_id', 'telegram_is_valid', 'created_at', 'updated_at'];
 
     public static function getProfile($id){
-        $res = AdminModel::select('username','email','created_at','updated_at')
+        return AdminModel::select('username','email','created_at','updated_at')
             ->where('id',$id)
             ->first();
-
-        return $res;
     }
 
     public static function  getAllContact(){

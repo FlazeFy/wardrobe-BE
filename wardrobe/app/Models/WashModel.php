@@ -14,7 +14,6 @@ class WashModel extends Model
     protected $table = 'wash';
     protected $primaryKey = 'id';
     protected $fillable = ['id', 'wash_note', 'clothes_id', 'wash_type', 'wash_checkpoint', 'created_at', 'created_by', 'finished_at'];
-
     protected $casts = [
         'wash_checkpoint' => 'array'
     ];
@@ -30,13 +29,11 @@ class WashModel extends Model
     }
 
     public static function getActiveWash($clothes_id,$user_id){
-        $res = WashModel::select('wash_note','wash_type','wash_checkpoint')
+        return WashModel::select('wash_note','wash_type','wash_checkpoint')
             ->where('clothes_id',$clothes_id)
             ->where('created_by',$user_id)
             ->whereNull('finished_at')
             ->first();
-
-        return $res;
     }
 
     public static function getWashCalendar($user_id, $year, $month = null, $date = null){
@@ -60,11 +57,15 @@ class WashModel extends Model
         return $res;
     }
 
-    public static function getYearlyWash($user_id){
+    public static function getYearlyWash($user_id = null){
         $res = WashModel::selectRaw("COUNT(1) as total, DATE(created_at) as context")
-            ->whereRaw("DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 365 DAY)")
-            ->where('created_by',$user_id)
-            ->groupByRaw("DATE(created_at)")
+            ->whereRaw("DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 365 DAY)");
+            
+        if($user_id){
+            $res = $res->where('created_by',$user_id);
+        }
+
+        $res = $res->groupByRaw("DATE(created_at)")
             ->get();
 
         return $res;
@@ -133,8 +134,6 @@ class WashModel extends Model
     }
 
     public static function hardDeleteWashByClothesId($clothes_id){
-        $res = WashModel::where('clothes_id',$clothes_id)->delete();
-
-        return $res;
+        return WashModel::where('clothes_id',$clothes_id)->delete();
     }
 }

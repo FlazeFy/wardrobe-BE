@@ -1059,7 +1059,12 @@ class Queries extends Controller
      */
     public function get_stats_outfit_yearly_most_used(Request $request,$year){
         try {
-            $user_id = $request->user()->id;
+            if ($request->hasHeader('Authorization')) {
+                $user = Auth::guard('sanctum')->user(); 
+                $user_id = $user ? $user->id : null;
+            } else {
+                $user_id = null;
+            }
             $limit = request()->query('limit');
 
             $res = OutfitUsedModel::getOutfitMostUsed($year, $user_id, $limit);
@@ -1074,7 +1079,6 @@ class Queries extends Controller
                 return response()->json([
                     'status' => 'failed',
                     'message' => Generator::getMessageTemplate("not_found", 'stats'),
-                    'data' => null
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch (\Exception $e) {

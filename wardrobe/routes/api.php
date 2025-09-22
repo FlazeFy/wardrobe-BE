@@ -77,26 +77,27 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::post('/outfit/history/save', [CommandClothesApi::class, 'post_save_outfit_history']);
     Route::get('/outfit', [QueriesClothesApi::class, 'get_all_outfit']);
     Route::get('/outfit/last', [QueriesClothesApi::class, 'get_last_outfit']);
+    Route::get('/outfit/summary', [QueriesClothesApi::class, 'get_outfit_summary']);
     Route::get('/outfit/history/{id}', [QueriesClothesApi::class, 'get_history_outfit_by_id']);
     Route::get('/outfit/by/{id}', [QueriesClothesApi::class, 'get_outfit_by_id']);
     Route::delete('/outfit/history/by/{id}', [CommandClothesApi::class, 'hard_delete_used_outfit_by_id']);
 });
 
 Route::prefix('/v1/stats')->middleware(['auth:sanctum'])->group(function () {
-    Route::get('/clothes/yearly/{ctx}', [QueriesStatsApi::class, 'get_stats_yearly_context']);
     Route::get('/clothes/monthly/used/{year}', [QueriesStatsApi::class, 'get_stats_clothes_monthly_used']);
     Route::get('/calendar/{month}/{year}', [QueriesStatsApi::class, 'get_stats_calendar']);
     Route::get('/calendar/detail/date/{date}', [QueriesStatsApi::class, 'get_stats_calendar_by_date']);
-    Route::get('/outfit/most/used/{year}', [QueriesStatsApi::class, 'get_stats_outfit_yearly_most_used']);
     Route::get('/wash/summary', [QueriesStatsApi::class, 'get_stats_wash_summary']);
     Route::get('/clothes/most/used/daily', [QueriesStatsApi::class, 'get_stats_most_used_clothes_daily']);
 });
 
 Route::prefix('/v1/stats')->group(function () {
+    Route::get('/clothes/yearly/{ctx}', [QueriesStatsApi::class, 'get_stats_yearly_context']);
     Route::get('/clothes/summary', [QueriesStatsApi::class, 'get_stats_summary']);
     Route::post('/clothes/by/{ctx}', [CommandStatsApi::class, 'get_stats_clothes_most_context']);
     Route::get('/clothes/monthly/created_buyed/{year}', [QueriesStatsApi::class, 'get_stats_clothes_monthly_created_buyed']);
     Route::get('/outfit/monthly/by_outfit/{year}/{outfit_id}', [QueriesStatsApi::class, 'get_stats_outfit_monthly_by_outfit_id']);
+    Route::get('/outfit/most/used/{year}', [QueriesStatsApi::class, 'get_stats_outfit_yearly_most_used']);
 });
 
 Route::prefix('/v1/chat')->middleware(['auth:sanctum'])->group(function () {

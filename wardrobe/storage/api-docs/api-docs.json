@@ -4803,6 +4803,120 @@
                 ]
             }
         },
+        "/api/v1/clothes/outfit/summary": {
+            "get": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Get Outfit Summary",
+                "description": "This request fetches the outfit summary. It uses a MySQL database and is protected by authentication.",
+                "operationId": "4eb70b37cf996273731078fb8e90eb05",
+                "responses": {
+                    "200": {
+                        "description": "outfit summary fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit summary fetched"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "total_outfit": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "last_used": {
+                                                    "type": "string",
+                                                    "example": "2024-05-17 04:09:40"
+                                                },
+                                                "next_suggestion": {
+                                                    "type": "string",
+                                                    "example": "Long Sleeves"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Protected route, requires authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "outfit summary not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit summary not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/dct/{id}": {
             "delete": {
                 "tags": [
@@ -6636,7 +6750,7 @@
                                                 "properties": {
                                                     "context": {
                                                         "type": "string",
-                                                        "example": "January"
+                                                        "example": "Jan"
                                                     },
                                                     "total_created": {
                                                         "type": "integer",
@@ -6765,7 +6879,7 @@
                                                 "properties": {
                                                     "context": {
                                                         "type": "string",
-                                                        "example": "January"
+                                                        "example": "Jan"
                                                     },
                                                     "total": {
                                                         "type": "integer",
@@ -7376,7 +7490,7 @@
                                                 "properties": {
                                                     "context": {
                                                         "type": "string",
-                                                        "example": "January"
+                                                        "example": "Jan"
                                                     },
                                                     "total": {
                                                         "type": "integer",

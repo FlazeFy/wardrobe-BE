@@ -1657,4 +1657,83 @@ class Queries extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * @OA\GET(
+     *     path="/api/v1/clothes/outfit/summary",
+     *     summary="Get Outfit Summary",
+     *     description="This request fetches the outfit summary. It uses a MySQL database and is protected by authentication.",
+     *     tags={"Clothes"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="outfit summary fetched successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="outfit summary fetched"),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="total_outfit", type="integer", example=10),
+     *                 @OA\Property(property="last_used", type="string", example="2024-05-17 04:09:40"),
+     *                 @OA\Property(property="next_suggestion", type="string", example="Long Sleeves"),
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Protected route, requires authentication token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="outfit summary not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="outfit summary not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
+     *         )
+     *     ),
+     * )
+     */
+    public function get_outfit_summary(Request $request){
+        try { 
+            $user_id = $request->user()->id;
+
+            $res_last_added = ClothesModel::getLast('created_at',$user_id);
+            if($res_last_added){
+                $res_total_outfit = OutfitModel::where('created_by',$user_id)->count();
+                $res_last_used = OutfitUsedModel::getLastUsed($user_id);
+                $res = [
+                    'total_outfit' => $res_total_outfit,
+                    'last_used' => $res_last_used,
+                    'next_suggestion' => null,
+                ];
+                
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("fetch", "clothes last history"),
+                    'data' => $res
+                ], Response::HTTP_OK);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("not_found", "clothes last history"),
+                ], Response::HTTP_NOT_FOUND);
+            }
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => Generator::getMessageTemplate("unknown_error", null),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

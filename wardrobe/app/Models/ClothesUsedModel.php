@@ -1,11 +1,25 @@
 <?php
 
 namespace App\Models;
-
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+
+/**
+ * @OA\Schema(
+ *     schema="ClothesUsed",
+ *     type="object",
+ *     required={"id", "clothes_id", "used_context", "created_at", "created_by"},
+ *
+ *     @OA\Property(property="id", type="string", format="uuid", description="Primary key for the clothes usage record"),
+ *     @OA\Property(property="clothes_id", type="string", format="uuid", description="ID of the clothes item that was used"),
+ *     @OA\Property(property="clothes_note", type="string", maxLength=144, nullable=true, description="Additional note related to the clothes usage"),
+ *     @OA\Property(property="used_context", type="string", maxLength=36, description="Context of clothes usage, referenced from dictionary"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", description="Timestamp when the clothes usage was created"),
+ *     @OA\Property(property="created_by", type="string", maxLength=36, description="ID of the user who created the clothes usage record")
+ * )
+ */
 
 class ClothesUsedModel extends Model
 {
@@ -18,12 +32,10 @@ class ClothesUsedModel extends Model
     protected $fillable = ['id', 'clothes_id', 'clothes_note', 'used_context', 'created_at', 'created_by'];
 
     public static function getClothesUsedHistory($clothes_id,$user_id){
-        $res = ClothesUsedModel::select('id','clothes_note','used_context','created_at')
+        return ClothesUsedModel::select('id','clothes_note','used_context','created_at')
             ->where('clothes_id',$clothes_id)
             ->where('created_by',$user_id)
             ->get();
-
-        return $res;
     }
 
     public static function getLastUsed($user_id){
@@ -48,10 +60,7 @@ class ClothesUsedModel extends Model
             $res = $res->whereMonth('clothes_used.created_at', '=', $month);
         }
         
-        $res = $res->orderby('clothes_used.created_at', 'asc')
-            ->get();
-
-        return $res;
+        return $res->orderby('clothes_used.created_at', 'asc')->get();
     }
 
     public static function getYearlyClothesUsed($user_id = null){
@@ -62,20 +71,15 @@ class ClothesUsedModel extends Model
             $res = $res->where('created_by',$user_id);
         }
 
-        $res = $res->groupByRaw("DATE(created_at)")
-            ->get();
-
-        return $res;
+        return $res->groupByRaw("DATE(created_at)")->get();
     }
 
     public static function getClothesUsedExport($user_id){
-        $res = ClothesUsedModel::select('clothes_name', 'clothes_note', 'used_context', 'clothes_merk', 'clothes_made_from', 'clothes_color', 'clothes_type', 'is_favorite', 'clothes_used.created_at as used_at')
+        return ClothesUsedModel::select('clothes_name', 'clothes_note', 'used_context', 'clothes_merk', 'clothes_made_from', 'clothes_color', 'clothes_type', 'is_favorite', 'clothes_used.created_at as used_at')
             ->join('clothes','clothes.id','=','clothes_used.clothes_id')
             ->where('clothes_used.created_by',$user_id)
             ->orderby('clothes_used.created_at', 'desc')
             ->get();
-
-        return $res;
     }
 
     public static function getUsedClothesReadyToWash($days){

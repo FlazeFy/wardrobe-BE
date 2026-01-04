@@ -1,10 +1,43 @@
 <?php
 
 namespace App\Models;
-
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
+/**
+ * @OA\Schema(
+ *     schema="Clothes",
+ *     type="object",
+ *     required={
+ *         "id", "clothes_name", "clothes_size", "clothes_gender", "clothes_made_from", "clothes_color", "clothes_category", "clothes_type", "clothes_qty",
+ *         "is_faded", "has_washed", "has_ironed", "is_favorite", "is_scheduled", "created_at", "created_by"
+ *     },
+ *
+ *     @OA\Property(property="id", type="string", format="uuid", description="Primary key for the clothes item"),
+ *     @OA\Property(property="clothes_name", type="string", maxLength=36, description="Name of the clothes item"),
+ *     @OA\Property(property="clothes_desc", type="string", maxLength=255, nullable=true, description="Description of the clothes item"),
+ *     @OA\Property(property="clothes_merk", type="string", maxLength=75, nullable=true, description="Brand or merk of the clothes"),
+ *     @OA\Property(property="clothes_size", type="string", maxLength=3, description="Size of the clothes"),
+ *     @OA\Property(property="clothes_gender", type="string", maxLength=6, description="Gender category of the clothes"),
+ *     @OA\Property(property="clothes_made_from", type="string", maxLength=36, description="Material used to make the clothes, referenced from dictionary"),
+ *     @OA\Property(property="clothes_color", type="string", maxLength=36, description="Color of the clothes"),
+ *     @OA\Property(property="clothes_category", type="string", maxLength=36, description="Category of the clothes"),
+ *     @OA\Property(property="clothes_type", type="string", maxLength=36, description="Type of the clothes, referenced from dictionary"),
+ *     @OA\Property(property="clothes_price", type="integer", nullable=true, description="Purchase price of the clothes"),
+ *     @OA\Property(property="clothes_buy_at", type="string", format="date", nullable=true, description="Date when the clothes were purchased"),
+ *     @OA\Property(property="clothes_qty", type="integer", description="Quantity of the clothes item"),
+ *     @OA\Property(property="is_faded", type="boolean", description="Indicates whether the clothes color has faded"),
+ *     @OA\Property(property="has_washed", type="boolean", description="Indicates whether the clothes have been washed"),
+ *     @OA\Property(property="has_ironed", type="boolean", description="Indicates whether the clothes have been ironed"),
+ *     @OA\Property(property="is_favorite", type="boolean", description="Indicates whether the clothes are marked as favorite"),
+ *     @OA\Property(property="is_scheduled", type="boolean", description="Indicates whether the clothes are scheduled for use"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", description="Timestamp when the clothes were created"),
+ *     @OA\Property(property="created_by", type="string", maxLength=36, description="ID of the user who created the clothes"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", nullable=true, description="Timestamp when the clothes were last updated"),
+ *     @OA\Property(property="deleted_at", type="string", format="date-time", nullable=true, description="Timestamp when the clothes were soft deleted")
+ * )
+ */
 
 class ClothesModel extends Model
 {
@@ -40,23 +73,19 @@ class ClothesModel extends Model
     }
 
     public static function getDeletedClothes($user_id){
-        $res = ClothesModel::select('id', 'clothes_name', 'clothes_image', 'clothes_size', 'clothes_gender', 'clothes_color', 'clothes_category', 'clothes_type', 'clothes_qty', 'deleted_at')
+        return ClothesModel::select('id', 'clothes_name', 'clothes_image', 'clothes_size', 'clothes_gender', 'clothes_color', 'clothes_category', 'clothes_type', 'clothes_qty', 'deleted_at')
             ->whereNotNull('deleted_at')
             ->where('created_by',$user_id)
             ->orderBy('deleted_at', 'desc')
             ->paginate(14);
-
-        return $res;
     }
 
     public static function getCategoryAndType($user_id){
-        $res = ClothesModel::selectRaw('clothes_category,clothes_type,COUNT(1) as total')
+        return ClothesModel::selectRaw('clothes_category,clothes_type,COUNT(1) as total')
             ->where('created_by',$user_id)
             ->groupby('clothes_category')
             ->groupby('clothes_type')
             ->get();
-
-        return $res;
     }
 
     public static function getClothesBuyedCalendar($user_id, $year, $month = null, $date = null){
@@ -74,10 +103,7 @@ class ClothesModel extends Model
             $res = $res->whereMonth('clothes_buy_at', '=', $month);
         }
         
-        $res = $res->orderby('clothes_buy_at', 'asc')
-            ->get();
-
-        return $res;
+        return $res->orderby('clothes_buy_at', 'asc')->get();
     }
 
     public static function getClothesCreatedCalendar($user_id, $year, $month = null, $date = null){
@@ -94,10 +120,7 @@ class ClothesModel extends Model
             $res = $res->whereMonth('created_at', '=', $month);
         }
 
-        $res = $res->orderby('created_at', 'asc')
-            ->get();
-
-        return $res;
+        return $res->orderby('created_at', 'asc')->get();
     }
 
     public static function getMonthlyClothesCreatedBuyed($user_id = null, $year, $col){
@@ -108,22 +131,18 @@ class ClothesModel extends Model
             $res = $res->where('created_by', $user_id);
         }
 
-        $res = $res->whereNotNull($col)
+        return $res->whereNotNull($col)
             ->groupByRaw("MONTH($col)")
             ->get();
-
-        return $res;
     }
 
     public static function getMonthlyClothesUsed($user_id, $year){
-        $res = ClothesModel::selectRaw("COUNT(1) as total, MONTH(clothes_used.created_at) as context")
+        return ClothesModel::selectRaw("COUNT(1) as total, MONTH(clothes_used.created_at) as context")
             ->join('clothes_used','clothes_used.clothes_id','=','clothes.id')
             ->whereYear('clothes_used.created_at', '=', $year)
             ->where('clothes_used.created_by', $user_id)
             ->groupByRaw("MONTH(clothes_used.created_at)")
             ->get();
-
-        return $res;
     }
 
     public static function getYearlyClothesCreatedBuyed($user_id = null, $target){
@@ -134,10 +153,7 @@ class ClothesModel extends Model
             $res = $res->where('created_by', $user_id);
         }
 
-        $res = $res->groupByRaw("DATE($target)")
-            ->get();
-
-        return $res;
+        return $res->groupByRaw("DATE($target)")->get();
     }
 
     public static function getClothesExport($user_id, $type){

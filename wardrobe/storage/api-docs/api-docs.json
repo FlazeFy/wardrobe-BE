@@ -8275,6 +8275,267 @@
                 },
                 "type": "object"
             },
+            "Admin": {
+                "required": [
+                    "id",
+                    "username",
+                    "password",
+                    "email",
+                    "telegram_is_valid",
+                    "created_at"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Primary key for the admin",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "username": {
+                        "description": "Username of the admin",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "password": {
+                        "description": "Hashed password of the admin",
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "email": {
+                        "description": "Email address of the admin",
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 500
+                    },
+                    "telegram_user_id": {
+                        "description": "Telegram user ID associated with the admin",
+                        "type": "string",
+                        "maxLength": 36,
+                        "nullable": true
+                    },
+                    "telegram_is_valid": {
+                        "description": "Indicates whether the Telegram account has been verified",
+                        "type": "boolean"
+                    },
+                    "timezone": {
+                        "description": "Timezone used by the admin",
+                        "type": "string",
+                        "maxLength": 9,
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the admin was created",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Timestamp when the admin was last updated",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "Clothes": {
+                "required": [
+                    "id",
+                    "clothes_name",
+                    "clothes_size",
+                    "clothes_gender",
+                    "clothes_made_from",
+                    "clothes_color",
+                    "clothes_category",
+                    "clothes_type",
+                    "clothes_qty",
+                    "is_faded",
+                    "has_washed",
+                    "has_ironed",
+                    "is_favorite",
+                    "is_scheduled",
+                    "created_at",
+                    "created_by"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Primary key for the clothes item",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "clothes_name": {
+                        "description": "Name of the clothes item",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "clothes_desc": {
+                        "description": "Description of the clothes item",
+                        "type": "string",
+                        "maxLength": 255,
+                        "nullable": true
+                    },
+                    "clothes_merk": {
+                        "description": "Brand or merk of the clothes",
+                        "type": "string",
+                        "maxLength": 75,
+                        "nullable": true
+                    },
+                    "clothes_size": {
+                        "description": "Size of the clothes",
+                        "type": "string",
+                        "maxLength": 3
+                    },
+                    "clothes_gender": {
+                        "description": "Gender category of the clothes",
+                        "type": "string",
+                        "maxLength": 6
+                    },
+                    "clothes_made_from": {
+                        "description": "Material used to make the clothes, referenced from dictionary",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "clothes_color": {
+                        "description": "Color of the clothes",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "clothes_category": {
+                        "description": "Category of the clothes",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "clothes_type": {
+                        "description": "Type of the clothes, referenced from dictionary",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "clothes_price": {
+                        "description": "Purchase price of the clothes",
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "clothes_buy_at": {
+                        "description": "Date when the clothes were purchased",
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "clothes_qty": {
+                        "description": "Quantity of the clothes item",
+                        "type": "integer"
+                    },
+                    "is_faded": {
+                        "description": "Indicates whether the clothes color has faded",
+                        "type": "boolean"
+                    },
+                    "has_washed": {
+                        "description": "Indicates whether the clothes have been washed",
+                        "type": "boolean"
+                    },
+                    "has_ironed": {
+                        "description": "Indicates whether the clothes have been ironed",
+                        "type": "boolean"
+                    },
+                    "is_favorite": {
+                        "description": "Indicates whether the clothes are marked as favorite",
+                        "type": "boolean"
+                    },
+                    "is_scheduled": {
+                        "description": "Indicates whether the clothes are scheduled for use",
+                        "type": "boolean"
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the clothes were created",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "created_by": {
+                        "description": "ID of the user who created the clothes",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "updated_at": {
+                        "description": "Timestamp when the clothes were last updated",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "deleted_at": {
+                        "description": "Timestamp when the clothes were soft deleted",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "ClothesUsed": {
+                "required": [
+                    "id",
+                    "clothes_id",
+                    "used_context",
+                    "created_at",
+                    "created_by"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Primary key for the clothes usage record",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "clothes_id": {
+                        "description": "ID of the clothes item that was used",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "clothes_note": {
+                        "description": "Additional note related to the clothes usage",
+                        "type": "string",
+                        "maxLength": 144,
+                        "nullable": true
+                    },
+                    "used_context": {
+                        "description": "Context of clothes usage, referenced from dictionary",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the clothes usage was created",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "created_by": {
+                        "description": "ID of the user who created the clothes usage record",
+                        "type": "string",
+                        "maxLength": 36
+                    }
+                },
+                "type": "object"
+            },
+            "Dictionary": {
+                "required": [
+                    "id",
+                    "dictionary_type",
+                    "dictionary_name"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Primary key for the dictionary",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "dictionary_type": {
+                        "description": "Type or group of the dictionary",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "dictionary_name": {
+                        "description": "Unique name of the dictionary",
+                        "type": "string",
+                        "maxLength": 75
+                    }
+                },
+                "type": "object"
+            },
             "Error": {
                 "required": [
                     "id",

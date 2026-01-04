@@ -8841,6 +8841,315 @@
                     }
                 },
                 "type": "object"
+            },
+            "Schedule": {
+                "required": [
+                    "id",
+                    "day",
+                    "is_remind",
+                    "created_at",
+                    "created_by",
+                    "clothes_id"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Primary key for the schedule",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "day": {
+                        "description": "Day of the schedule (e.g., Mon, Tue)",
+                        "type": "string",
+                        "maxLength": 3
+                    },
+                    "schedule_note": {
+                        "description": "Additional note for the schedule",
+                        "type": "string",
+                        "maxLength": 255,
+                        "nullable": true
+                    },
+                    "is_remind": {
+                        "description": "Indicates whether a reminder is enabled for the schedule",
+                        "type": "boolean"
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the schedule was created",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "created_by": {
+                        "description": "ID of the user who created the schedule",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "clothes_id": {
+                        "description": "ID of the related clothes item",
+                        "type": "string",
+                        "maxLength": 36
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "required": [
+                    "id",
+                    "username",
+                    "password",
+                    "email",
+                    "telegram_is_valid",
+                    "created_at"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Primary key for the user",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "username": {
+                        "description": "Username of the user",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "password": {
+                        "description": "Hashed user password",
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "email": {
+                        "description": "User email address",
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 500
+                    },
+                    "telegram_user_id": {
+                        "description": "Telegram user ID linked to the account",
+                        "type": "string",
+                        "maxLength": 36,
+                        "nullable": true
+                    },
+                    "telegram_is_valid": {
+                        "description": "Indicates whether the Telegram account has been verified",
+                        "type": "boolean"
+                    },
+                    "firebase_fcm_token": {
+                        "description": "Firebase Cloud Messaging token for push notifications",
+                        "type": "string",
+                        "maxLength": 255,
+                        "nullable": true
+                    },
+                    "timezone": {
+                        "description": "User timezone",
+                        "type": "string",
+                        "maxLength": 9,
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the user was created",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Timestamp when the user was last updated",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "UserRequest": {
+                "required": [
+                    "id",
+                    "request_type",
+                    "is_show",
+                    "created_at",
+                    "created_by"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "User request ID",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "request_type": {
+                        "description": "Request type",
+                        "type": "string",
+                        "maxLength": 144
+                    },
+                    "request_context": {
+                        "description": "Request context",
+                        "type": "string",
+                        "maxLength": 255,
+                        "nullable": true
+                    },
+                    "is_show": {
+                        "description": "Request visibility status",
+                        "type": "boolean"
+                    },
+                    "created_at": {
+                        "description": "Created timestamp",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "created_by": {
+                        "description": "User ID who created the request",
+                        "type": "string",
+                        "maxLength": 36
+                    }
+                },
+                "type": "object"
+            },
+            "UserTrack": {
+                "required": [
+                    "id",
+                    "track_lat",
+                    "track_long",
+                    "track_source",
+                    "created_at",
+                    "created_by"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "User track ID",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "track_lat": {
+                        "description": "Latitude coordinate",
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "track_long": {
+                        "description": "Longitude coordinate",
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "track_source": {
+                        "description": "Source of tracking data",
+                        "type": "string",
+                        "maxLength": 16
+                    },
+                    "created_at": {
+                        "description": "Created timestamp",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "created_by": {
+                        "description": "User ID who created the track",
+                        "type": "string",
+                        "maxLength": 36
+                    }
+                },
+                "type": "object"
+            },
+            "UserWeather": {
+                "required": [
+                    "id",
+                    "weather_temp",
+                    "weather_humid",
+                    "weather_city",
+                    "weather_condition",
+                    "weather_hit_from",
+                    "created_at",
+                    "created_by"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "User weather ID",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "weather_temp": {
+                        "description": "Weather temperature",
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "weather_humid": {
+                        "description": "Weather humidity",
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "weather_city": {
+                        "description": "Weather city",
+                        "type": "string",
+                        "maxLength": 75
+                    },
+                    "weather_condition": {
+                        "description": "Weather condition",
+                        "type": "string",
+                        "maxLength": 16
+                    },
+                    "weather_hit_from": {
+                        "description": "Weather data source",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "created_at": {
+                        "description": "Created timestamp",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "created_by": {
+                        "description": "User ID who created the weather data",
+                        "type": "string",
+                        "maxLength": 36
+                    }
+                },
+                "type": "object"
+            },
+            "Wash": {
+                "required": [
+                    "id",
+                    "clothes_id",
+                    "wash_type",
+                    "wash_checkpoint",
+                    "created_at",
+                    "created_by"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Wash ID",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "clothes_id": {
+                        "description": "Clothes ID",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "wash_note": {
+                        "description": "Wash note",
+                        "type": "string",
+                        "maxLength": 75,
+                        "nullable": true
+                    },
+                    "wash_type": {
+                        "description": "Wash type",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "wash_checkpoint": {
+                        "description": "Wash checkpoint details",
+                        "type": "object"
+                    },
+                    "created_at": {
+                        "description": "Created timestamp",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "created_by": {
+                        "description": "User ID who created the wash",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "finished_at": {
+                        "description": "Finished timestamp",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
             }
         }
     },

@@ -1,10 +1,25 @@
 <?php
 
 namespace App\Models;
-
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
+/**
+ * @OA\Schema(
+ *     schema="Schedule",
+ *     type="object",
+ *     required={"id", "day", "is_remind", "created_at", "created_by", "clothes_id"},
+ *
+ *     @OA\Property(property="id", type="string", format="uuid", description="Primary key for the schedule"),
+ *     @OA\Property(property="day", type="string", maxLength=3, description="Day of the schedule (e.g., Mon, Tue)"),
+ *     @OA\Property(property="schedule_note", type="string", maxLength=255, nullable=true, description="Additional note for the schedule"),
+ *     @OA\Property(property="is_remind", type="boolean", description="Indicates whether a reminder is enabled for the schedule"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", description="Timestamp when the schedule was created"),
+ *     @OA\Property(property="created_by", type="string", maxLength=36, description="ID of the user who created the schedule"),
+ *     @OA\Property(property="clothes_id", type="string", maxLength=36, description="ID of the related clothes item")
+ * )
+ */
 
 class ScheduleModel extends Model
 {
@@ -17,13 +32,10 @@ class ScheduleModel extends Model
     protected $fillable = ['id', 'clothes_id', 'day', 'is_remind', 'schedule_note', 'created_at', 'created_by'];
 
     public static function checkDayAvailability($day, $clothes_id, $user_id){
-        $res = ScheduleModel::selectRaw('1')
-            ->where('day',$day)
-            ->where('clothes_id',$clothes_id)
-            ->where('created_by',$user_id)
-            ->first();
-
-        return $res ? false : true;
+        return !ScheduleModel::where('day', $day)
+            ->where('clothes_id', $clothes_id)
+            ->where('created_by', $user_id)
+            ->exists();
     }
 
     public static function getScheduleByClothes($clothes_id, $user_id){

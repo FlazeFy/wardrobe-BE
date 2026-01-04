@@ -1,12 +1,27 @@
 <?php
 
 namespace App\Models;
-
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// Others Model
 use App\Models\UserModel;
+
+/**
+ * @OA\Schema(
+ *     schema="UserTrack",
+ *     type="object",
+ *     required={"id","track_lat","track_long","track_source","created_at","created_by"},
+ *
+ *     @OA\Property(property="id", type="string", format="uuid", description="User track ID"),
+ *     @OA\Property(property="track_lat", type="string", maxLength=255, description="Latitude coordinate"),
+ *     @OA\Property(property="track_long", type="string", maxLength=255, description="Longitude coordinate"),
+ *     @OA\Property(property="track_source", type="string", maxLength=16, description="Source of tracking data"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", description="Created timestamp"),
+ *     @OA\Property(property="created_by", type="string", maxLength=36, description="User ID who created the track")
+ * )
+ */
 
 class UserTrackModel extends Model
 {

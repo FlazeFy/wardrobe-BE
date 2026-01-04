@@ -1,9 +1,23 @@
 <?php
 
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
+/**
+ * @OA\Schema(
+ *     schema="UserRequest",
+ *     type="object",
+ *     required={"id","request_type","is_show","created_at","created_by"},
+ *
+ *     @OA\Property(property="id", type="string", format="uuid", description="User request ID"),
+ *     @OA\Property(property="request_type", type="string", maxLength=144, description="Request type"),
+ *     @OA\Property(property="request_context", type="string", maxLength=255, nullable=true, description="Request context"),
+ *     @OA\Property(property="is_show", type="boolean", description="Request visibility status"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", description="Created timestamp"),
+ *     @OA\Property(property="created_by", type="string", maxLength=36, description="User ID who created the request")
+ * )
+ */
 
 class UserRequestModel extends Model
 {

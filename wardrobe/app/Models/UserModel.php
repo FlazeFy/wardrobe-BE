@@ -1,12 +1,11 @@
 <?php
 
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
-// Models
+// Others Model
 use App\Models\ClothesModel;
 use App\Models\ClothesUsedModel;
 use App\Models\OutfitModel;
@@ -15,6 +14,25 @@ use App\Models\OutfitUsedModel;
 use App\Models\WashModel;
 use App\Models\ScheduleModel;
 use App\Models\UserTrackModel;
+
+/**
+ * @OA\Schema(
+ *     schema="User",
+ *     type="object",
+ *     required={"id", "username", "password", "email", "telegram_is_valid", "created_at" },
+ *
+ *     @OA\Property(property="id", type="string", format="uuid", description="Primary key for the user"),
+ *     @OA\Property(property="username", type="string", maxLength=36, description="Username of the user"),
+ *     @OA\Property(property="password", type="string", maxLength=500, description="Hashed user password"),
+ *     @OA\Property(property="email", type="string", maxLength=500, format="email", description="User email address"),
+ *     @OA\Property(property="telegram_user_id", type="string", maxLength=36, nullable=true, description="Telegram user ID linked to the account"),
+ *     @OA\Property(property="telegram_is_valid", type="boolean", description="Indicates whether the Telegram account has been verified"),
+ *     @OA\Property(property="firebase_fcm_token", type="string", maxLength=255, nullable=true, description="Firebase Cloud Messaging token for push notifications"),
+ *     @OA\Property(property="timezone", type="string", maxLength=9, nullable=true, description="User timezone"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", description="Timestamp when the user was created"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", nullable=true, description="Timestamp when the user was last updated")
+ * )
+ */
 
 class UserModel extends Authenticatable
 {
@@ -38,9 +56,7 @@ class UserModel extends Authenticatable
     }
 
     public static function getSocial($id){
-        return UserModel::select('username','telegram_user_id','telegram_is_valid','email','firebase_fcm_token')
-            ->where('id',$id)
-            ->first();
+        return UserModel::select('username','telegram_user_id','telegram_is_valid','email','firebase_fcm_token')->where('id',$id)->first();
     }
 
     public static function getRandomWhoHaveClothes($null){
@@ -60,11 +76,9 @@ class UserModel extends Authenticatable
     }
 
     public static function getProfile($id){
-        $res = UserModel::select('username','email','telegram_user_id','telegram_is_valid','created_at','updated_at')
+        return UserModel::select('username','email','telegram_user_id','telegram_is_valid','created_at','updated_at')
             ->where('id',$id)
             ->first();
-
-        return $res;
     }
 
     public static function getMyAvailableYearFilter($user_id){
@@ -105,7 +119,7 @@ class UserModel extends Authenticatable
 
         $additional_years = collect([['year' => date('Y')]]);
 
-        $res = $clothes_years->concat($clothes_used_years)
+        return $clothes_years->concat($clothes_used_years)
             ->concat($outfit_years)
             ->concat($outfit_rel_years)
             ->concat($outfit_used_years)
@@ -115,8 +129,6 @@ class UserModel extends Authenticatable
             ->unique('year') 
             ->sortBy('year')
             ->values(); 
-
-        return $res;
     }
 
     public static function getUserReadyGeneratedOutfit(){

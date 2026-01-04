@@ -1,9 +1,25 @@
 <?php
 
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
+/**
+ * @OA\Schema(
+ *     schema="Wash",
+ *     type="object",
+ *     required={"id","clothes_id","wash_type","wash_checkpoint","created_at","created_by"},
+ *
+ *     @OA\Property(property="id", type="string", format="uuid", description="Wash ID"),
+ *     @OA\Property(property="clothes_id", type="string", maxLength=36, description="Clothes ID"),
+ *     @OA\Property(property="wash_note", type="string", maxLength=75, nullable=true, description="Wash note"),
+ *     @OA\Property(property="wash_type", type="string", maxLength=36, description="Wash type"),
+ *     @OA\Property(property="wash_checkpoint", type="object", description="Wash checkpoint details"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", description="Created timestamp"),
+ *     @OA\Property(property="created_by", type="string", maxLength=36, description="User ID who created the wash"),
+ *     @OA\Property(property="finished_at", type="string", format="date-time", nullable=true, description="Finished timestamp")
+ * )
+ */
 
 class WashModel extends Model
 {
@@ -18,17 +34,15 @@ class WashModel extends Model
         'wash_checkpoint' => 'array'
     ];
 
-    public static function getWashHistory($clothes_id,$user_id){
-        $res = WashModel::select('wash_note','wash_type','wash_checkpoint','created_at','finished_at')
+    public static function getWashHistory($clothes_id, $user_id){
+        return WashModel::select('wash_note','wash_type','wash_checkpoint','created_at','finished_at')
             ->where('clothes_id',$clothes_id)
             ->where('created_by',$user_id)
             ->orderby('created_at','desc')
             ->get();
-
-        return $res;
     }
 
-    public static function getActiveWash($clothes_id,$user_id){
+    public static function getActiveWash($clothes_id, $user_id){
         return WashModel::select('wash_note','wash_type','wash_checkpoint')
             ->where('clothes_id',$clothes_id)
             ->where('created_by',$user_id)
@@ -51,10 +65,7 @@ class WashModel extends Model
             $res = $res->whereMonth('wash.created_at', '=', $month);
         }
             
-        $res = $res->orderby('wash.created_at', 'asc')
-            ->get();
-
-        return $res;
+        return $res->orderby('wash.created_at', 'asc')->get();
     }
 
     public static function getYearlyWash($user_id = null){
@@ -65,10 +76,7 @@ class WashModel extends Model
             $res = $res->where('created_by',$user_id);
         }
 
-        $res = $res->groupByRaw("DATE(created_at)")
-            ->get();
-
-        return $res;
+        return $res->groupByRaw("DATE(created_at)")->get();
     }
 
     public static function getWashExport($user_id, $is_no_arr = true){
@@ -93,7 +101,7 @@ class WashModel extends Model
         return collect($final_res);
     }
 
-    public static function getUnfinishedWash($user_id,$page){
+    public static function getUnfinishedWash($user_id, $page){
         $res = WashModel::select('clothes_name', 'wash_type', 'wash_checkpoint', 'clothes_type', 'wash.created_at as wash_at')
             ->join('clothes','clothes.id','=','wash.clothes_id')
             ->where('wash.created_by',$user_id)
@@ -108,18 +116,16 @@ class WashModel extends Model
     }
 
     public static function getLastWash($user_id){
-        $res = WashModel::select('clothes_name', 'wash.created_at as wash_at')
+        return WashModel::select('clothes_name', 'wash.created_at as wash_at')
             ->join('clothes','clothes.id','=','wash.clothes_id')
             ->where('wash.created_by',$user_id)
             ->whereNotNull('finished_at')
             ->orderby('wash.created_at','desc')
             ->first();
-
-        return $res;
     }
 
     public static function getWashSummary($user_id){
-        $res = WashModel::selectRaw('
+        return WashModel::selectRaw('
                 COUNT(1) as total_wash, 
                 MAX(clothes_name) as most_wash, 
                 AVG(TIMESTAMPDIFF(HOUR, wash.created_at, wash.finished_at)) as avg_wash_dur_per_clothes,
@@ -129,8 +135,6 @@ class WashModel extends Model
             ->where('wash.created_by',$user_id)
             ->whereNotNull('finished_at')
             ->first();
-
-        return $res;
     }
 
     public static function hardDeleteWashByClothesId($clothes_id){

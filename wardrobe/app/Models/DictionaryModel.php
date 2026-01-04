@@ -27,12 +27,9 @@ class DictionaryModel extends Model
     protected $fillable = ['id', 'dictionary_type', 'dictionary_name'];
 
     public static function isUsedName($name, $type){
-        $res = DictionaryModel::selectRaw('1')
-            ->whereRaw('LOWER(dictionary_name) = LOWER(?)', [$name])
+        return DictionaryModel::whereRaw('LOWER(dictionary_name) = LOWER(?)', [$name])
             ->whereRaw('LOWER(dictionary_type) = LOWER(?)', [$type])
-            ->first();
-
-        return $res ? true : false;
+            ->exists();
     }
 
     public static function getRandom($null,$type){

@@ -1,9 +1,22 @@
 <?php
 
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
+/**
+ * @OA\Schema(
+ *     schema="Feedback",
+ *     type="object",
+ *     required={"id", "feedback_rate", "feedback_body", "created_at", "created_by"},
+ *
+ *     @OA\Property(property="id", type="string", format="uuid", description="Primary key for the feedback"),
+ *     @OA\Property(property="feedback_rate", type="integer", description="Rating value given by the user"),
+ *     @OA\Property(property="feedback_body", type="string", maxLength=144, description="Feedback message or comment"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", description="Timestamp when the feedback was created"),
+ *     @OA\Property(property="created_by", type="string", maxLength=36, description="ID of the user who submitted the feedback")
+ * )
+ */
 
 class FeedbackModel extends Model
 {

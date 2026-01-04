@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('feedback', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('feedback_rate', 2);
+            $table->integer('feedback_rate')->length(2);
             $table->string('feedback_body', 144);
 
             // Props

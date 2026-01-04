@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -32,8 +31,7 @@ class ErrorModel extends Model
     protected $fillable = ['id', 'message', 'stack_trace', 'file', 'line', 'faced_by','created_at'];
 
     public static function getAllError($is_paginate){
-        $res = ErrorModel::select('*')
-            ->orderby('created_at','DESC');
+        $res = ErrorModel::select('*')->orderby('created_at','DESC');
         
         return $is_paginate ? $res->paginate(14) : $res->get();
     }

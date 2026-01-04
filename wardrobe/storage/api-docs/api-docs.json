@@ -8611,6 +8611,236 @@
                     }
                 },
                 "type": "object"
+            },
+            "Feedback": {
+                "required": [
+                    "id",
+                    "feedback_rate",
+                    "feedback_body",
+                    "created_at",
+                    "created_by"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Primary key for the feedback",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "feedback_rate": {
+                        "description": "Rating value given by the user",
+                        "type": "integer"
+                    },
+                    "feedback_body": {
+                        "description": "Feedback message or comment",
+                        "type": "string",
+                        "maxLength": 144
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the feedback was created",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "created_by": {
+                        "description": "ID of the user who submitted the feedback",
+                        "type": "string",
+                        "maxLength": 36
+                    }
+                },
+                "type": "object"
+            },
+            "History": {
+                "required": [
+                    "id",
+                    "history_type",
+                    "history_context",
+                    "created_at",
+                    "created_by"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Primary key for the history record",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "history_type": {
+                        "description": "Type or category of the history event",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "history_context": {
+                        "description": "Context or description of the history event",
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the history record was created",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "created_by": {
+                        "description": "ID of the user who created the history record",
+                        "type": "string",
+                        "maxLength": 36
+                    }
+                },
+                "type": "object"
+            },
+            "Outfit": {
+                "required": [
+                    "id",
+                    "outfit_name",
+                    "is_auto",
+                    "is_favorite",
+                    "created_at",
+                    "created_by"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Primary key for the outfit",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "outfit_name": {
+                        "description": "Name of the outfit",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "outfit_note": {
+                        "description": "Additional note or description for the outfit",
+                        "type": "string",
+                        "maxLength": 255,
+                        "nullable": true
+                    },
+                    "is_auto": {
+                        "description": "Indicates whether the outfit is automatically generated",
+                        "type": "boolean"
+                    },
+                    "is_favorite": {
+                        "description": "Indicates whether the outfit is marked as favorite",
+                        "type": "boolean"
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the outfit was created",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "created_by": {
+                        "description": "ID of the user who created the outfit",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "updated_at": {
+                        "description": "Timestamp when the outfit was last updated",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "OutfitRelation": {
+                "required": [
+                    "id",
+                    "outfit_id",
+                    "clothes_id",
+                    "created_at",
+                    "created_by"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Primary key for the outfit–clothes relation",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "outfit_id": {
+                        "description": "ID of the related outfit",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "clothes_id": {
+                        "description": "ID of the related clothes item",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the outfit–clothes relation was created",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "created_by": {
+                        "description": "ID of the user who created the relation",
+                        "type": "string",
+                        "maxLength": 36
+                    }
+                },
+                "type": "object"
+            },
+            "OutfitUsed": {
+                "required": [
+                    "id",
+                    "outfit_id",
+                    "created_at",
+                    "created_by"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Primary key for the outfit usage record",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "outfit_id": {
+                        "description": "ID of the outfit that was used",
+                        "type": "string",
+                        "maxLength": 36
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the outfit usage was created",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "created_by": {
+                        "description": "ID of the user who created the outfit usage record",
+                        "type": "string",
+                        "maxLength": 36
+                    }
+                },
+                "type": "object"
+            },
+            "Question": {
+                "required": [
+                    "id",
+                    "question",
+                    "is_show",
+                    "created_at"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Primary key for the question",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "question": {
+                        "description": "Question text",
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "answer": {
+                        "description": "Answer to the question",
+                        "type": "string",
+                        "maxLength": 500,
+                        "nullable": true
+                    },
+                    "is_show": {
+                        "description": "Indicates whether the question is visible",
+                        "type": "boolean"
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the question was created",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
             }
         }
     },

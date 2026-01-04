@@ -1673,7 +1673,10 @@ class Queries extends Controller
      *             @OA\Property(property="message", type="string", example="outfit summary fetched"),
      *             @OA\Property(property="data", type="object",
      *                 @OA\Property(property="total_outfit", type="integer", example=10),
-     *                 @OA\Property(property="last_used", type="string", example="2024-05-17 04:09:40"),
+     *                 @OA\Property(property="last_used", type="object",
+     *                      @OA\Property(property="used_at", type="string", example="2025-04-16 11:52:25"),
+     *                      @OA\Property(property="outfit_name", type="string", example="Outfit A"),
+     *                 ),
      *                 @OA\Property(property="next_suggestion", type="string", example="Long Sleeves"),
      *             )
      *         )

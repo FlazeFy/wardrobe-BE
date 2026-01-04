@@ -23,7 +23,7 @@ class OutfitUsedModel extends Model
     }
 
     public static function getLastUsed($user_id){
-        return OutfitUsedModel::select("outfit_used.created_at","outfit_name")
+        return OutfitUsedModel::select("outfit_used.created_at as used_at","outfit_name")
             ->join('outfit','outfit.id','=','outfit_used.outfit_id')
             ->where('outfit_used.created_by',$user_id)
             ->orderby('outfit_used.created_at','desc')

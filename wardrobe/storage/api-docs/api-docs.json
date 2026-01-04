@@ -4833,8 +4833,17 @@
                                                     "example": 10
                                                 },
                                                 "last_used": {
-                                                    "type": "string",
-                                                    "example": "2024-05-17 04:09:40"
+                                                    "properties": {
+                                                        "used_at": {
+                                                            "type": "string",
+                                                            "example": "2025-04-16 11:52:25"
+                                                        },
+                                                        "outfit_name": {
+                                                            "type": "string",
+                                                            "example": "Outfit A"
+                                                        }
+                                                    },
+                                                    "type": "object"
                                                 },
                                                 "next_suggestion": {
                                                     "type": "string",

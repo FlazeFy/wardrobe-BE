@@ -5,8 +5,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 // Helpers
 use App\Helpers\Generator;
-
-// Models
+// Model
 use App\Models\DictionaryModel;
 use App\Models\UserModel;
 use App\Models\ClothesModel;

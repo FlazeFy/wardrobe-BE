@@ -19,19 +19,26 @@ class DictionarySeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         $dictionaries = [
+            'clothes_category' => ['upper_body','bottom_body','head','foot','hand','full_body'],
+            'clothes_gender' => ['male','female','unisex'],
             'clothes_made_from' => ['cotton','wool','silk','linen','polyester','denim','leather','nylon','rayon','synthetic','cloth'],
-            'clothes_type' => ['hat', 'pants', 'shirt', 'jacket', 'shoes', 'socks', 'scarf', 'gloves', 'shorts', 'skirt', 'dress', 'blouse', 'sweater', 'hoodie', 'tie', 'belt', 
-            'coat', 'underwear', 'swimsuit', 'vest', 't-shirt', 'jeans', 'leggings', 'boots', 'sandals', 'sneakers', 'raincoat', 'poncho', 'cardigan'],
-            'used_context' => ['Worship','Shopping','Work','School','Campus','Sport','Party'],
-            'weather_hit_from' => ["Task Schedule", "Manual"],
-            'weather_condition' => ["Thunderstorm", "Drizzle", "Rain", "Snow", "Mist", "Smoke", "Haze", "Dust", "Fog", "Sand", "Ash", "Squall", "Tornado", "Clear", "Clouds"] 
+            'clothes_size' => ['S','M','L','XL','XXL','XXXL'],
+            'clothes_type' => [
+                'hat', 'pants', 'shirt', 'jacket', 'shoes', 'socks', 'scarf', 'gloves', 'shorts', 'skirt', 'dress', 'blouse', 'sweater', 'hoodie', 'tie', 'belt', 
+                'coat', 'underwear', 'swimsuit', 'vest', 't-shirt', 'jeans', 'leggings', 'boots', 'sandals', 'sneakers', 'raincoat', 'poncho', 'cardigan'
+            ],
+            'day_name' => ['sun','mon','tue','wed','thu','fri','sat'],
+            'track_source' => ['web','mobile','telegram bot','line bot'],
+            'used_context' => ['worship','shopping','Work','school','campus','sport','party'],
+            'wash_type' => ['laundry','self-wash'],
+            'weather_hit_from' => ["task schedule", "manual"],
+            'weather_condition' => ["thunderstorm", "drizzle", "rain", "snow", "mist", "smoke", "haze", "dust", "fog", "sand", "ash", "squall", "tornado", "clear", "clouds"] 
         ];
         $now = Carbon::now();
 
         foreach ($dictionaries as $type => $dt) {
             foreach ($dt as $name) {
-                DictionaryModel::create([
-                    'id' => Generator::getUUID(), 
+                DictionaryModel::createDictionary([
                     'dictionary_type' => $type,
                     'dictionary_name' => $name,
                 ]);

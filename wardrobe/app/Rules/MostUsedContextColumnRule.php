@@ -1,24 +1,13 @@
 <?php
 
 namespace App\Rules;
-
 use Illuminate\Contracts\Validation\Rule;
 
-class UsedContext implements Rule
+class MostUsedContextColumnRule implements Rule
 {
-    /**
-     * Create a new rule instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
-
     public function passes($attribute, $value)
     {
-        $type = ['Worship','Shopping','Work','School','Campus','Sport','Party'];
+        $type = ['clothes_merk','clothes_size','clothes_gender','clothes_made_from','clothes_category','clothes_type'];
 
         foreach ($type as $format) {
             if ($format === $value) {
@@ -31,6 +20,6 @@ class UsedContext implements Rule
 
     public function message()
     {
-        return 'Used Context is not available';
+        return 'Context is not available';
     }
 }

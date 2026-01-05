@@ -1,24 +1,13 @@
 <?php
 
 namespace App\Rules;
-
 use Illuminate\Contracts\Validation\Rule;
 
-class DictionaryType implements Rule
+class YearlyContextColumnRule implements Rule
 {
-    /**
-     * Create a new rule instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
-
     public function passes($attribute, $value)
     {
-        $type = ['used_context','wash_type'];
+        $type = ["clothes_buy_at", "clothes_created_at", "wash_created_at", "clothes_used"];
 
         foreach ($type as $format) {
             if ($format === $value) {
@@ -31,6 +20,6 @@ class DictionaryType implements Rule
 
     public function message()
     {
-        return 'Dictionary Type is not available';
+        return 'Context is not available';
     }
 }

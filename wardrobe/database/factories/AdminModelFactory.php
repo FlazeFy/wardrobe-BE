@@ -3,7 +3,7 @@
 namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-// Helpers
+// Helper
 use App\Helpers\Generator;
 
 class AdminModelFactory extends Factory

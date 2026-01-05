@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 // Helper
 use App\Helpers\Generator;
+// Model
 use App\Models\UserModel;
 
 class QuestionModelFactory extends Factory

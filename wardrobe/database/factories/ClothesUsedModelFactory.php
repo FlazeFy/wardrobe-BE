@@ -3,10 +3,9 @@
 namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-// Helpers
+// Helper
 use App\Helpers\Generator;
-
-// Models
+// Model
 use App\Models\DictionaryModel;
 use App\Models\UserModel;
 use App\Models\ClothesModel;

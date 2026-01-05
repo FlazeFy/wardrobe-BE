@@ -4,6 +4,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// Helper 
+use App\Helpers\Generator;
+
 /**
  * @OA\Schema(
  *     schema="Dictionary",
@@ -30,6 +33,19 @@ class DictionaryModel extends Model
         return DictionaryModel::whereRaw('LOWER(dictionary_name) = LOWER(?)', [$name])
             ->whereRaw('LOWER(dictionary_type) = LOWER(?)', [$type])
             ->exists();
+    }
+
+    public static function getDictionaryByType($type){
+        return DictionaryModel::select("dictionary_name")
+            ->where('dictionary_type', $type)
+            ->orderBy('dictionary_name', 'ASC')
+            ->get();
+    }
+
+    public static function createDictionary($data){
+        $data['id'] = Generator::getUUID();
+
+        return DictionaryModel::create($data);
     }
 
     public static function getRandom($null,$type){

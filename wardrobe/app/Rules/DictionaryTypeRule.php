@@ -1,24 +1,13 @@
 <?php
 
 namespace App\Rules;
-
 use Illuminate\Contracts\Validation\Rule;
 
-class ClothesGender implements Rule
+class DictionaryTypeRule implements Rule
 {
-    /**
-     * Create a new rule instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
-
     public function passes($attribute, $value)
     {
-        $type = ['male','female','unisex'];
+        $type = ['clothes_category','clothes_gender','clothes_made_from','clothes_size','clothes_type','day_name','track_source','used_context','wash_type','weather_hit_from'];
 
         foreach ($type as $format) {
             if ($format === $value) {
@@ -31,6 +20,6 @@ class ClothesGender implements Rule
 
     public function message()
     {
-        return 'Clothes Gender is not available';
+        return 'Dictionary Type is not available';
     }
 }

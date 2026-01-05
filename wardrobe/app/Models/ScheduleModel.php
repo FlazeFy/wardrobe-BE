@@ -58,7 +58,7 @@ class ScheduleModel extends Model
         $res = $res->where('schedule.created_by',$user_id);
         
         if($day == 'all'){
-            $res = $res->orderByRaw("FIELD(day, 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')");
+            $res = $res->orderByRaw("FIELD(day, 'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun')");
         }
 
         return $res->get();

@@ -55,6 +55,22 @@ class UserModel extends Authenticatable
         return $res;
     }
 
+    public static function getRandomWithClothesOutfit($null){
+        if($null == 0){
+            $data = UserModel::select('users.id')
+                ->join('clothes','users.id','=','clothes.created_by')
+                ->join('outfit','users.id','=','outfit.created_by')
+                ->inRandomOrder()
+                ->take(1)
+                ->first();
+            $res = $data->id;
+        } else {
+            $res = null;
+        }
+        
+        return $res;
+    }
+
     public static function getSocial($id){
         return UserModel::select('username','telegram_user_id','telegram_is_valid','email','firebase_fcm_token')->where('id',$id)->first();
     }

@@ -49,10 +49,6 @@ class OutfitModel extends Model
         }
     }
 
-    public static function isExist($id, $user_id){
-        return OutfitModel::where('id',$id)->where('created_by',$user_id)->exists();
-    }
-
     public static function getAllOutfit($limit, $user_id){
         return OutfitModel::selectRaw('outfit.id, outfit_name, outfit_note, is_favorite, CAST(SUM(CASE WHEN outfit_used.id IS NOT NULL THEN 1 ELSE 0 END) as UNSIGNED) as total_used')
             ->leftjoin('outfit_used','outfit_used.outfit_id','=','outfit.id')
@@ -61,5 +57,20 @@ class OutfitModel extends Model
             ->groupby('outfit.id')
             ->where('outfit.created_by',$user_id)
             ->paginate($limit);
+    }
+
+    public static function getRandom($null,$user_id){
+        if($null == 0){
+            $data = OutfitModel::inRandomOrder()->take(1)->where('created_by',$user_id)->first();
+            $res = $data->id;
+        } else {
+            $res = null;
+        }
+        
+        return $res;
+    }
+
+    public static function isExist($id, $user_id){
+        return OutfitModel::where('id',$id)->where('created_by',$user_id)->exists();
     }
 }

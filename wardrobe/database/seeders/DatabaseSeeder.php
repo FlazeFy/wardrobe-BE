@@ -12,6 +12,8 @@ use App\Models\WashModel;
 use App\Models\FeedbackModel;
 use App\Models\HistoryModel;
 use App\Models\QuestionModel;
+use App\Models\OutfitModel;
+use App\Models\OutfitUsedModel;
 use App\Models\UserTrackModel;
 use App\Models\UserWeatherModel;
 
@@ -25,6 +27,8 @@ class DatabaseSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         FeedbackModel::truncate();
         QuestionModel::truncate();
+        OutfitModel::truncate();
+        OutfitUsedModel::truncate();
         ClothesUsedModel::truncate();
         WashModel::query()->delete();
         ClothesModel::truncate();
@@ -37,14 +41,16 @@ class DatabaseSeeder extends Seeder
 
         // Factory
         AdminModel::factory(10)->create();
-        UserModel::factory(10)->create();
-        ClothesModel::factory(10)->create();
-        WashModel::factory(30)->create();
-        ClothesUsedModel::factory(30)->create();
-        FeedbackModel::factory(30)->create();
-        HistoryModel::factory(50)->create();
+        UserModel::factory(20)->create();
+        ClothesModel::factory(300)->create();
+        OutfitModel::factory(50)->create();
+        OutfitUsedModel::factory(150)->create();
+        WashModel::factory(600)->create();
+        ClothesUsedModel::factory(800)->create();
+        FeedbackModel::factory(20)->create();
+        HistoryModel::factory(400)->create();
         QuestionModel::factory(20)->create();
-        UserTrackModel::factory(20)->create();
-        UserWeatherModel::factory(20)->create();
+        UserTrackModel::factory(200)->create();
+        UserWeatherModel::factory(200)->create();
     }
 }

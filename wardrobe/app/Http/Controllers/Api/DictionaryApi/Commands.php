@@ -7,17 +7,24 @@ use Illuminate\Http\Response;
 
 // Models
 use App\Models\DictionaryModel;
-
+use App\Models\AdminModel;
 // Helper
 use App\Helpers\Validation;
 use App\Helpers\Generator;
 
 class Commands extends Controller
 {
+    private $module;
+    public function __construct()
+    {
+        $this->module = "dictionary";
+    }
+
     /**
      * @OA\DELETE(
      *     path="/api/v1/dct/{id}",
-     *     summary="Delete dictionary by id",
+     *     summary="Hard Delete Dictionary By ID",
+     *     description="This request is used to permanently delete a dictionary entry based on the provided `ID`. This request interacts with the MySQL database, and has a protected routes",
      *     tags={"Dictionary"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -65,31 +72,41 @@ class Commands extends Controller
     public function hard_delete_dct_by_id(Request $request, $id)
     {
         try{
-            // Validator
-            $request->merge(['id' => $id]);
-            $validator = Validation::getValidateDictionary($request,'delete');
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => $validator->errors()
-                ], Response::HTTP_UNPROCESSABLE_ENTITY);
-            } else {
-                // Service : Delete
-                $rows = DictionaryModel::destroy($id);
+            $user_id = $request->user()->id;
 
-                // Respond
-                if($rows > 0){
+            // Make sure only admin can access the request
+            $check_admin = AdminModel::find($user_id);
+            if($check_admin){
+               // Validate request body
+                $request->merge(['id' => $id]);
+                $validator = Validation::getValidateDictionary($request,'delete');
+                if ($validator->fails()) {
                     return response()->json([
-                        'status' => 'success',
-                        'message' => Generator::getMessageTemplate("permanently delete", 'dictionary'),
-                    ], Response::HTTP_OK);
+                        'status' => 'error',
+                        'message' => $validator->errors()
+                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
                 } else {
-                    return response()->json([
-                        'status' => 'failed',
-                        'message' => Generator::getMessageTemplate("not_found", 'dictionary'),
-                    ], Response::HTTP_NOT_FOUND);
-                }
-            } 
+                    // Hard delete dictionary by ID
+                    $rows = DictionaryModel::destroy($id);
+                    if($rows > 0){
+                        // Return success response
+                        return response()->json([
+                            'status' => 'success',
+                            'message' => Generator::getMessageTemplate("permanently delete", $this->module),
+                        ], Response::HTTP_OK);
+                    } else {
+                        return response()->json([
+                            'status' => 'failed',
+                            'message' => Generator::getMessageTemplate("not_found", $this->module),
+                        ], Response::HTTP_NOT_FOUND);
+                    }
+                } 
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("custom", "you dont have permission to access the $this->module data"),
+                ], Response::HTTP_UNAUTHORIZED);
+            }
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -101,17 +118,23 @@ class Commands extends Controller
    /**
      * @OA\POST(
      *     path="/api/v1/dct",
-     *     summary="Post dictionary",
-     *     description="Create a new dictionary using the given name and category. This request is using MySQL database.",
+     *     summary="Post Create Dictionary",
+     *     description="This request is used to create a new dictionary using the given `dictionary_type` and `dictionary_name`. This request interacts with the MySQL database.",
      *     tags={"Dictionary"},
      *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"dictionary_type", "dictionary_name"},
+     *             @OA\Property(property="dictionary_type", type="string", example="clothes_category"),
+     *             @OA\Property(property="dictionary_name", type="string", example="full_body")
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=201,
      *         description="Dictionary created successfully",
      *         @OA\JsonContent(
-     *             type="object",
      *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="data", ref="#/components/schemas/DictionaryResponse"),
      *             @OA\Property(property="message", type="string", example="dictionary created")
      *         )
      *     ),
@@ -157,22 +180,12 @@ class Commands extends Controller
      *         )
      *     )
      * )
-     *
-     * @OA\Schema(
-     *     schema="DictionaryResponse",
-     *     type="object",
-     *     @OA\Property(property="dictionary_name", type="string", example="Check"),
-     *     @OA\Property(property="dictionary_type", type="string", example="inventory_category"),
-     *     @OA\Property(property="_id", type="string", example="674342a8b53aabe966070f3d"),
-     *     @OA\Property(property="createdAt", type="string", format="date-time", example="2024-11-24T15:13:44.621Z"),
-     *     @OA\Property(property="updatedAt", type="string", format="date-time", example="2024-11-24T15:13:44.621Z")
-     * )
      */
 
     public function post_dct(Request $request)
     {
         try{
-            // Validator
+            // Validate request body
             $validator = Validation::getValidateDictionary($request,'create');
             if ($validator->fails()) {
                 return response()->json([
@@ -183,26 +196,21 @@ class Commands extends Controller
                 $dictionary_type = $request->dictionary_type;
                 $dictionary_name = $request->dictionary_name;
 
-                // Model : Check name dictionary name avaiability
+                // Check if dictionary name is used
                 $isUsedName = DictionaryModel::isUsedName($dictionary_name, $dictionary_type);
                 if($isUsedName){
                     return response()->json([
                         'status' => 'error',
-                        'message' => Generator::getMessageTemplate("conflict", 'dictionary name'),
+                        'message' => Generator::getMessageTemplate("conflict", "$this->module name"),
                     ], Response::HTTP_CONFLICT);
                 } else {
-                    // Service : Create
-                    $rows = DictionaryModel::create([
-                        'id' => Generator::getUUID(),
-                        'dictionary_type' => $dictionary_type,
-                        'dictionary_name' => $dictionary_name,
-                    ]);
-
-                    // Respond
+                    // Create dictionary
+                    $rows = DictionaryModel::createDictionary(['dictionary_type' => $dictionary_type, 'dictionary_name' => $dictionary_name]);
                     if($rows){
+                        // Return success response
                         return response()->json([
                             'status' => 'success',
-                            'message' => Generator::getMessageTemplate("create", 'dictionary'),
+                            'message' => Generator::getMessageTemplate("create", $this->module),
                         ], Response::HTTP_CREATED);
                     } else {
                         return response()->json([

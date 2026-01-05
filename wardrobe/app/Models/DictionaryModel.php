@@ -36,9 +36,18 @@ class DictionaryModel extends Model
     }
 
     public static function getDictionaryByType($type){
-        return DictionaryModel::select("dictionary_name")
-            ->where('dictionary_type', $type)
-            ->orderBy('dictionary_name', 'ASC')
+        $res = DictionaryModel::select('dictionary_name','dictionary_type');
+        if(strpos($type, ',')){
+            $dcts = explode(",", $type);
+            foreach ($dcts as $dt) {
+                $res = $res->orwhere('dictionary_type',$dt); 
+            }
+        } else {
+            $res = $res->where('dictionary_type',$type); 
+        }
+
+        return $res->orderby('dictionary_type', 'ASC')
+            ->orderby('dictionary_name', 'ASC')
             ->get();
     }
 

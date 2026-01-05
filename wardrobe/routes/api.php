@@ -25,7 +25,7 @@ use App\Http\Controllers\Api\QuestionApi\Commands as CommandQuestionApi;
 
 ######################### Public Route #########################
 
-Route::post('/v1/login', [CommandAuthApi::class, 'login']);
+Route::post('/v1/login', [CommandAuthApi::class, 'postLogin']);
 
 Route::prefix('/v1/register')->group(function () {
     Route::post('/', [CommandAuthApi::class, 'register']);
@@ -54,7 +54,7 @@ Route::prefix('/v1/stats')->group(function () {
 
 ######################### Private Route #########################
 
-Route::get('/v1/logout', [CommandAuthApi::class, 'logout'])->middleware(['auth:sanctum']);
+Route::get('/v1/logout', [CommandAuthApi::class, 'postLogout'])->middleware(['auth:sanctum']);
 
 Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/header/{category}/{order}', [QueriesClothesApi::class, 'get_all_clothes_header']);

@@ -20,12 +20,19 @@ use App\Jobs\WelcomeMailer;
 
 /**
  * @OA\Info(
- *     title="Wardrobe API",
+ *     title="Wardrobe BE (API)",
  *     version="1.0.0",
- *     description="API Documentation for Wardrobe BE",
+ *     description="This document describes the Wardrobe BE (API), built with Laravel (PHP), MySQL as the primary database, and Firebase for cloud storage and NoSQL data storage.",
  *     @OA\Contact(
  *         email="flazen.edu@gmail.com"
  *     )
+ * ),
+ * @OA\SecurityScheme(
+ *     securityScheme="bearerAuth",
+ *     type="http",
+ *     scheme="bearer",
+ *     bearerFormat="JWT",
+ *     description="JWT Authorization header using the Bearer scheme",
  * )
 */
 
@@ -34,8 +41,17 @@ class Commands extends Controller
     /**
      * @OA\POST(
      *     path="/api/v1/login",
-     *     summary="Sign in to the Apps",
+     *     summary="Post Login (Basic Auth)",
+     *     description="This authentication request is used to access the application and obtain an authorization token for accessing all protected APIs. This request interacts with the MySQL database.",
      *     tags={"Auth"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"username", "password"},
+     *             @OA\Property(property="username", type="string", example="flazefy"),
+     *             @OA\Property(property="password", type="string", example="nopass123")
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=200,
      *         description="login successfully",
@@ -78,38 +94,38 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function login(Request $request)
+    public function postLogin(Request $request)
     {
         try {
+            // Validate request body
             $validator = Validation::getValidateLogin($request);
-
             if ($validator->fails()) {
-                $errors = $validator->messages();
-
                 return response()->json([
                     'status' => 'failed',
-                    'result' => $errors,
-                    'token' => null
+                    'result' => $validator->messages()
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             } else {
-                $user = AdminModel::where('username', $request->username)->first();
+                // Check for Admin account
+                $user = AdminModel::getByUsername($request->username);
                 $role = 1;
                 if($user == null){
-                    $user = UserModel::where('username', $request->username)->first();
+                    // Check for User account
+                    $user = UserModel::getByUsername($request->username);
                     $role = 0;
                 }
 
+                // Verify username and password
                 if (!$user || !Hash::check($request->password, $user->password)) {
-                    //if (!$user || ($request->password != $user->password)) {
                     return response()->json([
                         'status' => 'failed',
                         'result' => Generator::getMessageTemplate("custom", 'wrong password or username'),
-                        'token' => null,                
                     ], Response::HTTP_UNAUTHORIZED);
                 } else {
+                    // Create Token
                     $token = $user->createToken('login')->plainTextToken;
                     unset($user->password);
 
+                    // Return success response
                     return response()->json([
                         'status' => 'success',
                         'result' => $user,
@@ -357,7 +373,8 @@ class Commands extends Controller
     /**
      * @OA\POST(
      *     path="/api/v1/logout",
-     *     summary="Sign out from Apps",
+     *     summary="Post Log Out",
+     *     description="This authentication request is used to sign out from application or reset current session. This request interacts with the MySQL database.",
      *     tags={"Auth"},
      *     @OA\Response(
      *         response=200,
@@ -365,6 +382,14 @@ class Commands extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="success"),
      *             @OA\Property(property="message", type="string", example="Logout success"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
      *         )
      *     ),
      *     @OA\Response(
@@ -377,26 +402,20 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function logout(Request $request)
+    public function postLogout(Request $request)
     {
         try {
             $user_id = $request->user()->id;
-            $check = AdminModel::where('id', $user_id)->first();
+            
+            // Reset session & token
+            session()->flush();
+            $request->user()->currentAccessToken()->delete();
 
-            if($check == null){
-                $request->user()->currentAccessToken()->delete();
-                return response()->json([
-                    'status' => 'success',
-                    'message' => Generator::getMessageTemplate("custom", 'logout success')
-                ], Response::HTTP_OK);
-            } else {
-                // Admin
-                $request->user()->currentAccessToken()->delete();
-                return response()->json([
-                    'status' => 'success',
-                    'message' => Generator::getMessageTemplate("custom", 'logout success')
-                ], Response::HTTP_OK);
-            }
+            // Return success response
+            return response()->json([
+                'status' => 'success',
+                'message' => Generator::getMessageTemplate("custom", 'logout success')
+            ], Response::HTTP_OK);
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',

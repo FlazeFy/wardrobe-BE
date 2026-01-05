@@ -1,8 +1,8 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Wardrobe API",
-        "description": "API Documentation for Wardrobe BE",
+        "title": "Wardrobe BE (API)",
+        "description": "This document describes the Wardrobe BE (API), built with Laravel (PHP), MySQL as the primary database, and Firebase for cloud storage and NoSQL data storage.",
         "contact": {
             "email": "flazen.edu@gmail.com"
         },
@@ -14,8 +14,33 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Sign in to the Apps",
-                "operationId": "26ae6f7a2668f358293a502309985206",
+                "summary": "Post Login (Basic Auth)",
+                "description": "This authentication request is used to access the application and obtain an authorization token for accessing all protected APIs. This request interacts with the MySQL database.",
+                "operationId": "c313af52425c515aed59e62cb41e35cb",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "username",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "flazefy"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "nopass123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "login successfully",
@@ -340,8 +365,9 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Sign out from Apps",
-                "operationId": "ada4829dce33b2c4cf915f7661644038",
+                "summary": "Post Log Out",
+                "description": "This authentication request is used to sign out from application or reset current session. This request interacts with the MySQL database.",
+                "operationId": "d0674a59369a9381c3b1913d665ec2fe",
                 "responses": {
                     "200": {
                         "description": "Logout success",
@@ -356,6 +382,26 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Logout success"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
                                         }
                                     },
                                     "type": "object"
@@ -4931,7 +4977,8 @@
                 "tags": [
                     "Dictionary"
                 ],
-                "summary": "Delete dictionary by id",
+                "summary": "Hard Delete Dictionary By ID",
+                "description": "This request is used to permanently delete a dictionary entry based on the provided `ID`. This request interacts with the MySQL database, and has a protected routes",
                 "operationId": "3d4883ecd167298247ae2a1ebb7f65cf",
                 "parameters": [
                     {
@@ -5039,9 +5086,33 @@
                 "tags": [
                     "Dictionary"
                 ],
-                "summary": "Post dictionary",
-                "description": "Create a new dictionary using the given name and category. This request is using MySQL database.",
+                "summary": "Post Create Dictionary",
+                "description": "This request is used to create a new dictionary using the given `dictionary_type` and `dictionary_name`. This request interacts with the MySQL database.",
                 "operationId": "4351a4a30e558c17f9b0c59424325998",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "dictionary_type",
+                                    "dictionary_name"
+                                ],
+                                "properties": {
+                                    "dictionary_type": {
+                                        "type": "string",
+                                        "example": "clothes_category"
+                                    },
+                                    "dictionary_name": {
+                                        "type": "string",
+                                        "example": "full_body"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
                         "description": "Dictionary created successfully",
@@ -5052,9 +5123,6 @@
                                         "status": {
                                             "type": "string",
                                             "example": "success"
-                                        },
-                                        "data": {
-                                            "$ref": "#/components/schemas/DictionaryResponse"
                                         },
                                         "message": {
                                             "type": "string",
@@ -5183,7 +5251,8 @@
                 "tags": [
                     "Dictionary"
                 ],
-                "summary": "Show dictionary by type",
+                "summary": "Get Dictionary By Type",
+                "description": "This request is used to get dictionary by its `dictionary_type`, that can be clothes_category, clothes_gender, clothes_made_from, clothes_size, clothes_type, day_name, track_source, used_context, wash_type, weather_hit_from. This request interacts with the MySQL database.",
                 "operationId": "0635b54e376376f26f000098c180b486",
                 "parameters": [
                     {
@@ -5302,7 +5371,8 @@
                 "tags": [
                     "Dictionary"
                 ],
-                "summary": "Show existed clothes category and clothes type",
+                "summary": "Get Clothes Category And Type",
+                "description": "This request is used to get list of clothes's category and type from existed clothes. This request interacts with the MySQL database and has protected route.",
                 "operationId": "71f36cb325267706f4188af6a6bb295e",
                 "responses": {
                     "200": {
@@ -5405,7 +5475,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/error": {
@@ -5756,7 +5831,8 @@
                 "tags": [
                     "History"
                 ],
-                "summary": "Delete history by id",
+                "summary": "Hard Delete History By ID",
+                "description": "This request is used to permanently delete a system history based on the provided `ID`. This request interacts with the MySQL database, and has a protected routes.",
                 "operationId": "b777472bb6f3263bd117c26cfecd4dd4",
                 "parameters": [
                     {
@@ -5864,12 +5940,12 @@
                 "tags": [
                     "History"
                 ],
-                "summary": "Get all history",
-                "description": "This request is used to get all history when user use the App. This request is using MySql database, have a protected routes, and have template pagination.",
+                "summary": "Get All History",
+                "description": "This request is used to get all history when user use the App. This request interacts with the MySQL database, has a protected routes, and has a pagination.",
                 "operationId": "0f4b533e7eecea6a89a6388545c72dd8",
                 "responses": {
                     "200": {
-                        "description": "history fetched",
+                        "description": "History fetched successfully. Ordered in descending order by `created_at`",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -8248,33 +8324,6 @@
     },
     "components": {
         "schemas": {
-            "DictionaryResponse": {
-                "properties": {
-                    "dictionary_name": {
-                        "type": "string",
-                        "example": "Check"
-                    },
-                    "dictionary_type": {
-                        "type": "string",
-                        "example": "inventory_category"
-                    },
-                    "_id": {
-                        "type": "string",
-                        "example": "674342a8b53aabe966070f3d"
-                    },
-                    "createdAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2024-11-24T15:13:44.621Z"
-                    },
-                    "updatedAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2024-11-24T15:13:44.621Z"
-                    }
-                },
-                "type": "object"
-            },
             "Admin": {
                 "required": [
                     "id",
@@ -9155,6 +9204,14 @@
                     }
                 },
                 "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "JWT Authorization header using the Bearer scheme",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
             }
         }
     },

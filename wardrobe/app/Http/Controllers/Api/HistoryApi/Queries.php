@@ -7,22 +7,28 @@ use App\Http\Controllers\Controller;
 
 // Models
 use App\Models\HistoryModel;
-
+use App\Models\AdminModel;
 // Helpers
 use App\Helpers\Generator;
 
 class Queries extends Controller
 {
+    private $module;
+    public function __construct()
+    {
+        $this->module = "history";
+    }
+
     /**
      * @OA\GET(
      *     path="/api/v1/history",
-     *     summary="Get all history",
-     *     description="This request is used to get all history when user use the App. This request is using MySql database, have a protected routes, and have template pagination.",
+     *     summary="Get All History",
+     *     description="This request is used to get all history when user use the App. This request interacts with the MySQL database, has a protected routes, and has a pagination.",
      *     tags={"History"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
-     *         description="history fetched",
+     *         description="History fetched successfully. Ordered in descending order by `created_at`",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="success"),
      *             @OA\Property(property="message", type="string", example="history fetched"),
@@ -69,19 +75,28 @@ class Queries extends Controller
     {
         try{
             $user_id = $request->user()->id;
+            $paginate = $request->query('per_page_key') ?? 15;
 
-            $res = HistoryModel::getAll($user_id);
+            // Define user id by role
+            $check_admin = AdminModel::find($user_id);
+            if($check_admin){
+                $user_id = $request->query('user_id') ?? null;
+                $res = HistoryModel::getAllHistory('admin', $user_id, $paginate);
+            } else {
+                $res = HistoryModel::getAllHistory('user', $user_id, $paginate);
+            }
             
             if (count($res) > 0) {
+                // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", 'history'),
+                    'message' => Generator::getMessageTemplate("fetch", $this->module),
                     'data' => $res
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", 'history'),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {

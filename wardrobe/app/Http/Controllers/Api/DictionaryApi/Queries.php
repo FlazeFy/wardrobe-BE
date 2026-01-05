@@ -8,16 +8,22 @@ use Illuminate\Http\Response;
 // Models
 use App\Models\DictionaryModel;
 use App\Models\ClothesModel;
-
 // Helpers
 use App\Helpers\Generator;
 
 class Queries extends Controller
 {
+    private $module;
+    public function __construct()
+    {
+        $this->module = "dictionary";
+    }
+
     /**
      * @OA\GET(
      *     path="/api/v1/dct/{type}",
-     *     summary="Show dictionary by type",
+     *     summary="Get Dictionary By Type",
+     *     description="This request is used to get dictionary by its `dictionary_type`, that can be clothes_category, clothes_gender, clothes_made_from, clothes_size, clothes_type, day_name, track_source, used_context, wash_type, weather_hit_from. This request interacts with the MySQL database.",
      *     tags={"Dictionary"},
      *     @OA\Parameter(
      *         name="type",
@@ -70,30 +76,19 @@ class Queries extends Controller
     public function get_dct_by_type(Request $request, $type)
     {
         try{
-            $res = DictionaryModel::select('dictionary_name','dictionary_type');
-            if(strpos($type, ',')){
-                $dcts = explode(",", $type);
-                foreach ($dcts as $dt) {
-                    $res = $res->orwhere('dictionary_type',$dt); 
-                }
-            } else {
-                $res = $res->where('dictionary_type',$type); 
-            }
-
-            $res = $res->orderby('dictionary_type', 'ASC')
-                ->orderby('dictionary_name', 'ASC')
-                ->get();
-            
+            // Get dictionary by type
+            $res = DictionaryModel::getDictionaryByType($type);
             if (count($res) > 0) {
+                // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", 'dictionary'),
+                    'message' => Generator::getMessageTemplate("fetch", $this->module),
                     'data' => $res
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", 'dictionary'),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -107,8 +102,10 @@ class Queries extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/dct/clothes/category_type",
-     *     summary="Show existed clothes category and clothes type",
+     *     summary="Get Clothes Category And Type",
+     *     description="This request is used to get list of clothes's category and type from existed clothes. This request interacts with the MySQL database and has protected route.",
      *     tags={"Dictionary"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
      *         description="clothes category type found",
@@ -155,9 +152,10 @@ class Queries extends Controller
         try{
             $user_id = $request->user()->id;
 
+            // Get clothes category and type
             $res = ClothesModel::getCategoryAndType($user_id);
-                
             if ($res) {
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", "clothes category type"),

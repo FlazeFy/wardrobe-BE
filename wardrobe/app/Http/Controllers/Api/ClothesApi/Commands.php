@@ -24,14 +24,12 @@ use App\Models\ScheduleModel;
 use App\Models\OutfitModel;
 use App\Models\OutfitRelModel;
 use App\Models\OutfitUsedModel;
-
 // Helpers
 use App\Helpers\Generator;
 use App\Helpers\Validation;
 use App\Helpers\Audit;
 use App\Helpers\Firebase;
 use App\Helpers\Formula;
-
 // Jobs
 use App\Jobs\ProcessMailer;
 

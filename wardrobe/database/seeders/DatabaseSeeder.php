@@ -14,6 +14,8 @@ use App\Models\HistoryModel;
 use App\Models\QuestionModel;
 use App\Models\OutfitModel;
 use App\Models\OutfitUsedModel;
+use App\Models\OutfitRelModel;
+use App\Models\ScheduleModel;
 use App\Models\UserTrackModel;
 use App\Models\UserWeatherModel;
 
@@ -29,6 +31,8 @@ class DatabaseSeeder extends Seeder
         QuestionModel::truncate();
         OutfitModel::truncate();
         OutfitUsedModel::truncate();
+        OutfitRelModel::truncate();
+        ScheduleModel::truncate();
         ClothesUsedModel::truncate();
         WashModel::query()->delete();
         ClothesModel::truncate();
@@ -45,6 +49,8 @@ class DatabaseSeeder extends Seeder
         ClothesModel::factory(300)->create();
         OutfitModel::factory(50)->create();
         OutfitUsedModel::factory(150)->create();
+        OutfitRelModel::factory(150)->create();
+        ScheduleModel::factory(150)->create();
         WashModel::factory(600)->create();
         ClothesUsedModel::factory(800)->create();
         FeedbackModel::factory(20)->create();

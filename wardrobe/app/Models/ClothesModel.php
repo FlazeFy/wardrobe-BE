@@ -4,6 +4,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @OA\Schema(
@@ -49,10 +50,16 @@ class ClothesModel extends Model
     protected $primaryKey = 'id';
     protected $fillable = ['id', 'clothes_name', 'clothes_desc', 'clothes_merk', 'clothes_size', 'clothes_gender', 'clothes_made_from', 'clothes_color', 'clothes_category', 'clothes_type', 'clothes_price', 'clothes_buy_at', 'clothes_qty', 'clothes_image', 'is_faded', 'has_washed', 'has_ironed', 'is_favorite', 'is_scheduled', 'created_at', 'created_by', 'updated_at', 'deleted_at'];
 
-    public static function getRandom($null,$user_id){
+    public static function getRandom($null, $user_id, $exception_type = null){
         if($null == 0){
-            $data = ClothesModel::inRandomOrder()->take(1)->where('created_by',$user_id)->first();
-            $res = $data->id;
+            $query = ClothesModel::inRandomOrder()->where('created_by', $user_id);
+
+            if (!empty($exception_type)) {
+                $query->whereNotIn('clothes_type', $exception_type);
+            }
+
+            $data = $query->first();
+            $res = $data ? $data->id : null;
         } else {
             $res = null;
         }
@@ -60,13 +67,23 @@ class ClothesModel extends Model
         return $res;
     }
 
+    public static function getRandomWithFreeSchedule($user_id){
+        return ClothesModel::select(
+                'clothes.id', DB::raw("GROUP_CONCAT(schedule.day ORDER BY schedule.day SEPARATOR ', ') as days")
+            )
+            ->leftJoin('schedule', 'schedule.clothes_id', '=', 'clothes.id')
+            ->where('clothes.created_by', $user_id)
+            ->groupBy('clothes.id', 'clothes_type')
+            ->havingRaw('COUNT(schedule.id) < 7')
+            ->inRandomOrder()
+            ->first();
+    }
+
     public static function getStatsSummary($user_id = null){
-        $res = ClothesModel::selectRaw('
-            COUNT(1) as total_clothes, MAX(clothes_price) as max_price, CAST(AVG(clothes_price) as UNSIGNED) as avg_price, CAST(SUM(clothes_qty) as UNSIGNED) as sum_clothes_qty');
+        $res = ClothesModel::selectRaw('COUNT(1) as total_clothes, MAX(clothes_price) as max_price, CAST(AVG(clothes_price) as UNSIGNED) as avg_price, CAST(SUM(clothes_qty) as UNSIGNED) as sum_clothes_qty');
 
         if($user_id){
             $res = $res->where('created_by',$user_id);
-
         }
             
         return $res->first();

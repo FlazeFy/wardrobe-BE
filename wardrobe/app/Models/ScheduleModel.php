@@ -39,12 +39,10 @@ class ScheduleModel extends Model
     }
 
     public static function getScheduleByClothes($clothes_id, $user_id){
-        $res = ScheduleModel::select('id','day','schedule_note','created_at','is_remind')
+        return ScheduleModel::select('id','day','schedule_note','created_at','is_remind')
             ->where('clothes_id',$clothes_id)
             ->where('created_by',$user_id)
             ->get();
-
-        return $res;
     }
 
     public static function getScheduleByDay($day, $user_id){

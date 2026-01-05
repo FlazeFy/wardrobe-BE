@@ -16,13 +16,35 @@ class WashModelFactory extends Factory
     {
         $user_id = UserModel::getRandomWhoHaveClothes(0);
         $ran = mt_rand(0, 1);
+        // Step 1: Soak
+        $isFinished1 = (bool) mt_rand(0, 1);
+        // Step 2: Wash
+        $isFinished2 = $isFinished1 ? (bool) mt_rand(0, 1) : false;
+        // Step 3: Dry
+        $isFinished3 = ($isFinished2) ? (bool) mt_rand(0, 1) : false;
 
         return [
             'id' => Generator::getUUID(), 
             'wash_note' => fake()->words(mt_rand(2,3), true), 
             'clothes_id' => ClothesModel::getRandom(0,$user_id),
             'wash_type' => Generator::getRandomSeed('wash_type'), 
-            'wash_checkpoint' => '[{"id":"1","checkpoint_name":"Rendam","is_finished":false},{"id":"2","checkpoint_name":"Rendam 2","is_finished":true}]', 
+            'wash_checkpoint' => [
+                [
+                    'id' => 1, 
+                    'checkpoint_name' => 'Soak',
+                    'is_finished' => $isFinished1,
+                ],
+                [
+                    'id' => 2,
+                    'checkpoint_name' => 'Wash',
+                    'is_finished' => $isFinished2,
+                ],
+                [
+                    'id' => 3,
+                    'checkpoint_name' => 'Dry',
+                    'is_finished' => $isFinished3,
+                ],
+            ], 
             'created_at' => Generator::getRandomDate(0), 
             'created_by' => $user_id, 
             'finished_at' => Generator::getRandomDate($ran)

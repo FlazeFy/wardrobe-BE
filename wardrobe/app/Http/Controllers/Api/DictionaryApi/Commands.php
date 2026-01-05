@@ -77,7 +77,7 @@ class Commands extends Controller
             // Make sure only admin can access the request
             $check_admin = AdminModel::find($user_id);
             if($check_admin){
-               // Validate request body
+                // Validate request body
                 $request->merge(['id' => $id]);
                 $validator = Validation::getValidateDictionary($request,'delete');
                 if ($validator->fails()) {

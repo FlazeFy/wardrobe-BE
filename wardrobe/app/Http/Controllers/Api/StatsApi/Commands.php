@@ -15,10 +15,16 @@ use App\Helpers\Validation;
 
 class Commands extends Controller
 {
+    private $module;
+    public function __construct()
+    {
+        $this->module = "stats";
+    }
+
     /**
      * @OA\POST(
      *     path="/api/v1/stats/clothes/by/{ctx}",
-     *     summary="Get stats clothes by context (column)",
+     *     summary="Get Stats Clothes By Context",
      *     description="This request is used to get summary stats. This request is using MySql database, have a protected routes",
      *     tags={"Stats"},
      *     security={{"bearerAuth":{}}},
@@ -73,6 +79,7 @@ class Commands extends Controller
     public function get_stats_clothes_most_context(Request $request, $ctx)
     {
         try {
+            // Define user ID if token attached
             if ($request->hasHeader('Authorization')) {
                 $user = Auth::guard('sanctum')->user(); 
                 $user_id = $user ? $user->id : null;
@@ -80,7 +87,7 @@ class Commands extends Controller
                 $user_id = null;
             }
 
-            // Validator
+            // Validate param (multiple context search)
             if (strpos($ctx, ",") !== false) {
                 $list_ctx = explode(",", $ctx);
                 foreach ($list_ctx as $dt) {
@@ -95,6 +102,7 @@ class Commands extends Controller
                     }
                 }
             } else {
+                // Validate param (single context search)
                 $request->merge(['context' => $ctx]);
                 $validator = Validation::getValidateStats($request, 'most_context');
                 if ($validator->fails()) {
@@ -107,41 +115,29 @@ class Commands extends Controller
                 }
             }
 
-            $final_res = [];
-
             // Query
+            $final_res = [];
             foreach ($list_ctx as $ctx) {
-                $rows = ClothesModel::selectRaw("REPLACE(CONCAT(UPPER(SUBSTRING($ctx, 1, 1)), LOWER(SUBSTRING($ctx, 2))), '_', ' ') as context, COUNT(1) as total");
-
-                if($user_id){
-                    $rows = $rows->where('created_by', $user_id);
-                } 
-
-                $rows = $rows->where($ctx,'!=','')
-                    ->whereNotNull($ctx)
-                    ->groupBy($ctx)
-                    ->orderBy('total', 'desc')
-                    ->limit(7)
-                    ->get();
+                $context_stats = ClothesModel::getContextStats($ctx, $user_id);
 
                 if (count($list_ctx) > 1) {
-                    $final_res[$ctx] = $rows;
+                    $final_res[$ctx] = $context_stats;
                 } else {
-                    $final_res = $rows;
+                    $final_res = $context_stats;
                 }
             }
 
-            // Response
             if (count($final_res) > 0) {
+                // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                    'message' => Generator::getMessageTemplate("fetch", $this->module),
                     'data' => $final_res
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", 'stats'),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch (\Exception $e) {

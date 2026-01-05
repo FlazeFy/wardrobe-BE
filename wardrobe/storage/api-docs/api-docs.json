@@ -5488,12 +5488,12 @@
                 "tags": [
                     "Error"
                 ],
-                "summary": "Get all error history",
-                "description": "This request is used to get all error history recorded. This request is using MySql database, have a protected routes, and have template pagination.",
+                "summary": "Get All Error",
+                "description": "This request is used to get all error audit. This request interacts with the MySQL database, has a protected routes (Admin only), and a pagination.",
                 "operationId": "bf33aba81463d0c5fa3c23cfacc409aa",
                 "responses": {
                     "200": {
-                        "description": "history fetched",
+                        "description": "Error fetched successfully. Ordered in ascending order by `created_at`",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5504,7 +5504,7 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "error history fetched"
+                                            "example": "error fetched"
                                         },
                                         "data": {
                                             "properties": {
@@ -5579,7 +5579,7 @@
                         }
                     },
                     "404": {
-                        "description": "history failed to fetched",
+                        "description": "error failed to fetched",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5590,7 +5590,7 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "error history not found"
+                                            "example": "error not found"
                                         }
                                     },
                                     "type": "object"
@@ -5631,12 +5631,12 @@
                 "tags": [
                     "Feedback"
                 ],
-                "summary": "Get all feedback",
-                "description": "This request is used to get all feedback when user use the App. This request is using MySql database, have a protected routes, and have template pagination.",
+                "summary": "Get All Feedback",
+                "description": "This request is used to get all feedback when user use the App. This request is using MySql database, have a protected routes, and has a pagination.",
                 "operationId": "9e7da59d4a99f1d7e2bd0abecf8df5c5",
                 "responses": {
                     "200": {
-                        "description": "feedback fetched",
+                        "description": "Feedback fetched successfully. Ordered in descending order by `created_at`",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5760,7 +5760,7 @@
                 "tags": [
                     "Feedback"
                 ],
-                "summary": "Add feedback",
+                "summary": "Post Create Feedback",
                 "operationId": "4b1acf5b4cc7619aeeef87997f381397",
                 "responses": {
                     "201": {
@@ -5799,6 +5799,31 @@
                                         }
                                     },
                                     "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "oneOf": [
+                                        {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "failed"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "feedback body must be at least 2 characters"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -6071,9 +6096,28 @@
                 "tags": [
                     "Question"
                 ],
-                "summary": "Post question",
+                "summary": "Post Create Question",
                 "description": "Create a new question. This request is using MySQL database.",
                 "operationId": "ea075b478e97878daa3cc257293b7d9e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "question"
+                                ],
+                                "properties": {
+                                    "question": {
+                                        "type": "string",
+                                        "example": "lorem ipsum?"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
                         "description": "question created successfully",
@@ -6088,6 +6132,26 @@
                                         "message": {
                                             "type": "string",
                                             "example": "question created"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
                                         }
                                     },
                                     "type": "object"
@@ -6161,12 +6225,12 @@
                 "tags": [
                     "Question"
                 ],
-                "summary": "Get latest faq",
-                "description": "This request is used to get latest faq. This request is using MySql database",
+                "summary": "Get Showing FAQ",
+                "description": "This request is used to get showing FAQ in the welcome page (Maximum to fetch 8 item). This request interacts with the MySQL database.",
                 "operationId": "8549f87126ed724637ebc9fa77019c94",
                 "responses": {
                     "200": {
-                        "description": "faq fetched",
+                        "description": "FAQ fetched successfully. Ordered in descending order by `created_at`",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6259,7 +6323,7 @@
                 "tags": [
                     "Stats"
                 ],
-                "summary": "Get stats clothes by context (column)",
+                "summary": "Get Stats Clothes By Context",
                 "description": "This request is used to get summary stats. This request is using MySql database, have a protected routes",
                 "operationId": "7cae097e48f0a012ef67dc3e0e71bf1c",
                 "parameters": [

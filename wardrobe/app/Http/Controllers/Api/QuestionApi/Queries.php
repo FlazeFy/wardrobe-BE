@@ -7,21 +7,26 @@ use App\Http\Controllers\Controller;
 
 // Models
 use App\Models\QuestionModel;
-
 // Helpers
 use App\Helpers\Generator;
 
 class Queries extends Controller
 {
+    private $module;
+    public function __construct()
+    {
+        $this->module = "question";
+    }
+
     /**
      * @OA\GET(
      *     path="/api/v1/question/faq",
-     *     summary="Get latest faq",
-     *     description="This request is used to get latest faq. This request is using MySql database",
+     *     summary="Get Showing FAQ",
+     *     description="This request is used to get showing FAQ in the welcome page (Maximum to fetch 8 item). This request interacts with the MySQL database.",
      *     tags={"Question"},
      *     @OA\Response(
      *         response=200,
-     *         description="faq fetched",
+     *         description="FAQ fetched successfully. Ordered in descending order by `created_at`",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="success"),
      *             @OA\Property(property="message", type="string", example="faq fetched"),
@@ -57,18 +62,19 @@ class Queries extends Controller
     public function get_question_faq()
     {
         try{
+            // Get FAQ (question)
             $res = QuestionModel::getFAQ();
-            
-            if (count($res) > 0) {
+            if ($res && count($res) > 0) {
+                // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", 'faq'),
+                    'message' => Generator::getMessageTemplate("fetch", $this->module),
                     'data' => $res
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", 'faq'),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {

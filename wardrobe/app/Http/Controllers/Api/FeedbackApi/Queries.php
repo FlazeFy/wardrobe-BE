@@ -8,22 +8,27 @@ use App\Http\Controllers\Controller;
 // Models
 use App\Models\FeedbackModel;
 use App\Models\AdminModel;
-
 // Helpers
 use App\Helpers\Generator;
 
 class Queries extends Controller
 {
+    private $module;
+    public function __construct()
+    {
+        $this->module = "feedback";
+    }
+
     /**
      * @OA\GET(
      *     path="/api/v1/feedback",
-     *     summary="Get all feedback",
-     *     description="This request is used to get all feedback when user use the App. This request is using MySql database, have a protected routes, and have template pagination.",
+     *     summary="Get All Feedback",
+     *     description="This request is used to get all feedback when user use the App. This request is using MySql database, have a protected routes, and has a pagination.",
      *     tags={"Feedback"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
-     *         description="feedback fetched",
+     *         description="Feedback fetched successfully. Ordered in descending order by `created_at`",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="success"),
      *             @OA\Property(property="message", type="string", example="feedback fetched"),
@@ -70,21 +75,24 @@ class Queries extends Controller
     {
         try{
             $user_id = $request->user()->id;
-            $check_admin = AdminModel::find($user_id);
+            $paginate = $request->query('per_page_key') ?? 14;
 
+            // Make sure only admin can access the request
+            $check_admin = AdminModel::find($user_id);
             if($check_admin){
-                $res = FeedbackModel::getAll();
-                
-                if (count($res) > 0) {
+                // Get all feedback
+                $res = FeedbackModel::getAll($paginate);
+                if ($res && count($res) > 0) {
+                    // Return success response
                     return response()->json([
                         'status' => 'success',
-                        'message' => Generator::getMessageTemplate("fetch", 'feedback'),
+                        'message' => Generator::getMessageTemplate("fetch", $this->module),
                         'data' => $res
                     ], Response::HTTP_OK);
                 } else {
                     return response()->json([
                         'status' => 'failed',
-                        'message' => Generator::getMessageTemplate("not_found", 'feedback'),
+                        'message' => Generator::getMessageTemplate("not_found", $this->module),
                     ], Response::HTTP_NOT_FOUND);
                 }
             } else {

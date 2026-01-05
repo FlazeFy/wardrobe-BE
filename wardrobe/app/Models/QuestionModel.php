@@ -4,6 +4,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// Helper
+use App\Helpers\Generator;
+
 /**
  * @OA\Schema(
  *     schema="Question",
@@ -44,5 +47,14 @@ class QuestionModel extends Model
             ->get();
 
         return count($res) > 0 ? $res : null;
+    }
+
+    public static function createQuestion($data, $user_id){
+        $data["id"] = Generator::getUUID();
+        $data["created_at"] = date("Y-m-d H:i:s");
+        $data["created_by"] = $user_id;
+        $data["is_show"] = 0;
+
+        return QuestionModel::create($data);
     }
 }

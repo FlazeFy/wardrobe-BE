@@ -7,19 +7,31 @@ use Illuminate\Http\Response;
 
 // Models
 use App\Models\QuestionModel;
-
 // Helper
 use App\Helpers\Validation;
 use App\Helpers\Generator;
 
 class Commands extends Controller
 {
+    private $module;
+    public function __construct()
+    {
+        $this->module = "question";
+    }
+
    /**
      * @OA\POST(
      *     path="/api/v1/question",
-     *     summary="Post question",
+     *     summary="Post Create Question",
      *     description="Create a new question. This request is using MySQL database.",
      *     tags={"Question"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"question"},
+     *             @OA\Property(property="question", type="string", example="lorem ipsum?")
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=201,
      *         description="question created successfully",
@@ -27,6 +39,14 @@ class Commands extends Controller
      *             type="object",
      *             @OA\Property(property="status", type="string", example="success"),
      *             @OA\Property(property="message", type="string", example="question created")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
      *         )
      *     ),
      *     @OA\Response(
@@ -60,7 +80,7 @@ class Commands extends Controller
     public function post_question(Request $request)
     {
         try{
-            // Validator
+            // Validator request body
             $validator = Validation::getValidateQuestion($request,'create');
             if ($validator->fails()) {
                 return response()->json([
@@ -68,20 +88,15 @@ class Commands extends Controller
                     'message' => $validator->errors()
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             } else {
-                // Service : Create
-                $rows = QuestionModel::create([
-                    'id' => Generator::getUUID(),
-                    'question' => $request->question,
-                    'answer' => null,
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'is_show' => 0
-                ]);
-
-                // Respond
+                $user_id = $request->user()->id;
+                
+                // Create question
+                $rows = QuestionModel::createQuestion(['question' => $request->question, 'answer' => null], $user_id);
                 if($rows){
+                    // Return success response
                     return response()->json([
                         'status' => 'success',
-                        'message' => Generator::getMessageTemplate("create", 'question'),
+                        'message' => Generator::getMessageTemplate("create", $this->module),
                     ], Response::HTTP_CREATED);
                 } else {
                     return response()->json([

@@ -30,10 +30,12 @@ class ErrorModel extends Model
     protected $primaryKey = 'id';
     protected $fillable = ['id', 'message', 'stack_trace', 'file', 'line', 'faced_by','created_at'];
 
-    public static function getAllError($is_paginate){
-        $res = ErrorModel::select('*')->orderby('created_at','DESC');
-        
-        return $is_paginate ? $res->paginate(14) : $res->get();
+    public static function getAllError($paginate){
+        $res = ErrorModel::selectRaw('*')
+            ->orderby('created_at','asc')
+            ->paginate($paginate);
+
+        return count($res) > 0 ? $res : null;
     }
 
     public static function getAllErrorAudit(){

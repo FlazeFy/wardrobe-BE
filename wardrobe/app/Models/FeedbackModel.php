@@ -4,6 +4,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// Helper
+use App\Helpers\Generator;
+
 /**
  * @OA\Schema(
  *     schema="Feedback",
@@ -37,10 +40,18 @@ class FeedbackModel extends Model
             ->get();
     }
 
-    public static function getAll(){
+    public static function getAll($paginate){
         return FeedbackModel::selectRaw('feedback.id, feedback_rate, feedback_body, feedback.created_at, users.username as created_by')
             ->join('users','users.id','=','feedback.created_by')
             ->orderby('feedback.created_at', 'DESC')
-            ->paginate(14);
+            ->paginate($paginate);
+    }
+
+    public static function createFeedback($data, $user_id){
+        $data["id"] = Generator::getUUID();
+        $data["created_at"] = date("Y-m-d H:i:s");
+        $data["created_by"] = $user_id;
+
+        return FeedbackModel::create($data);
     }
 }

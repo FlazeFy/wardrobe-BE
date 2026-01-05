@@ -105,6 +105,21 @@ class ClothesModel extends Model
             ->get();
     }
 
+    public static function getContextStats($ctx, $user_id){
+        $rows = ClothesModel::selectRaw("REPLACE(CONCAT(UPPER(SUBSTRING($ctx, 1, 1)), LOWER(SUBSTRING($ctx, 2))), '_', ' ') as context, COUNT(1) as total");
+
+        if($user_id){
+            $rows = $rows->where('created_by', $user_id);
+        } 
+
+        return $rows->where($ctx,'!=','')
+            ->whereNotNull($ctx)
+            ->groupBy($ctx)
+            ->orderBy('total', 'desc')
+            ->limit(7)
+            ->get();
+    }
+
     public static function getClothesBuyedCalendar($user_id, $year, $month = null, $date = null){
         $res = ClothesModel::selectRaw("clothes.id, clothes_name, clothes_category, clothes_type, clothes_image, clothes_buy_at as created_at")
             ->where('created_by', $user_id)

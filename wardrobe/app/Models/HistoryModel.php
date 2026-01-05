@@ -5,6 +5,9 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// Helper
+use App\Helpers\Generator;
+
 /**
  * @OA\Schema(
  *     schema="History",
@@ -38,6 +41,14 @@ class HistoryModel extends Model
             ->where('created_by',$user_id)
             ->orderby('created_at', 'DESC')
             ->get();
+    }
+
+    public static function createHistory($data, $user_id){
+        $data['created_at'] = date('Y-m-d H:i:s');
+        $data['created_by'] = $user_id;
+        $data['id'] = Generator::getUUID();
+            
+        return HistoryModel::create($data);
     }
 
     public static function deleteHistoryForLastNDays($days){

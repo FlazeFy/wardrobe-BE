@@ -336,12 +336,12 @@
             }
         },
         "/api/v1/logout": {
-            "get": {
+            "post": {
                 "tags": [
                     "Auth"
                 ],
                 "summary": "Sign out from Apps",
-                "operationId": "8859fad6cbeb2081a7611f5b944b4630",
+                "operationId": "ada4829dce33b2c4cf915f7661644038",
                 "responses": {
                     "200": {
                         "description": "Logout success",
@@ -8608,6 +8608,11 @@
                         "description": "Timestamp when the jobs had failed",
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "faced_by": {
+                        "description": "ID of the user who affected by the error",
+                        "type": "string",
+                        "maxLength": 36
                     }
                 },
                 "type": "object"

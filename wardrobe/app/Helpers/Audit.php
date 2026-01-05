@@ -1,7 +1,10 @@
 <?php
+
 namespace App\Helpers;
 
+// Model
 use App\Models\HistoryModel;
+// Helper
 use App\Helpers\Generator;
 
 class Audit
@@ -54,12 +57,6 @@ class Audit
     }
 
     public static function createHistory($type, $ctx, $user_id){        
-        HistoryModel::create([
-            'id' => Generator::getUUID(), 
-            'history_type' => $type, 
-            'history_context' => $ctx, 
-            'created_at' => date("Y-m-d H:i:s"), 
-            'created_by' => $user_id,
-        ]);
+        HistoryModel::createHistory(['history_type' => $type, 'history_context' => $ctx], $user_id);
     }
 }

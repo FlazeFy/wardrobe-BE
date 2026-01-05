@@ -1,10 +1,13 @@
 <?php
+
 namespace App\Helpers;
-use App\Helpers\Generator;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
 use Illuminate\Support\Facades\Storage;
+
+// Helper
+use App\Helpers\Generator;
 
 class Firebase
 {

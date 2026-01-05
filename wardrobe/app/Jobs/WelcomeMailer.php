@@ -1,18 +1,19 @@
 <?php
 
 namespace App\Jobs;
-
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-
-use App\Mail\NewUserMail;
 use Illuminate\Support\Facades\Mail;
 
+// Mail
+use App\Mail\NewUserMail;
+// Helper
 use App\Helpers\Generator;
+// Model
 use App\Models\FailedJob;
 
 class WelcomeMailer implements ShouldQueue
@@ -23,11 +24,6 @@ class WelcomeMailer implements ShouldQueue
     protected $receiver;
     protected $token;
 
-    /**
-     * Create a new job instance.
-     *
-     * @return void
-     */
     public function __construct($username, $receiver, $token)
     {
         $this->username = $username;
@@ -35,11 +31,6 @@ class WelcomeMailer implements ShouldQueue
         $this->token = $token;
     }
 
-    /**
-     * Execute the job.
-     *
-     * @return void
-     */
     public function handle()
     {
         try{
@@ -52,14 +43,11 @@ class WelcomeMailer implements ShouldQueue
                 'file' => $e->getFile(), 
                 'line' => $e->getLine(), 
             ];
-            FailedJob::create([
-                'id' => Generator::getUUID(), 
+            FailedJob::createFailedJob([
                 'type' => "register", 
                 'status' => "failed",  
                 'payload' => json_encode($obj),
-                'created_at' => date("Y-m-d H:i:s"), 
-                'faced_by' => '1'
-            ]);
+            ], null);
         }
     }
 }

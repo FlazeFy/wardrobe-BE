@@ -46,4 +46,15 @@ class ErrorModel extends Model
 
         return count($res) > 0 ? $res : null;
     } 
+
+    public static function createError($message, $stack_trace, $file, $line){
+        return ErrorModel::create([
+            'message' => $message, 
+            'stack_trace' => $stack_trace, 
+            'file' => $file, 
+            'line' => $line, 
+            'faced_by' => null, 
+            'created_at' => date('Y-m-d H:i:s')
+        ]);
+    }
 }

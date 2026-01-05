@@ -1,18 +1,19 @@
 <?php
 
 namespace App\Jobs;
-
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-
-use App\Mail\NewClothesMail;
 use Illuminate\Support\Facades\Mail;
 
+// Mail
+use App\Mail\NewClothesMail;
+// Helper
 use App\Helpers\Generator;
+// Model
 use App\Models\FailedJob;
 
 class ProcessMailer implements ShouldQueue
@@ -24,11 +25,6 @@ class ProcessMailer implements ShouldQueue
     protected $username;
     protected $receiver;
 
-    /**
-     * Create a new job instance.
-     *
-     * @return void
-     */
     public function __construct($context, $body, $username, $receiver)
     {
         $this->context = $context;
@@ -37,11 +33,6 @@ class ProcessMailer implements ShouldQueue
         $this->receiver = $receiver;
     }
 
-    /**
-     * Execute the job.
-     *
-     * @return void
-     */
     public function handle()
     {
         try{
@@ -54,14 +45,11 @@ class ProcessMailer implements ShouldQueue
                 'file' => $e->getFile(), 
                 'line' => $e->getLine(), 
             ];
-            FailedJob::create([
-                'id' => Generator::getUUID(), 
+            FailedJob::createFailedJob([
                 'type' => "clothes", 
                 'status' => "failed",  
                 'payload' => json_encode($obj),
-                'created_at' => date("Y-m-d H:i:s"), 
-                'faced_by' => '1'
-            ]);
+            ], null);
         }
     }
 }

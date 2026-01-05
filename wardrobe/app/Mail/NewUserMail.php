@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Mail;
-
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -15,22 +14,12 @@ class NewUserMail extends Mailable
     public $username;
     public $token;
 
-    /**
-     * Create a new message instance.
-     *
-     * @return void
-     */
     public function __construct($username, $token)
     {
         $this->username = $username;
         $this->token = $token;
     }
 
-    /**
-     * Get the message envelope.
-     *
-     * @return \Illuminate\Mail\Mailables\Envelope
-     */
     public function envelope()
     {
         return new Envelope(
@@ -38,11 +27,6 @@ class NewUserMail extends Mailable
         );
     }
 
-    /**
-     * Build the message.
-     *
-     * @return $this
-     */
     public function build()
     {
         return $this->view('components.email.new_user')
@@ -52,11 +36,6 @@ class NewUserMail extends Mailable
             ]);
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array
-     */
     public function attachments()
     {
         return [];

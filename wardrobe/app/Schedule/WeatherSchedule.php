@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Schedule;
-
 use Carbon\Carbon;
 use DateTime;
 use Telegram\Bot\Laravel\Facades\Telegram;
@@ -10,11 +9,12 @@ use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
 use GuzzleHttp\Client;
 
+// Model
 use App\Models\UserTrackModel;
 use App\Models\UserWeatherModel;
 use App\Models\UserModel;
 use App\Models\AdminModel;
-
+// Helper
 use App\Helpers\Generator;
 
 class WeatherSchedule

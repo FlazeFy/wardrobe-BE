@@ -1,8 +1,9 @@
 <?php
+
 namespace App\Helpers;
 use Illuminate\Support\Facades\Validator;
 
-// Rules
+// Rule
 use App\Rules\DictionaryType;
 use App\Rules\MostUsedContextColumn;
 use App\Rules\YearlyContextColumn;

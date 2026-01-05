@@ -1,9 +1,10 @@
 <?php
 
 namespace App\Exceptions;
-
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+
+// Model
 use App\Models\ErrorModel;
 
 class Handler extends ExceptionHandler
@@ -51,13 +52,18 @@ class Handler extends ExceptionHandler
 
     private function storeError(Throwable $exception)
     {
-        ErrorModel::create([
-            'message' => $exception->getMessage(), 
-            'stack_trace' => $exception->getTraceAsString(), 
-            'file' => $exception->getFile(), 
-            'line' => $exception->getLine(), 
-            'faced_by' => null, 
-            'created_at' => date('Y-m-d H:i:s')
-        ]);
+        ErrorModel::createError($exception->getMessage(), $exception->getTraceAsString(), $exception->getFile(), $exception->getLine());
+    }
+
+    protected function unauthenticated($request, \Illuminate\Auth\AuthenticationException $exception)
+    {
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'you need to include the authorization token from login' 
+            ], 401);
+        }
+
+        return redirect()->guest(route('login')); 
     }
 }

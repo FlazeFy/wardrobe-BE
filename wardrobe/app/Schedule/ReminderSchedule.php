@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Schedule;
-
 use Carbon\Carbon;
 use DateTime;
 use Telegram\Bot\Laravel\Facades\Telegram;
@@ -12,7 +11,9 @@ use Dompdf\Canvas\Factory as CanvasFactory;
 use Dompdf\Options as DompdfOptions;
 use Dompdf\Adapter\CPDF;
 
+// Helper
 use App\Helpers\Generator;
+// Model
 use App\Models\ClothesModel;
 use App\Models\ClothesUsedModel;
 use App\Models\ScheduleModel;

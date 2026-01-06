@@ -50,11 +50,7 @@ class ReminderSchedule
                     $message = "Hello $dt->username, We're here to remind you. That some of your clothes are set to deleted in $pre_remind_days days from now. Here are the details:\n\n$list_clothes";
 
                     if ($dt->telegram_user_id && $dt->telegram_is_valid == 1) {
-                        Telegram::sendMessage([
-                            'chat_id' => $dt->telegram_user_id,
-                            'text' => $message,
-                            'parse_mode' => 'HTML'
-                        ]);
+                        Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                     }
                     if($dt->firebase_fcm_token){
                         $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
@@ -117,11 +113,7 @@ class ReminderSchedule
                     $message = "Hello $dt->username, We're here to remind you. You have some clothes that has not been washed yet. Here are the details:\n\n$list_clothes";
 
                     if ($dt->telegram_user_id && $dt->telegram_is_valid == 1) {
-                        Telegram::sendMessage([
-                            'chat_id' => $dt->telegram_user_id,
-                            'text' => $message,
-                            'parse_mode' => 'HTML'
-                        ]);
+                        Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                     }
                     if($dt->firebase_fcm_token){
                         $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
@@ -181,11 +173,7 @@ class ReminderSchedule
                     $message = "Hello $dt->username, We're here to remind you. You have some clothes that has not been ironed yet. We only suggest the clothes that is made from cotton, linen, silk, or rayon. Here are the details:\n\n$list_clothes";
 
                     if ($dt->telegram_user_id && $dt->telegram_is_valid == 1) {
-                        Telegram::sendMessage([
-                            'chat_id' => $dt->telegram_user_id,
-                            'text' => $message,
-                            'parse_mode' => 'HTML'
-                        ]);
+                        Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                     }
                     if($dt->firebase_fcm_token){
                         $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
@@ -234,11 +222,7 @@ class ReminderSchedule
                     $message = "Hello $dt->username, We're here to remind you. You have some clothes that has never been used since $days days after washed or being added to Wardrobe. Here are the details:\n\n$list_clothes\n\nUse and wash it again to keep your clothes at good quality and not smell musty";
 
                     if ($dt->telegram_user_id && $dt->telegram_is_valid == 1) {
-                        Telegram::sendMessage([
-                            'chat_id' => $dt->telegram_user_id,
-                            'text' => $message,
-                            'parse_mode' => 'HTML'
-                        ]);
+                        Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                     }
                     if($dt->firebase_fcm_token){
                         $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
@@ -290,11 +274,7 @@ class ReminderSchedule
                     $message = "Hello $dt->username, We're here to remind you. You have some schedule for tommorow (".ucfirst($tomorrow).") to follow. Here are the details:\n\n$list_clothes";
 
                     if ($dt->telegram_user_id && $dt->telegram_is_valid == 1) {
-                        Telegram::sendMessage([
-                            'chat_id' => $dt->telegram_user_id,
-                            'text' => $message,
-                            'parse_mode' => 'HTML'
-                        ]);
+                        Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                     }
 
                     $list_clothes = "";
@@ -397,11 +377,7 @@ class ReminderSchedule
                 $message = "Hello ".$dt['username'].", We've noticed that your last location record when using Wardrobe is at ".date("Y-m-d H:i",strtotime($dt['last_track'])).".\n\nKeep update your location via opened the Wardrobe Web or Mobile version. Or maybe just send your current location via Wardrobe Telegram BOT.";
     
                 if($dt['telegram_user_id'] && $dt['telegram_is_valid'] == 1){
-                    $response = Telegram::sendMessage([
-                        'chat_id' => $dt['telegram_user_id'],
-                        'text' => $message,
-                        'parse_mode' => 'HTML'
-                    ]);
+                    Broadcast::sendTelegramMessage($dt['telegram_user_id'], $message);
                 }
             }
         }
@@ -442,11 +418,7 @@ class ReminderSchedule
                     $message = "Hello $dt->username, We've noticed that some of your clothes are not washed after being used after $days days from now. Don't forget to wash your used clothes, here's the detail:\n\n$list_clothes";
     
                     if($dt->telegram_user_id && $dt->telegram_is_valid == 1){
-                        $response = Telegram::sendMessage([
-                            'chat_id' => $dt->telegram_user_id,
-                            'text' => $message,
-                            'parse_mode' => 'HTML'
-                        ]);
+                        Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                     }
                     if($dt->firebase_fcm_token){
                         $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));

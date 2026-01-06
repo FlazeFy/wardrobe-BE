@@ -70,6 +70,38 @@ class ClothesModel extends Model
         return $res;
     }
 
+    public static function getAllClothesHeader($page, $category, $order, $is_detail = false){
+        $res = ClothesModel::selectRaw($is_detail ? '*' : 'id, clothes_name, clothes_image, clothes_size, clothes_gender, clothes_color, clothes_category, clothes_type, clothes_qty, is_faded, has_washed, has_ironed, is_favorite, is_scheduled');
+            
+        if($category != "all"){
+            $res = $res->where('clothes_category',$category);
+        }
+        
+        $res = $res->where('created_by',$user_id)
+            ->whereNull('deleted_at')
+            ->orderBy('is_favorite', 'desc')
+            ->orderBy('clothes_name', $order)
+            ->orderBy('created_at', $order);
+
+        if($page != "all"){
+            return $res->paginate(14);
+        } else {
+            return $res->get();
+        }
+    }
+
+    public static function getClothesSimiliarBy($ctx, $val, $user_id, $exc){
+        return ClothesModel::select('id', 'clothes_name', 'clothes_image', 'clothes_category', 'clothes_type')
+            ->where($ctx, 'like', "%$val%")                
+            ->where('created_by',$user_id)
+            ->whereNot('id',$exc)
+            ->orderBy('is_favorite', 'desc')
+            ->orderBy('clothes_name', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->limit(12)
+            ->get();
+    }
+
     public static function getClothesById($id, $user_id){
         return ClothesModel::where('id',$id)->where('created_by',$user_id)->first();
     }
@@ -328,6 +360,25 @@ class ClothesModel extends Model
             ->get();
 
         return count($res) > 0 ? $res : null;
+    }
+
+    public static function getClothesForOutfit($type, $user_id){
+        $res = ClothesModel::selectRaw('clothes.id, clothes_name, clothes_category, clothes_type, clothes_merk, clothes_made_from, clothes_color, clothes_image,
+            MAX(clothes_used.created_at) as last_used,
+            CAST(SUM(CASE WHEN clothes_used.id IS NOT NULL THEN 1 ELSE 0 END) as UNSIGNED) as total_used')
+            ->leftJoin('clothes_used', 'clothes_used.clothes_id', '=', 'clothes.id')
+            ->whereNotIn('clothes_type', ['swimsuit', 'underwear', 'tie', 'belt'])
+            ->where('clothes.created_by', $user_id)
+            ->where('has_washed', 1);
+
+        if (strpos($type, ',')) {
+            $types = explode(",", $type);
+            $res->whereIn('clothes_type', $types);
+        } else {
+            $res->where('clothes_type', $type);
+        }
+        
+        return $res->groupBy('clothes.id')->get();
     }
 
     public static function createClothes($data, $user_id){

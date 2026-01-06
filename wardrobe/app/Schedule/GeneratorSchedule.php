@@ -14,6 +14,7 @@ use App\Models\ScheduleModel;
 use App\Models\UserModel;
 // Helper
 use App\Helpers\Formula;
+use App\Helpers\Broadcast;
 
 class GeneratorSchedule
 {
@@ -91,12 +92,7 @@ class GeneratorSchedule
                     }
 
                     $message = "Hello $user->username, we've just got you a suggestion for the tommorow outfit. Here are the details:\n\n$list_clothes";
-
-                    $response = Telegram::sendMessage([
-                        'chat_id' => $user->telegram_user_id,
-                        'text' => $message,
-                        'parse_mode' => 'HTML'
-                    ]);
+                    Broadcast::sendTelegramMessage($user->telegram_user_id, $message);
 
                     if($user->firebase_fcm_token){
                         $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));

@@ -149,6 +149,10 @@ class WashModel extends Model
         return WashModel::create($data);
     }
 
+    public static function updateWashById($data, $id, $user_id){
+        return WashModel::where('id',$id)->where('created_by',$user_id)->update($data);
+    }
+
     public static function hardDeleteWashByClothesId($clothes_id){
         return WashModel::where('clothes_id',$clothes_id)->delete();
     }

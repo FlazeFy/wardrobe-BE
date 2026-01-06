@@ -16,6 +16,7 @@ use App\Models\UserModel;
 use App\Models\AdminModel;
 // Helper
 use App\Helpers\Generator;
+use App\Helpers\Broadcast;
 
 class WeatherSchedule
 {
@@ -62,11 +63,7 @@ class WeatherSchedule
                         $message = "Hello ".$dt['username'].", from your last coordinate ".$dt['track_lat'].", ".$dt['track_long']." at ".date("Y-m-d H:i",strtotime($dt['created_at'])).". We've have checked the weather for today, and the result is:\n\nTemperature: $weather->temp °C\nHumidity: $weather->humidity%\nCity: $weather->city\nWeather Condition: $weather->condition";
                 
                         if($dt['telegram_user_id'] && $dt['telegram_is_valid'] == 1){
-                            Telegram::sendMessage([
-                                'chat_id' => $dt['telegram_user_id'],
-                                'text' => $message,
-                                'parse_mode' => 'HTML'
-                            ]);
+                            Broadcast::sendTelegramMessage($dt['telegram_user_id'], $message);
                         }
 
                         if($dt['firebase_fcm_token']){
@@ -87,11 +84,7 @@ class WeatherSchedule
                     $message = "[ADMIN] Hello $dt->username, there is an error in scheduler : weather_routine_fetch. Here's the detail :\n\n".Generator::getMessageTemplate("unknown_error", null);
 
                     if($dt->telegram_user_id && $dt->telegram_is_valid == 1){
-                        $response = Telegram::sendMessage([
-                            'chat_id' => $dt->telegram_user_id,
-                            'text' => $message,
-                            'parse_mode' => 'HTML'
-                        ]);
+                        Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                     }
                 }
             }

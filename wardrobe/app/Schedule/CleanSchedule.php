@@ -16,6 +16,8 @@ use App\Models\ScheduleModel;
 use App\Models\WashModel;
 use App\Models\HistoryModel;
 use App\Models\AdminModel;
+// Helper
+use App\Helpers\Broadcast;
 
 class CleanSchedule
 {
@@ -30,11 +32,7 @@ class CleanSchedule
                 $message = "[ADMIN] Hello $dt->username, the system just run a clean history, with result of $total history executed";
 
                 if($dt->telegram_user_id && $dt->telegram_is_valid == 1){
-                    $response = Telegram::sendMessage([
-                        'chat_id' => $dt->telegram_user_id,
-                        'text' => $message,
-                        'parse_mode' => 'HTML'
-                    ]);
+                    Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                 }
             }
         }
@@ -71,11 +69,7 @@ class CleanSchedule
                     $message = "Hello $dt->username, We've recently cleaned up your deleted clothes. Here are the details:\n\n$list_clothes";
 
                     if ($dt->telegram_user_id && $dt->telegram_is_valid == 1) {
-                        Telegram::sendMessage([
-                            'chat_id' => $dt->telegram_user_id,
-                            'text' => $message,
-                            'parse_mode' => 'HTML'
-                        ]);
+                        Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                     }
                     if($dt->firebase_fcm_token){
                         $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
@@ -98,11 +92,7 @@ class CleanSchedule
                 $message = "[ADMIN] Hello $dt->username, the system just run a clean deleted clothes, with result of $total_clothes clothes executed from $total_user user";
 
                 if($dt->telegram_user_id && $dt->telegram_is_valid == 1){
-                    $response = Telegram::sendMessage([
-                        'chat_id' => $dt->telegram_user_id,
-                        'text' => $message,
-                        'parse_mode' => 'HTML'
-                    ]);
+                    Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                 }
             }
         }

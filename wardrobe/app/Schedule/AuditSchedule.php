@@ -114,11 +114,7 @@ class AuditSchedule
                     $message = "$message_template\n\n- Clothes Created: $summary->clothes_created\n- Outfit Generated: $summary->outfit_generated\n- Wash Created: $summary->wash_created\n- Clothes Used: $summary->clothes_used\n- New User : $summary->new_user\n- Question Created : $summary->question_created\n- Error Happen : $summary->error_happen";
 
                     if($dt->telegram_user_id && $dt->telegram_is_valid == 1){
-                        $response = Telegram::sendMessage([
-                            'chat_id' => $dt->telegram_user_id,
-                            'text' => $message,
-                            'parse_mode' => 'HTML'
-                        ]);
+                        Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                     }
                 }
             }

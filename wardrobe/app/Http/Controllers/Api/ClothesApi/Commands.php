@@ -422,7 +422,7 @@ class Commands extends Controller
     /**
      * @OA\PUT(
      *     path="/api/v1/clothes/update_checkpoint/{id}",
-     *     summary="Update clothes wash by id",
+     *     summary="Put Update Clothes Wash By ID",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="id",
@@ -471,13 +471,8 @@ class Commands extends Controller
         try{
             $user_id = $request->user()->id;
 
-            $res = WashModel::where('clothes_id',$id)
-                ->where('created_by',$user_id)
-                ->whereNull('finished_at')
-                ->update([
-                    'wash_checkpoint' => $request->wash_checkpoint,
-                ]);
-
+            // Update wash by ID
+            $res = WashModel::updateWashById(['wash_checkpoint' => $request->wash_checkpoint], $id, $user_id);
             if($res > 0){ 
                 // Return success response
                 return response()->json([
@@ -1105,6 +1100,7 @@ class Commands extends Controller
      * @OA\GET(
      *     path="/api/v1/clothes/generate/outfit",
      *     summary="Post Create (Generate) Random Outfit",
+     *     description="This request is used to create (generate) random set of clothes to make an outfit. This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Clothes"},
      *     @OA\Response(
      *         response=201,
@@ -1166,22 +1162,8 @@ class Commands extends Controller
             // Schedule Fetch
             $scheduleIds = ScheduleModel::where('day', substr($day, 0, 3))->pluck('clothes_id')->toArray();
 
-            // Clothes Fetch
-            $query = ClothesModel::selectRaw('clothes.id, clothes_name, clothes_category, clothes_type, clothes_merk, clothes_made_from, clothes_color, clothes_image,
-                MAX(clothes_used.created_at) as last_used,
-                CAST(SUM(CASE WHEN clothes_used.id IS NOT NULL THEN 1 ELSE 0 END) as UNSIGNED) as total_used')
-                ->leftJoin('clothes_used', 'clothes_used.clothes_id', '=', 'clothes.id')
-                ->whereNotIn('clothes_type', ['swimsuit', 'underwear', 'tie', 'belt'])
-                ->where('clothes.created_by', $user_id)
-                ->where('has_washed', 1);
-            if (strpos($type, ',')) {
-                $types = explode(",", $type);
-                $query->whereIn('clothes_type', $types);
-            } else {
-                $query->where('clothes_type', $type);
-            }
-            $clothes = $query->groupBy('clothes.id')->get();
-
+            // Get clothes suitable to make an outfit
+            $clothes = ClothesModel::getClothesForOutfit($type, $user_id);
             $scored = [];
             foreach ($clothes as $dt) {
                 $score = 0;
@@ -1238,6 +1220,7 @@ class Commands extends Controller
      * @OA\POST(
      *     path="/api/v1/clothes/save/outfit",
      *     summary="Post Create Outfit",
+     *     description="This request is used to create an outfit that will contain multiple set of clothes. This request interacts with the MySQL database, broadcast with Firebase FCM & Telegram, has a protected routes, and audited activity (history).",
      *     tags={"Clothes"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
@@ -1332,11 +1315,7 @@ class Commands extends Controller
                     // Get user social by ID
                     $user = UserModel::getSocial($user_id);
                     if($user && $user->telegram_user_id && $user->telegram_is_valid === 1){
-                        $response = Telegram::sendMessage([
-                            'chat_id' => $user->telegram_user_id,
-                            'text' => $message,
-                            'parse_mode' => 'HTML'
-                        ]);
+                        Broadcast::sendTelegramMessage($user->telegram_user_id, $message);
                     }
                     if($user && $user->firebase_fcm_token){
                         // Broadcast FCM notification
@@ -1380,6 +1359,7 @@ class Commands extends Controller
      * @OA\DELETE(
      *     path="/api/v1/clothes/outfit/history/by/{id}",
      *     summary="Permanently Delete Outfit Used History By ID",
+     *     description="This request is used to permanently delete outfit used history by given `id`. This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="id",
@@ -1453,6 +1433,7 @@ class Commands extends Controller
      * @OA\POST(
      *     path="/api/v1/clothes/outfit/history/save",
      *     summary="Post Create Outfit Used History",
+     *     description="This request is used to create outfit used history. This request interacts with the MySQL database, broadcast with Firebase FCM, and has a protected routes.",
      *     tags={"Clothes"},
      *     @OA\Response(
      *         response=201,
@@ -1574,6 +1555,7 @@ class Commands extends Controller
      * @OA\POST(
      *     path="/api/v1/clothes/outfit/save/clothes",
      *     summary="Post Create Clothes Relation With Outfit",
+     *     description="This request is used to create clothes relation with the outfit. This request interacts with the MySQL database, broadcast with Firebase FCM, and has a protected routes.",
      *     tags={"Clothes"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
@@ -1722,6 +1704,7 @@ class Commands extends Controller
      * @OA\DELETE(
      *     path="/api/v1/clothes/outfit/remove/{clothes_id}",
      *     summary="Permanently Delete (Remove) Clothes From Outfit Relation By Clothes ID",
+     *     description="This request is used to delete (remove) clothes from outfit relation by given `clothes_id`. This request interacts with the MySQL database, broadcast with Firebase FCM, and has a protected routes.",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="clothes_id",
@@ -1807,6 +1790,7 @@ class Commands extends Controller
      * @OA\POST(
      *     path="/api/v1/clothes/wash",
      *     summary="Post Create Clothes Wash",
+     *     description="This request is used to create wash history. This request interacts with the MySQL database, has a protected routes, and audited activity (history).",
      *     tags={"Clothes"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(

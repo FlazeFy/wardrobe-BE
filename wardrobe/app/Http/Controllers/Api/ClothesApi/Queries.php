@@ -17,16 +17,22 @@ use App\Models\WashModel;
 use App\Models\OutfitModel;
 use App\Models\OutfitUsedModel;
 use App\Models\OutfitRelModel;
-
 // Helpers
 use App\Helpers\Generator;
 
 class Queries extends Controller
 {
+    private $module;
+
+    public function __construct()
+    {
+        $this->module = "clothes";
+    }
+
     /**
      * @OA\GET(
      *     path="/api/v1/clothes/header/{category}/{order}",
-     *     summary="Show all clothes (header)",
+     *     summary="Get All Clothes (Header)",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="category",
@@ -104,34 +110,19 @@ class Queries extends Controller
             $user_id = $request->user()->id;
             $page = request()->query('page');  
 
-            $res = ClothesModel::select('id', 'clothes_name', 'clothes_image', 'clothes_size', 'clothes_gender', 'clothes_color', 'clothes_category', 'clothes_type', 'clothes_qty', 'is_faded', 'has_washed', 'has_ironed', 'is_favorite', 'is_scheduled');
-            
-            if($category != "all"){
-                $res->where('clothes_category',$category);
-            }
-            
-            $res = $res->where('created_by',$user_id)
-                ->whereNull('deleted_at')
-                ->orderBy('is_favorite', 'desc')
-                ->orderBy('clothes_name', $order)
-                ->orderBy('created_at', $order);
-
-            if($page != "all"){
-                $res = $res->paginate(14);
-            } else {
-                $res = $res->get();
-            }
-            
-            if (count($res) > 0) {
+            // Get all clothes header
+            $res = ClothesModel::getAllClothesHeader($page, $category, $order);
+            if ($res && count($res) > 0) {
+                // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", 'clothes'),
+                    'message' => Generator::getMessageTemplate("fetch", $this->module),
                     'data' => $res
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", "clothes"),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -201,18 +192,20 @@ class Queries extends Controller
     {
         try{
             $user_id = $request->user()->id;
+
+            // Get deleted clothes
             $res = ClothesModel::getDeletedClothes($user_id);
-            
-            if (count($res) > 0) {
+            if ($res && count($res) > 0) {
+                // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", 'clothes'),
+                    'message' => Generator::getMessageTemplate("fetch", $this->module),
                     'data' => $res
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", "clothes"),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -270,31 +263,24 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_clothes_similiar_by(Request $request, $ctx, $val,$exc)
+    public function get_clothes_similiar_by(Request $request, $ctx, $val, $exc)
     {
         try{
             $user_id = $request->user()->id;
 
-            $res = ClothesModel::select('id', 'clothes_name', 'clothes_image', 'clothes_category', 'clothes_type')
-                ->where($ctx, 'like', "%$val%")                
-                ->where('created_by',$user_id)
-                ->whereNot('id',$exc)
-                ->orderBy('is_favorite', 'desc')
-                ->orderBy('clothes_name', 'desc')
-                ->orderBy('created_at', 'desc')
-                ->limit(12)
-                ->get();
-            
-            if (count($res) > 0) {
+            // Get clothes similiar by context
+            $res = ClothesModel::getClothesSimiliarBy($ctx, $val, $user_id, $exc);
+            if ($res && count($res) > 0) {
+                // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", 'clothes'),
+                    'message' => Generator::getMessageTemplate("fetch", $this->module),
                     'data' => $res
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", "clothes"),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -394,28 +380,19 @@ class Queries extends Controller
         try{
             $user_id = $request->user()->id;
 
-            $res = ClothesModel::select('*');
-
-            if($category != "all"){
-                $res->where('clothes_category',$category);
-            }
-            
-            $res = $res->where('created_by',$user_id)
-                ->orderBy('is_favorite', 'desc')
-                ->orderBy('clothes_name', $order)
-                ->orderBy('created_at', $order)
-                ->paginate(14);
-            
-            if (count($res) > 0) {
+            // Get all clothes (header format)
+            $res = ClothesModel::getAllClothesHeader($page, $category, $order, false);
+            if ($res && count($res) > 0) {
+                // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", 'clothes'),
+                    'message' => Generator::getMessageTemplate("fetch", $this->module),
                     'data' => $res
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", "clothes"),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -429,7 +406,7 @@ class Queries extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/clothes/history/{clothes_id}/{order}",
-     *     summary="Show clothes used history",
+     *     summary="Get Clothes Used History",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="order",
@@ -515,7 +492,8 @@ class Queries extends Controller
                 $res = $res->get();
             }
             
-            if (count($res) > 0) {
+            if ($res && count($res) > 0) {
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", 'clothes used'),
@@ -588,32 +566,20 @@ class Queries extends Controller
         try{
             $user_id = $request->user()->id;
 
-            $exist = ClothesModel::selectRaw('1')
-                ->where('id',$clothes_id)
-                ->first();
-
+            // Get clothes by ID
+            $exist = ClothesModel::getClothesById($clothes_id, $user_id);
             if($exist){
-                $res = ClothesUsedModel::selectRaw('1')
-                    ->where('clothes_id',$clothes_id)
-                    ->first();
-                
-                if ($res) {
-                    return response()->json([
-                        'status' => 'success',
-                        'message' => Generator::getMessageTemplate("custom", 'This clothes is washed right now'),
-                        'data' => true
-                    ], Response::HTTP_OK);
-                } else {
-                    return response()->json([
-                        'status' => 'success',
-                        'message' => Generator::getMessageTemplate("custom", 'This clothes is ready to use'),
-                        'data' => false
-                    ], Response::HTTP_OK);
-                }
+                $res = WashModel::getActiveWash($clothes_id, $user_id);
+                // Return success response
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("custom", $res ? 'This clothes is washed right now' : 'This clothes is ready to use'),
+                    'data' => $res ? true : false
+                ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", "clothes"),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -744,12 +710,10 @@ class Queries extends Controller
         try{
             $user_id = $request->user()->id;
 
-            $res_clothes = ClothesModel::select('*')
-                ->where('id',$clothes_id)
-                ->where('created_by',$user_id)
-                ->first();
-
+            // Get clothes by ID
+            $res_clothes = ClothesModel::getClothesById($clothes_id, $user_id);
             if($res_clothes){
+                // Get other relation
                 $res_used = ClothesUsedModel::getClothesUsedHistory($clothes_id,$user_id);
                 $res_wash = WashModel::getWashHistory($clothes_id,$user_id);
                 $last_used = ClothesUsedModel::getLastUsed($user_id);
@@ -757,9 +721,10 @@ class Queries extends Controller
                 $res_outfit = OutfitRelModel::getClothesFoundInOutfit($clothes_id,$user_id);
                 $total_used = count($res_used);
 
+                // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", 'clothes'),
+                    'message' => Generator::getMessageTemplate("fetch", $this->module),
                     'data' => [
                         'detail' => $res_clothes,
                         'used_history' =>  $total_used > 0 ? $res_used : null,
@@ -773,7 +738,7 @@ class Queries extends Controller
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", "clothes"),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -850,8 +815,8 @@ class Queries extends Controller
             $user_id = $request->user()->id;
 
             $res = WashModel::getActiveWash($clothes_id,$user_id);
-                
             if ($res) {
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", "wash checkpoint"),
@@ -947,6 +912,7 @@ class Queries extends Controller
             
                 $res->setCollection($data);
 
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", "outfit"),
@@ -1030,6 +996,7 @@ class Queries extends Controller
                 $clothes = OutfitRelModel::getClothesByOutfit($res->id, "header");
                 $res->clothes = $clothes;
 
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", "outfit"),
@@ -1131,6 +1098,7 @@ class Queries extends Controller
                     
                 $res->clothes = $clothes;
 
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", "outfit"),
@@ -1205,9 +1173,9 @@ class Queries extends Controller
         try { 
             $user_id = $request->user()->id;
 
+            // Get outfit history
             $res = OutfitUsedModel::getOutfitHistory($id,$user_id);
-
-            if(count($res) > 0) {            
+            if($res && count($res) > 0) {            
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", "history outfit"),
@@ -1286,18 +1254,19 @@ class Queries extends Controller
         try { 
             $user_id = $request->user()->id;
 
+            // Get schedule by day
             $res = ScheduleModel::getScheduleByDay($day,$user_id);
-
-            if(count($res) > 0) {            
+            if($res && count($res) > 0) {        
+                // Return success response    
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", "schedule"),
+                    'message' => Generator::getMessageTemplate("fetch", "$this->module schedule"),
                     'data' => $res
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", "schedule"),
+                    'message' => Generator::getMessageTemplate("not_found", "$this->module schedule"),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -1390,6 +1359,7 @@ class Queries extends Controller
                     'message' => Generator::getMessageTemplate("not_found", "wash"),
                 ], Response::HTTP_NOT_FOUND);
             } else {
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", "wash"),
@@ -1463,14 +1433,15 @@ class Queries extends Controller
             $user_id = $request->user()->id;
             $page = request()->query('page',1);  
 
+            // Get unfinished wash
             $res = WashModel::getUnfinishedWash($user_id,$page);
-
             if ($res->isEmpty()) {         
                 return response()->json([
                     'status' => 'failed',
                     'message' => Generator::getMessageTemplate("not_found", "unfinished wash"),
                 ], Response::HTTP_NOT_FOUND);
             } else {
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", "unfinished wash"),
@@ -1552,23 +1523,23 @@ class Queries extends Controller
     public function get_schedule_tomorrow(Request $request, $day){
         try { 
             $user_id = $request->user()->id;
-
             $tomorrow = date('D', strtotime("next $day +1 day"));
             $two_days_later = date('D', strtotime("next $day +2 day"));
 
+            // Get schedule by day
             $res_tomorrow = ScheduleModel::getScheduleByDay($tomorrow, $user_id);
             $res_2_days_later = ScheduleModel::getScheduleByDay($two_days_later, $user_id);
-            $res = [
-                'tomorrow' => count($res_tomorrow) > 0 ? $res_tomorrow : null,
-                'tomorrow_day' => $tomorrow,
-                'two_days_later' => count($res_2_days_later) > 0 ? $res_2_days_later : null,
-                'two_days_later_day' => $two_days_later
-            ];
 
+            // Return success response
             return response()->json([
                 'status' => 'success',
                 'message' => Generator::getMessageTemplate("fetch", "tomorrow schedule"),
-                'data' => $res
+                'data' => [
+                    'tomorrow' => count($res_tomorrow) > 0 ? $res_tomorrow : null,
+                    'tomorrow_day' => $tomorrow,
+                    'two_days_later' => count($res_2_days_later) > 0 ? $res_2_days_later : null,
+                    'two_days_later_day' => $two_days_later
+                ]
             ], Response::HTTP_OK);
         } catch(\Exception $e) {
             return response()->json([
@@ -1632,17 +1603,17 @@ class Queries extends Controller
             $res_last_added = ClothesModel::getLast('created_at',$user_id);
             if($res_last_added){
                 $res_last_deleted = ClothesModel::getLast('deleted_at',$user_id);
-                $res = [
-                    'last_added_clothes' => $res_last_added->clothes_name,
-                    'last_added_date' => $res_last_added->created_at,
-                    'last_deleted_clothes' => $res_last_deleted ? $res_last_deleted->clothes_name : null,
-                    'last_deleted_date' => $res_last_deleted ? $res_last_deleted->deleted_at : null,
-                ];
                 
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", "clothes last history"),
-                    'data' => $res
+                    'data' => [
+                        'last_added_clothes' => $res_last_added->clothes_name,
+                        'last_added_date' => $res_last_added->created_at,
+                        'last_deleted_clothes' => $res_last_deleted ? $res_last_deleted->clothes_name : null,
+                        'last_deleted_date' => $res_last_deleted ? $res_last_deleted->deleted_at : null,
+                    ]
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
@@ -1715,16 +1686,16 @@ class Queries extends Controller
             if($res_last_added){
                 $res_total_outfit = OutfitModel::where('created_by',$user_id)->count();
                 $res_last_used = OutfitUsedModel::getLastUsed($user_id);
-                $res = [
-                    'total_outfit' => $res_total_outfit,
-                    'last_used' => $res_last_used,
-                    'next_suggestion' => null,
-                ];
                 
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", "clothes last history"),
-                    'data' => $res
+                    'data' => [
+                        'total_outfit' => $res_total_outfit,
+                        'last_used' => $res_last_used,
+                        'next_suggestion' => null,
+                    ]
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([

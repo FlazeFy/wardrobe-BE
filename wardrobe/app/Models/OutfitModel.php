@@ -4,6 +4,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// Helper
+use App\Helpers\Generator;
+
 /**
  * @OA\Schema(
  *     schema="Outfit",
@@ -49,6 +52,10 @@ class OutfitModel extends Model
         }
     }
 
+    public static function getOutfitById($id, $user_id){
+        return OutfitModel::where('id',$id)->where('created_by',$user_id)->first();
+    }
+
     public static function getAllOutfit($limit, $user_id){
         return OutfitModel::selectRaw('outfit.id, outfit_name, outfit_note, is_favorite, CAST(SUM(CASE WHEN outfit_used.id IS NOT NULL THEN 1 ELSE 0 END) as UNSIGNED) as total_used')
             ->leftjoin('outfit_used','outfit_used.outfit_id','=','outfit.id')
@@ -68,6 +75,15 @@ class OutfitModel extends Model
         }
         
         return $res;
+    }
+
+    public static function createOutfit($data, $user_id){
+        $data['id'] = Generator::getUUID();
+        $data['created_at'] = date('Y-m-d H:i:s');
+        $data['created_by'] = $user_id;
+        $data['updated_at'] = null;
+
+        return OutfitModel::create($data);
     }
 
     public static function isExist($id, $user_id){

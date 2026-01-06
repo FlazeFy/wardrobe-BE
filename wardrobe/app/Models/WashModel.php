@@ -4,6 +4,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// Helper
+use App\Helpers\Generator;
+
 /**
  * @OA\Schema(
  *     schema="Wash",
@@ -137,7 +140,20 @@ class WashModel extends Model
             ->first();
     }
 
+    public static function createWash($data, $user_id){
+        $data['id'] = Generator::getUUID();
+        $data['created_at'] = date('Y-m-d H:i:s');
+        $data['created_by'] = $user_id;
+        $data['finished_at'] = null;
+
+        return WashModel::create($data);
+    }
+
     public static function hardDeleteWashByClothesId($clothes_id){
         return WashModel::where('clothes_id',$clothes_id)->delete();
+    }
+
+    public static function hardDeleteWashById($id, $user_id){
+        return WashModel::where('id',$id)->where('created_by',$user_id)->delete();
     }
 }

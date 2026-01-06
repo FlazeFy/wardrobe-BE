@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
+// Helper
+use App\Helpers\Generator;
+
 /**
  * @OA\Schema(
  *     schema="Clothes",
@@ -167,9 +170,7 @@ class ClothesModel extends Model
             $res = $res->where('created_by', $user_id);
         }
 
-        return $res->whereNotNull($col)
-            ->groupByRaw("MONTH($col)")
-            ->get();
+        return $res->whereNotNull($col)->groupByRaw("MONTH($col)")->get();
     }
 
     public static function getMonthlyClothesUsed($user_id, $year){
@@ -202,7 +203,7 @@ class ClothesModel extends Model
             $res = $res->whereNotNull('deleted_at');
         }
         
-        $res = $res->orderBy('created_at', 'desc')
+        return $res->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($dt, $type) {
                 if($type == 'active'){
@@ -211,8 +212,6 @@ class ClothesModel extends Model
                 unset($dt->created_by);
                 return $dt;
             });
-
-        return $res;
     }
 
     public static function getLast($ctx,$user_id){
@@ -223,14 +222,11 @@ class ClothesModel extends Model
             $res = $res->whereNotNull('deleted_at');
         }
 
-        $res = $res->orderby("$ctx",'DESC')
-            ->first();
-
-        return $res;
+        return $res->orderby("$ctx",'DESC')->first();
     }
 
     public static function getMostUsedClothesByDayAndType($user_id,$day){
-        $res = ClothesModel::selectRaw('clothes.id,clothes_name,clothes_type,clothes_image,clothes_category,COUNT(1) as total,MAX(clothes.created_at) as last_used')
+        return ClothesModel::selectRaw('clothes.id,clothes_name,clothes_type,clothes_image,clothes_category,COUNT(1) as total,MAX(clothes.created_at) as last_used')
             ->join('clothes_used','clothes_used.clothes_id','=','clothes.id')
             ->where('clothes.created_by',$user_id)
             ->whereNull('deleted_at')
@@ -238,8 +234,6 @@ class ClothesModel extends Model
             ->groupBy('clothes_type')
             ->orderby('clothes_type','ASC')
             ->get();
-
-        return $res;
     }
 
     public static function getMostUsedColor($id = null){
@@ -260,7 +254,7 @@ class ClothesModel extends Model
             }
         }
 
-        $final_res = collect($colorCounts)
+        return collect($colorCounts)
             ->sortDesc()
             ->map(function ($count, $color) {
                 return [
@@ -269,8 +263,6 @@ class ClothesModel extends Model
                 ];
             })
             ->values();
-
-        return $final_res;
     }
 
     public static function getClothesPlanDestroy($days){
@@ -336,5 +328,29 @@ class ClothesModel extends Model
             ->get();
 
         return count($res) > 0 ? $res : null;
+    }
+
+    public static function createClothes($data, $user_id){
+        $data['id'] = Generator::getUUID();
+        $data['created_at'] = date('Y-m-d H:i:s');
+        $data['created_by'] = $user_id;
+        $data['updated_at'] = null;
+        $data['deleted_at'] = null;
+        $data['is_scheduled'] = 0;
+
+        return ClothesModel::create($data);
+    }
+
+    public static function isClothesNameUsed($clothes_name, $user_id){
+        return ClothesModel::where('clothes_name',$clothes_name)->where('created_by', $user_id)->exists();
+    }
+
+    public static function updateClothesById($data, $id, $user_id){
+        $keys = array_keys($data);
+        if (!(count($keys) === 1 && $keys[0] === 'deleted_at')) {
+            $data['updated_at'] = date('Y-m-d H:i:s');
+        }
+
+        return ClothesModel::where('id',$id)->where('created_by',$user_id)->update($data);
     }
 }

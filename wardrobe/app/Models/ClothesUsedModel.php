@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
+// Helper
+use App\Helpers\Generator;
+
 /**
  * @OA\Schema(
  *     schema="ClothesUsed",
@@ -110,9 +113,20 @@ class ClothesUsedModel extends Model
     
         return count($res) > 0 ? $res : null;
     }    
-    
+
+    public static function createClothesUsed($data, $user_id){
+        $data['id'] = Generator::getUUID();
+        $data['created_at'] = date('Y-m-d H:i:s');
+        $data['created_by'] = $user_id;
+
+        return ClothesUsedModel::create($data);
+    }
 
     public static function hardDeleteClothesUsedByClothesId($clothes_id){
         return ClothesUsedModel::where('clothes_id',$clothes_id)->delete();
+    }
+
+    public static function hardDeleteClothesUsedById($id, $user_id){
+        return ClothesUsedModel::where('id',$id)->where('created_by',$user_id)->delete();
     }
 }

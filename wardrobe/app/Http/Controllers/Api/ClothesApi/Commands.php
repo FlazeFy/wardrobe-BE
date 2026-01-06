@@ -36,11 +36,13 @@ use App\Jobs\ProcessMailer;
 
 class Commands extends Controller
 {
+    private $module;
     private $max_size_file;
     private $allowed_file_type;
 
     public function __construct()
     {
+        $this->module = "clothes";
         $this->max_size_file = 10000000; // 10 Mb
         $this->allowed_file_type = ['jpg','jpeg','gif','png'];
     }
@@ -48,7 +50,8 @@ class Commands extends Controller
     /**
      * @OA\DELETE(
      *     path="/api/v1/clothes/destroy/{id}",
-     *     summary="Permanently delete clothes by id",
+     *     summary="Permanently Delete Clothes By ID",
+     *     description="This request is used to delete a clothes by using given `ID`. This request interacts with the MySQL database, firebase storage, has a protected routes, broadcast message with Firebase FCM, and audited activity (history).",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="id",
@@ -96,35 +99,51 @@ class Commands extends Controller
     {
         try {
             $user_id = $request->user()->id;
-            $clothes = ClothesModel::select('clothes_name')->where('id',$id)->first();
 
+            // Get clothes by ID
+            $clothes = ClothesModel::getClothesById($id, $user_id);
+            // Hard delete clothes by ID
             $rows = ClothesModel::destroy($id);
-
             if($rows > 0){
-                // Others Relation
-                ClothesUsedModel::where('clothes_id',$id);
-                ScheduleModel::where('clothes_id',$id);
-                OutfitRelModel::where('clothes_id',$id);
-                WashModel::where('clothes_id',$id);
+                // Others relation deletion
+                ClothesUsedModel::hardDeleteClothesUsedByClothesId($id);
+                ScheduleModel::hardDeleteScheduleByClothesId($id);
+                OutfitRelModel::hardDeleteOutfitRelByClothesId($id);
+                WashModel::hardDeleteWashByClothesId($id);
 
-                // History
+                // Iterate to delete image
+                if($clothes->clothes_image){
+                    foreach ($clothes->clothes_image as $dt) {
+                        // Delete failed if file not found (already gone)
+                        if(!Firebase::deleteFile($dt['clothes_image_url'])){
+                            return response()->json([
+                                'status' => 'failed',
+                                'message' => Generator::getMessageTemplate("not_found", 'failed to delete clothes image'),
+                            ], Response::HTTP_NOT_FOUND);
+                        }
+                        break;
+                    }
+                }
+
+                // Create history
                 Audit::createHistory('Permanentally Delete', $clothes->clothes_name, $user_id);
-
-                // Send FCM Notification
+                // Get user social by ID
                 $user = UserModel::getSocial($user_id);
                 if($user->firebase_fcm_token){
+                    // Broadcast FCM notification
                     $msg_body = "Your clothes called '$clothes->clothes_name' has been permanently removed from Wardrobe";
                     Firebase::sendNotif($user->firebase_fcm_token, $msg_body, $user->username, $id);
                 }
 
+                // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("permanently delete", 'clothes'),
+                    'message' => Generator::getMessageTemplate("permanently delete", $this->module),
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", 'clothes'),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -138,7 +157,8 @@ class Commands extends Controller
     /**
      * @OA\DELETE(
      *     path="/api/v1/clothes/delete/{id}",
-     *     summary="Delete clothes by id",
+     *     summary="Soft Delete Clothes By ID",
+     *     description="This request is used to delete a clothes by using given `ID`. This request interacts with the MySQL database, broadcast message with Firebase FCM, has a protected routes, and audited activity (history).",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="id",
@@ -186,26 +206,24 @@ class Commands extends Controller
     {
         try{
             $user_id = $request->user()->id;
-            $clothes = ClothesModel::select('clothes_name')->where('id',$id)->first();
 
-            $rows = ClothesModel::where('id', $id)
-                ->where('created_by', $user_id)
-                ->update([
-                    'deleted_at' => date('Y-m-d H:i:s'),
-            ]);
-
+            // Get clothes by ID
+            $clothes = ClothesModel::getClothesById($id, $user_id);
+            // Update clothes by ID
+            $rows = ClothesModel::updateClothesById(['deleted_at' => date('Y-m-d H:i:s')], $id, $user_id);
             if($rows > 0){                
-                // History
+                // Create history
                 Audit::createHistory('Delete', $clothes->clothes_name, $user_id);
                 
+                // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("delete", 'clothes'),
+                    'message' => Generator::getMessageTemplate("delete", $this->module),
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", 'clothes'),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -219,7 +237,8 @@ class Commands extends Controller
     /**
      * @OA\POST(
      *     path="/api/v1/clothes/history",
-     *     summary="Add clothes history",
+     *     summary="Post Create Clothes History",
+     *     description="This request is used to create clothes history record by giving `clothes_id`, `clothes_note`, and `used_context`. This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Clothes"},
      *     @OA\Response(
      *         response=201,
@@ -238,6 +257,14 @@ class Commands extends Controller
      *         )
      *     ),
      *     @OA\Response(
+     *         response=422,
+     *         description="clothes history failed to validated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="[failed validation message]")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=500,
      *         description="Internal Server Error",
      *         @OA\JsonContent(
@@ -250,6 +277,7 @@ class Commands extends Controller
     public function post_history_clothes(Request $request)
     {
         try{
+            // Validate request body
             $validator = Validation::getValidateClothesUsed($request,'create');
             if ($validator->fails()) {
                 return response()->json([
@@ -259,16 +287,14 @@ class Commands extends Controller
             } else {
                 $user_id = $request->user()->id;
 
-                $res = ClothesUsedModel::create([
-                    'id' => Generator::getUUID(),
+                // Create clothes used
+                $res = ClothesUsedModel::createClothesUsed([
                     'clothes_id' => $request->clothes_id,
                     'clothes_note' => $request->clothes_note,
-                    'used_context' => $request->used_context,
-                    'created_at' => date("Y-m-d H:i:s"),
-                    'created_by' => $user_id
-                ]);
-
+                    'used_context' => $request->used_context
+                ], $user_id);
                 if($res){
+                    // Return success response
                     return response()->json([
                         'status' => 'success',
                         'message' => Generator::getMessageTemplate("create", "clothes history"),
@@ -292,7 +318,8 @@ class Commands extends Controller
     /**
      * @OA\POST(
      *     path="/api/v1/clothes/schedule",
-     *     summary="Add schedule",
+     *     summary="Post Create Schedule",
+     *     description="This request is used to create schedule of clothes that will be used in the future by giving `clothes_id`, `schedule_note`, `day`, and `is_remind`. This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Clothes"},
      *     @OA\Response(
      *         response=201,
@@ -311,6 +338,14 @@ class Commands extends Controller
      *         )
      *     ),
      *     @OA\Response(
+     *         response=422,
+     *         description="schedule failed to validated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="[failed validation message]")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=500,
      *         description="Internal Server Error",
      *         @OA\JsonContent(
@@ -323,6 +358,7 @@ class Commands extends Controller
     public function post_schedule(Request $request)
     {
         try{
+            // Validate request body
             $validator = Validation::getValidateSchedule($request,'create');
             if ($validator->fails()) {
                 return response()->json([
@@ -334,28 +370,29 @@ class Commands extends Controller
                 $clothes_id = $request->clothes_id;
                 $day = $request->day;
 
+                // Check schedule day availability for specific clothes
                 $check_availability = ScheduleModel::checkDayAvailability($day, $clothes_id, $user_id);
-
                 if($check_availability){
-                    $res = ScheduleModel::create([
-                        'id' => Generator::getUUID(),
+                    // Create schedule
+                    $res = ScheduleModel::createSchedule([
                         'clothes_id' => $clothes_id,
                         'day' => $day,
                         'schedule_note' => $request->schedule_note,
-                        'is_remind' => $request->is_remind,
-                        'created_at' => date("Y-m-d H:i:s"),
-                        'created_by' => $user_id
-                    ]);
-    
+                        'is_remind' => $request->is_remind
+                    ], $user_id);
                     if($res){
-                        // Send FCM Notification
+                        // Get user social by ID
                         $user = UserModel::getSocial($user_id);
                         if($user->firebase_fcm_token){
-                            $clothes = ClothesModel::select('clothes_name')->where('id',$clothes_id)->first();
+                            // Get clothes by ID
+                            $clothes = ClothesModel::getClothesById($clothes_id, $user_id);
+
+                            // Broadcast FCM notification
                             $msg_body = "Your clothes called '$clothes->clothes_name' has been added to weekly schedule and set to wear on every $day";
                             Firebase::sendNotif($user->firebase_fcm_token, $msg_body, $user->username, $clothes_id);
                         }
 
+                        // Return success response
                         return response()->json([
                             'status' => 'success',
                             'message' => Generator::getMessageTemplate("create", "schedule"),
@@ -442,6 +479,7 @@ class Commands extends Controller
                 ]);
 
             if($res > 0){ 
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("update", 'clothes wash'),
@@ -463,7 +501,8 @@ class Commands extends Controller
      /**
      * @OA\DELETE(
      *     path="/api/v1/clothes/destroy_wash/{id}",
-     *     summary="Permanently delete wash by id",
+     *     summary="Permanently Delete Wash By ID",
+     *     description="This request is used to permanently delete wash history by given `id`. This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="id",
@@ -511,9 +550,11 @@ class Commands extends Controller
     {
         try {
             $user_id = $request->user()->id;
-            $rows = WashModel::destroy($id);
 
+            // Hard delete wash by ID
+            $rows = WashModel::hardDeleteWashById($id, $user_id);
             if($rows > 0){
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("permanently delete", 'clothes wash'),
@@ -535,7 +576,8 @@ class Commands extends Controller
     /**
      * @OA\DELETE(
      *     path="/api/v1/clothes/destroy_used/{id}",
-     *     summary="Permanently delete clothes used by id",
+     *     summary="Permanently Delete Clothes Used By ID",
+     *     description="This request is used to permanently delete clothes used history by given `id`. This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="id",
@@ -583,11 +625,11 @@ class Commands extends Controller
     {
         try {
             $user_id = $request->user()->id;
-            $rows = ClothesUsedModel::where('id',$id)
-                ->where('created_by',$user_id)
-                ->delete();
 
+            // Hard delete clothes used by ID
+            $rows = ClothesUsedModel::hardDeleteClothesUsedById($id, $user_id);
             if($rows > 0){
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("permanently delete", 'clothes used history'),
@@ -609,7 +651,8 @@ class Commands extends Controller
     /**
      * @OA\POST(
      *     path="/api/v1/clothes",
-     *     summary="Create clothes",
+     *     summary="Post Create Clothes",
+     *     description="This request is used to create a clothes. This request interacts with the MySQL database, firebase storage, broadcast message with Telegram and Firebase FCM, using mailer, has a protected routes, and audited activity (history)",
      *     tags={"Clothes"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
@@ -629,19 +672,19 @@ class Commands extends Controller
      *         )
      *     ),
      *     @OA\Response(
-     *         response=422,
-     *         description="{validation_msg}",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="failed"),
-     *             @OA\Property(property="message", type="string", example="{field validation message}")
-     *         )
-     *     ),
-     *     @OA\Response(
      *         response=401,
      *         description="protected route need to include sign in token as authorization bearer",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="failed"),
      *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="clothes failed to validated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="[failed validation message]")
      *         )
      *     ),
      *     @OA\Response(
@@ -659,6 +702,7 @@ class Commands extends Controller
         try{
             $user_id = $request->user()->id;
 
+            // Validate request body
             $validator = Validation::getValidateClothes($request,'create');
             if ($validator->fails()) {
                 return response()->json([
@@ -666,58 +710,61 @@ class Commands extends Controller
                     'message' => $validator->errors()
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             } else {
-                $clothes_image = null;  
-                if($request->clothes_image){
-                    $clothes_image = $request->clothes_image;  
-                } 
-                if ($request->hasFile('file')) {
-                    $file = $request->file('file');
-                    if ($file->isValid()) {
-                        $file_ext = $file->getClientOriginalExtension();
-                        // Validate file type
-                        if (!in_array($file_ext, $this->allowed_file_type)) {
-                            return response()->json([
-                                'status' => 'failed',
-                                'message' => Generator::getMessageTemplate("custom", 'The file must be a '.implode(', ', $this->allowed_file_type).' file type'),
-                            ], Response::HTTP_UNPROCESSABLE_ENTITY);
-                        }
-                        // Validate file size
-                        if ($file->getSize() > $this->max_size_file) {
-                            return response()->json([
-                                'status' => 'failed',
-                                'message' => Generator::getMessageTemplate("custom", 'The file size must be under '.($this->max_size_file/1000000).' Mb'),
-                            ], Response::HTTP_UNPROCESSABLE_ENTITY);
-                        }
-        
-                        // Helper: Upload clothes image
-                        try {
-                            $user = UserModel::find($user_id);
-                            $clothes_image = Firebase::uploadFile('clothes', $user_id, $user->username, $file, $file_ext); 
-                        } catch (\Exception $e) {
-                            return response()->json([
-                                'status' => 'error',
-                                'message' => Generator::getMessageTemplate("unknown_error", null),
-                            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                $clothes_image = [];  
+
+                // Get user social by ID
+                $user = UserModel::getSocial($user_id);
+
+                // Check if file attached
+                if ($request->hasFile('clothes_image')) {
+                    // Iterate to upload file
+                    foreach ($request->file('clothes_image') as $file) {
+                        if ($file->isValid()) {
+                            $file_ext = $file->getClientOriginalExtension();
+                            // Validate file type
+                            if (!in_array($file_ext, $this->allowed_file_type)) {
+                                return response()->json([
+                                    'status' => 'failed',
+                                    'message' => Generator::getMessageTemplate("custom", 'The file must be a '.implode(', ', $this->allowed_file_type).' file type'),
+                                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                            }
+                            // Validate file size
+                            if ($file->getSize() > $this->max_size_file) {
+                                return response()->json([
+                                    'status' => 'failed',
+                                    'message' => Generator::getMessageTemplate("custom", 'The file size must be under '.($this->max_size_file/1000000).' Mb'),
+                                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                            }
+            
+                            try {
+                                // Upload file to Firebase storage
+                                $clothes_image_url = Firebase::uploadFile($this->module, $user_id, $user->username, $file, $file_ext); 
+                                $clothes_image[] = (object)[
+                                    'clothes_image_id' => Generator::getUUID(),
+                                    'clothes_image_url' => $clothes_image_url
+                                ];
+                            } catch (\Exception $e) {
+                                return response()->json([
+                                    'status' => 'error',
+                                    'message' => Generator::getMessageTemplate("unknown_error", null),
+                                ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                            }
                         }
                     }
                 }
 
-                $is_exist = ClothesModel::selectRaw('1')
-                    ->where('clothes_name',$request->clothes_name)
-                    ->where('created_by',$user_id)
-                    ->first();
-
+                // Check clothes name avaiability
+                $is_exist = ClothesModel::isClothesNameUsed($request->clothes_name, $user_id);
                 if(!$is_exist){
-                    $id = Generator::getUUID();
-                    $res = ClothesModel::create([
-                        'id' => $id,                 
+                    // Create clothes
+                    $res = ClothesModel::createClothes([              
                         'clothes_name' => $request->clothes_name, 
                         'clothes_category' => $request->clothes_category, 
                         'clothes_desc' => $request->clothes_desc, 
                         'clothes_merk' => $request->clothes_merk, 
                         'clothes_color' => $request->clothes_color, 
                         'clothes_price' => $request->clothes_price, 
-                        'clothes_image' => $clothes_image, 
+                        'clothes_image' => count($clothes_image) > 0 ? $clothes_image : null, 
                         'clothes_size' => $request->clothes_size,  
                         'clothes_gender' => $request->clothes_gender,  
                         'clothes_made_from' => $request->clothes_made_from,  
@@ -727,26 +774,19 @@ class Commands extends Controller
                         'is_faded' => $request->is_faded,  
                         'has_washed' => $request->has_washed, 
                         'has_ironed' => $request->has_ironed,  
-                        'is_favorite' => $request->is_favorite, 
-                        'is_scheduled' => 0, 
-                        'created_at' => date('Y-m-d H:i:s'), 
-                        'created_by' => $user_id, 
-                        'updated_at' => null, 
-                        'deleted_at' => null
-                    ]);
-
+                        'is_favorite' => $request->is_favorite
+                    ], $user_id);
                     if($res){
-                        // History
+                        // Create history
                         Audit::createHistory('Create', $request->clothes_name, $user_id);
-                        $user = UserModel::getSocial($user_id);
 
-                        // Send FCM Notification
-                        $user = UserModel::getSocial($user_id);
                         if($user->firebase_fcm_token){
+                            // Broadcast FCM notification
                             $msg_body = "Your clothes called $request->clothes_name has been added to wardrobe. You're set to wear it!";
-                            Firebase::sendNotif($user->firebase_fcm_token, $msg_body, $user->username, $id);
+                            Firebase::sendNotif($user->firebase_fcm_token, $msg_body, $user->username, $res->id);
                         }
 
+                        // Prepare document config
                         $options = new DompdfOptions();
                         $options->set('defaultFont', 'Helvetica');
                         $dompdf = new Dompdf($options);
@@ -754,14 +794,8 @@ class Commands extends Controller
                         $header_template = Generator::getDocTemplate('header');
                         $style_template = Generator::getDocTemplate('style');
                         $footer_template = Generator::getDocTemplate('footer');
-                        $imageOnTableDoc = "";
-                        if($clothes_image){
-                            $imageOnTableDoc = "
-                            <tr>
-                                <th>Image</th>
-                                <td style='text-align:center'><img style='margin:10px; width:500px;' src='$clothes_image'></td>
-                            </tr>";
-                        }
+
+                        // Build doc HTML
                         $html = "
                             <html>
                                 <head>
@@ -801,10 +835,6 @@ class Commands extends Controller
                                             <tr>
                                                 <th>Price</th>
                                                 <td>" . (isset($request->clothes_price) ? "Rp. " . number_format($request->clothes_price, 2, ',', '.') : '-') . "</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Image</th>
-                                                <td><img src='{$clothes_image}' alt='Clothes Image' width='100'></td>
                                             </tr>
                                             <tr>
                                                 <th>Size</th>
@@ -850,7 +880,6 @@ class Commands extends Controller
                                                 <th>Is Scheduled</th>
                                                 <td>" . ($request->is_scheduled == 1 ? 'Yes' : 'No') . "</td>
                                             </tr>
-                                            $imageOnTableDoc
                                         </tbody>
                                     </table>
                                     $footer_template
@@ -863,25 +892,30 @@ class Commands extends Controller
                         $dompdf->render();
 
                         $message = "clothes created, its called '$request->clothes_name'";
-
                         if($user && $user->telegram_is_valid == 1 && $user->telegram_user_id){
                             $pdfContent = $dompdf->output();
-                            $pdfFilePath = public_path("clothes-$id-$request->clothes_name.pdf");
-                            file_put_contents($pdfFilePath, $pdfContent);
-                            $inputFile = InputFile::create($pdfFilePath, $pdfFilePath);
                             
+                            // Create a temporary file
+                            $tmpFilePath = tempnam(sys_get_temp_dir(), 'pdf_');
+                            file_put_contents($tmpFilePath, $pdfContent);
+
+                            // Wrap it as InputFile with correct filename
+                            $inputFile = InputFile::create($tmpFilePath, $file_name);
+                            
+                            // Send telegram message with the file
                             $response = Broadcast::sendTelegramDoc($user->telegram_user_id, $inputFile, $message);
-                            unlink($pdfFilePath);
+                            
+                            // Clean up temp file
+                            unlink($tmpFilePath);
                         }
 
                         // Send email
-                        $ctx = 'Create clothes';
-                        dispatch(new ProcessMailer($ctx, $res, $user->username, $user->email));
+                        dispatch(new ProcessMailer('Create clothes', $res, $user->username, $user->email));
                         
+                        // Return success response
                         return response()->json([
                             'status' => 'success',
                             'message' => $message,
-                            'data' => $res
                         ], Response::HTTP_CREATED);
                     } else {
                         return response()->json([
@@ -907,7 +941,8 @@ class Commands extends Controller
     /**
      * @OA\PUT(
      *     path="/api/v1/clothes/recover/{id}",
-     *     summary="Recover clothes by id",
+     *     summary="Put Recover Clothes By ID",
+     *     description="This request is used to recover deleted clothes by given `id`. This request interacts with the MySQL database, broadcast with Firebase FCM, has a protected routes, and audited activity (history).",
      *     tags={"Clothes"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -956,33 +991,31 @@ class Commands extends Controller
     {
         try{
             $user_id = $request->user()->id;
-            $clothes = ClothesModel::select('clothes_name')->where('id',$id)->first();
 
-            $rows = ClothesModel::where('id', $id)
-                ->where('created_by', $user_id)
-                ->update([
-                    'deleted_at' => null,
-            ]);
-
+            // Get clothes by ID
+            $clothes = ClothesModel::getClothesById($id, $user_id);
+            // Update clothes by ID
+            $rows = ClothesModel::updateClothesById(['deleted_at' => null], $id, $user_id);
             if($rows > 0){
-                // History
+                // Create history
                 Audit::createHistory('Recover', $clothes->clothes_name, $user_id);
-
-                // Send FCM Notification
+                // Get user social by ID
                 $user = UserModel::getSocial($user_id);
                 if($user->firebase_fcm_token){
+                    // Broadcast FCM notification
                     $msg_body = "Your clothes called $clothes->clothes_name has been recovered from the trash";
                     Firebase::sendNotif($user->firebase_fcm_token, $msg_body, $user->username, $id);
                 }
                 
+                // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("recover", 'clothes'),
+                    'message' => Generator::getMessageTemplate("recover", $this->module),
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", 'clothes'),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -996,7 +1029,8 @@ class Commands extends Controller
     /**
      * @OA\DELETE(
      *     path="/api/v1/clothes/destroy_schedule/{id}",
-     *     summary="Permanently delete schedule by id",
+     *     summary="Permanently Delete Schedule By ID",
+     *     description="This request is used to permanently delete schedule by given `id`. This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="id",
@@ -1045,11 +1079,10 @@ class Commands extends Controller
         try{
             $user_id = $request->user()->id;
 
-            $rows = ScheduleModel::where('id', $id)
-                ->where('created_by', $user_id)
-                ->delete();
-
+            // Hard delete schedule by ID
+            $rows = ScheduleModel::hardDeleteScheduleById($id, $user_id);
             if($rows > 0){
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("permanently delete", 'schedule'),
@@ -1071,7 +1104,7 @@ class Commands extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/clothes/generate/outfit",
-     *     summary="Show clothes used history",
+     *     summary="Post Create (Generate) Random Outfit",
      *     tags={"Clothes"},
      *     @OA\Response(
      *         response=201,
@@ -1181,6 +1214,7 @@ class Commands extends Controller
                 ->values();
 
             if ($final_res->count() > 0) {
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("generate", 'outfit'),
@@ -1203,7 +1237,7 @@ class Commands extends Controller
     /**
      * @OA\POST(
      *     path="/api/v1/clothes/save/outfit",
-     *     summary="Create outfit",
+     *     summary="Post Create Outfit",
      *     tags={"Clothes"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
@@ -1262,32 +1296,24 @@ class Commands extends Controller
                 $message_outfit = "";
 
                 foreach ($outfits as $idx => $dt) {
-                    $id = Generator::getUUID();
-                    $outfit = OutfitModel::create([
-                        'id' => $id, 
+                    // Create outfit
+                    $outfit = OutfitModel::createOutfit([
                         'outfit_name' => $dt['outfit_name'], 
                         'outfit_note' => null, 
                         'is_favorite' => 0, 
-                        'is_auto' => 1, 
-                        'created_at' => date('Y-m-d H:i:s'), 
-                        'created_by' => $user_id, 
-                        'updated_at' => null
-                    ]);
+                        'is_auto' => 1
+                    ], $user_id);
 
                     if($outfit){
                         $success_outfit++;
                         $message_outfit .= ($idx+1).". ".$dt['outfit_name']."\n";
 
+                        // Iterate to attach every clothes selected to newly outfit
                         foreach ($dt['data'] as $clothes) {
-                            $outfit_rel = OutfitRelModel::create([
-                                'id' => Generator::getUUID(), 
-                                'outfit_id' => $id, 
-                                'clothes_id' => $clothes['id'], 
-                                'created_at' => date('Y-m-d H:i:s'), 
-                                'created_by' => $user_id, 
-                            ]);
+                            // Create outfit relation
+                            $outfit_rel = OutfitRelModel::createOutfitRel(['outfit_id' => $outfit->id, 'clothes_id' => $clothes['id']], $user_id);
+                            
                             $message_outfit .= $clothes['clothes_name'].", ";
-
                             if($outfit_rel){
                                 $success_rel_outfit++;
                             } else {
@@ -1301,24 +1327,31 @@ class Commands extends Controller
                 }
 
                 if($success_rel_outfit > 0 && $success_outfit > 0){
-                    $user = UserModel::getSocial($user_id);
-                    if($user->telegram_user_id){
-                        $message = "Hello, $user->username. You have successfully add $success_outfit outfit. Here's the detail :\n\n$message_outfit";
+                    $message = "Hello, $user->username. You have successfully add $success_outfit outfit. Here's the detail :\n\n$message_outfit";
 
+                    // Get user social by ID
+                    $user = UserModel::getSocial($user_id);
+                    if($user && $user->telegram_user_id && $user->telegram_is_valid === 1){
                         $response = Telegram::sendMessage([
                             'chat_id' => $user->telegram_user_id,
                             'text' => $message,
                             'parse_mode' => 'HTML'
                         ]);
                     }
+                    if($user && $user->firebase_fcm_token){
+                        // Broadcast FCM notification
+                        Firebase::sendNotif($user->firebase_fcm_token, $message, $user->username, null);
+                    }
                 }
 
                 if($failed_rel_outfit == 0){
+                    // Return success response
                     return response()->json([
                         'status' => 'success',
                         'message' => Generator::getMessageTemplate("custom", "outfit created with $success_rel_outfit clothes attached"),
                     ], Response::HTTP_CREATED);
                 } else if($failed_rel_outfit > 0 && $success_rel_outfit > 0){
+                    // Return success response
                     return response()->json([
                         'status' => 'success',
                         'message' => Generator::getMessageTemplate("custom", "outfit created with $success_rel_outfit clothes attached, but there is $failed_rel_outfit clothes failed to add"),
@@ -1346,7 +1379,7 @@ class Commands extends Controller
     /**
      * @OA\DELETE(
      *     path="/api/v1/clothes/outfit/history/by/{id}",
-     *     summary="Permanently delete outfit history by id",
+     *     summary="Permanently Delete Outfit Used History By ID",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="id",
@@ -1394,11 +1427,10 @@ class Commands extends Controller
         try{
             $user_id = $request->user()->id;
 
-            $rows = OutfitUsedModel::where('id', $id)
-                ->where('created_by', $user_id)
-                ->delete();
-
+            // Hard delete outfit used by ID
+            $rows = OutfitUsedModel::hardDeleteOutfitUsedById($id, $user_id);
             if($rows > 0){
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("permanently delete", 'outfit history'),
@@ -1420,7 +1452,7 @@ class Commands extends Controller
     /**
      * @OA\POST(
      *     path="/api/v1/clothes/outfit/history/save",
-     *     summary="Add outfit used history",
+     *     summary="Post Create Outfit Used History",
      *     tags={"Clothes"},
      *     @OA\Response(
      *         response=201,
@@ -1461,35 +1493,31 @@ class Commands extends Controller
         try{
             $user_id = $request->user()->id;
             $outfit_id = $request->outfit_id;
-            $is_exist = OutfitModel::isExist($outfit_id, $user_id);
-            if (!$is_exist) {
+
+            // Get outfit by ID
+            $outfit = OutfitModel::getOutfitById($outfit_id, $user_id);
+            if (!$outfit) {
                 return response()->json([
                     'status' => 'failed',
                     'message' => Generator::getMessageTemplate("not_found", 'outfit'),
                 ], Response::HTTP_NOT_FOUND);
             } else {
-                $res = OutfitUsedModel::create([
-                    'id' => Generator::getUUID(),
-                    'outfit_id' => $outfit_id, 
-                    'created_at' => date("Y-m-d H:i:s"),
-                    'created_by' => $user_id
-                ]);
-
+                // Create outfit used
+                $res = OutfitUsedModel::createOutfitUsed($outfit_id, $user_id);
                 if($res){
-                    $list_clothes = OutfitRelModel::getClothes($outfit_id, $user_id);
                     $success_clothes = 0;
                     $failed_clothes = 0;
                     $message_clothes = "";
 
+                    // Get outfit relation with clothes
+                    $list_clothes = OutfitRelModel::getClothes($outfit_id, $user_id);
                     foreach ($list_clothes as $dt) {
-                        $clothes_history = ClothesUsedModel::create([
-                            'id' => Generator::getUUID(),
+                        // Create clothes used
+                        $clothes_history = ClothesUsedModel::createClothesUsed([
                             'clothes_id' => $dt->id, 
-                            'clothes_note' => null, 
-                            'used_context' => $request->used_context, 
-                            'created_at' => date("Y-m-d H:i:s"),
-                            'created_by' => $user_id
-                        ]);
+                            'clothes_note' => 'Part of outfit '.$outfit->outfit_name, 
+                            'used_context' => $request->used_context
+                        ], $user_id);
 
                         if($clothes_history){
                             $message_clothes .= "- $dt->clothes_name ($dt->clothes_type)\n";
@@ -1500,24 +1528,23 @@ class Commands extends Controller
                     }
 
                     if($success_clothes > 0){
+                        // Get user social by ID
                         $user = UserModel::getSocial($user_id);
-                        if($user->telegram_user_id){
+                        if($user && $user->firebase_fcm_token){
+                            // Broadcast FCM notification
                             $message = "Hello, $user->username. You have successfully add $success_clothes clothes to history of used. Here's the detail :\n\n$message_clothes";
-    
-                            $response = Telegram::sendMessage([
-                                'chat_id' => $user->telegram_user_id,
-                                'text' => $message,
-                                'parse_mode' => 'HTML'
-                            ]);
+                            Firebase::sendNotif($user->firebase_fcm_token, $message, $user->username, $outfit->id);
                         }
                     }
     
                     if($failed_clothes == 0){
+                        // Return success response
                         return response()->json([
                             'status' => 'success',
                             'message' => Generator::getMessageTemplate("custom", "outfit history created with $success_clothes clothes attached"),
                         ], Response::HTTP_CREATED);
                     } else if($failed_clothes > 0 && $success_clothes > 0){
+                        // Return success response
                         return response()->json([
                             'status' => 'success',
                             'message' => Generator::getMessageTemplate("custom", "outfit history created with $success_clothes clothes attached, but there is $failed_clothes clothes failed to add"),
@@ -1546,7 +1573,7 @@ class Commands extends Controller
     /**
      * @OA\POST(
      *     path="/api/v1/clothes/outfit/save/clothes",
-     *     summary="Add Clothes to outfit",
+     *     summary="Post Create Clothes Relation With Outfit",
      *     tags={"Clothes"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
@@ -1574,19 +1601,19 @@ class Commands extends Controller
      *         )
      *     ),
      *     @OA\Response(
-     *         response=422,
-     *         description="{validation_msg}",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="failed"),
-     *             @OA\Property(property="message", type="string", example="{field validation message}")
-     *         )
-     *     ),
-     *     @OA\Response(
      *         response=401,
      *         description="protected route need to include sign in token as authorization bearer",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="failed"),
      *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="clothes outfit failed to validated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="[failed validation message]")
      *         )
      *     ),
      *     @OA\Response(
@@ -1603,6 +1630,8 @@ class Commands extends Controller
         try{
             $user_id = $request->user()->id;
             $outfit_id = $request->outfit_id;
+
+            // Check if outfit is exist
             $is_exist = OutfitModel::isExist($outfit_id, $user_id);
             if (!$is_exist) {
                 return response()->json([
@@ -1616,12 +1645,13 @@ class Commands extends Controller
                 $clothes = json_decode($request->clothes);
 
                 foreach($clothes as $idx => $dt) {
-                    // Validator
                     $request->merge([
                         'clothes_id' => $dt->clothes_id,
                         'clothes_name' => $dt->clothes_name,
                         'clothes_type' => $dt->clothes_type
                     ]);
+
+                    // Validate request body
                     $validator = Validation::getValidateClothes($request,'create_outfit_relation');
                     if ($validator->fails()) {
                         return response()->json([
@@ -1630,17 +1660,12 @@ class Commands extends Controller
                         ], Response::HTTP_UNPROCESSABLE_ENTITY);
                     } else {
                         $clothes_id = $dt->clothes_id;
-                        $is_exist_clothes = OutfitRelModel::isExistClothes($user_id,$clothes_id,$outfit_id);
 
+                        // Check if clothes already attached to the outfit
+                        $is_exist_clothes = OutfitRelModel::isExistClothes($user_id, $clothes_id, $outfit_id);
                         if(!$is_exist_clothes){
-                            $outfit_rel = OutfitRelModel::create([
-                                'id' => Generator::getUUID(),
-                                'outfit_id' => $outfit_id, 
-                                'clothes_id' => $clothes_id, 
-                                'created_at' => date("Y-m-d H:i:s"),
-                                'created_by' => $user_id
-                            ]);
-
+                            // Create outfit relation
+                            $outfit_rel = OutfitRelModel::createOutfitRel(['outfit_id' => $outfit_id, 'clothes_id' => $clothes_id], $user_id);
                             if($outfit_rel){
                                 $message_clothes .= "- $dt->clothes_name ($dt->clothes_type)\n";
                                 $success_clothes++;
@@ -1654,21 +1679,26 @@ class Commands extends Controller
                 }
 
                 if($success_outfit > 0){
-                    // Send FCM Notification
+                    // Get user social by ID
                     $user = UserModel::getSocial($user_id);
                     if($user->firebase_fcm_token){
-                        $outfit = OutfitModel::select('outfit_name')->where('id',$outfit_id)->first();
+                        // Get outfit by ID
+                        $outfit = OutfitModel::getOutfitById($outfit_id, $user_id);
+
+                        // Broadcast FCM notification
                         $msg_body = "There is a clothes changes in outfit's '$outfit->outfit_name'";
                         Firebase::sendNotif($user->firebase_fcm_token, $msg_body, $user->username, $outfit_id);
                     }
                 }
     
                 if($failed_clothes == 0){
+                    // Return success response
                     return response()->json([
                         'status' => 'success',
                         'message' => Generator::getMessageTemplate("custom", "$success_clothes clothes attached"),
                     ], Response::HTTP_CREATED);
                 } else if($failed_clothes > 0 && $success_clothes > 0){
+                    // Return success response
                     return response()->json([
                         'status' => 'success',
                         'message' => Generator::getMessageTemplate("custom", "$success_clothes clothes attached, but there is $failed_clothes clothes failed to add"),
@@ -1691,7 +1721,7 @@ class Commands extends Controller
     /**
      * @OA\DELETE(
      *     path="/api/v1/clothes/outfit/remove/{clothes_id}",
-     *     summary="Permanently remove clothes by id",
+     *     summary="Permanently Delete (Remove) Clothes From Outfit Relation By Clothes ID",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="clothes_id",
@@ -1739,27 +1769,30 @@ class Commands extends Controller
         try{
             $user_id = $request->user()->id;
 
-            $rows = OutfitRelModel::deleteRelation($user_id,$clothes_id,$outfit_id);
-
+            // Hard delete outfit relation
+            $rows = OutfitRelModel::deleteRelation($user_id, $clothes_id, $outfit_id);
             if($rows > 0){
-                // Send FCM Notification
+                // Get user social by ID
                 $user = UserModel::getSocial($user_id);
                 if($user->firebase_fcm_token){
-                    $clothes = ClothesModel::select('clothes_name')->where('id',$clothes_id)->first();
-                    $outfit = OutfitModel::select('outfit_name')->where('id',$outfit_id)->first();
+                    // Get clothes and outfit by ID
+                    $clothes = ClothesModel::getClothesById($clothes_id, $user_id);
+                    $outfit = OutfitModel::getOutfitById($outfit_id, $user_id);
                     
+                    // Broadcast FCM notification
                     $msg_body = "clothes '$clothes->clothes_name' has been removed from outfit '$outfit->outfit_name'";
                     Firebase::sendNotif($user->firebase_fcm_token, $msg_body, $user->username, "$clothes_id-$outfit_id");
                 }
 
+                // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("remove", 'clothes'),
+                    'message' => Generator::getMessageTemplate("remove", $this->module),
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", 'clothes'),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -1773,7 +1806,7 @@ class Commands extends Controller
     /**
      * @OA\POST(
      *     path="/api/v1/clothes/wash",
-     *     summary="Create clothes wash history",
+     *     summary="Post Create Clothes Wash",
      *     tags={"Clothes"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
@@ -1822,6 +1855,7 @@ class Commands extends Controller
         try{
             $user_id = $request->user()->id;
 
+            // Validate request body
             $validator = Validation::getValidateWash($request,'create');
             if ($validator->fails()) {
                 return response()->json([
@@ -1830,32 +1864,30 @@ class Commands extends Controller
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             } else {
                 $clothes_id = $request->clothes_id;
-                $cl = ClothesModel::find($clothes_id);
 
-                if($cl){
+                // Get clothes by ID
+                $clothes = ClothesModel::getClothesById($clothes_id, $user_id);
+                if($clothes){
+                    // Check if clothes is on wash or not
                     $is_exist = WashModel::getActiveWash($clothes_id,$user_id);
-
                     if($is_exist){
                         return response()->json([
                             'status' => 'failed',
                             'message' => Generator::getMessageTemplate("custom", "clothes is still at wash"),
                         ], Response::HTTP_CONFLICT);
                     } else {
-                        $res = WashModel::create([
-                            'id' => Generator::getUUID(), 
+                        // Create wash
+                        $res = WashModel::createWash([
                             'wash_note' => $request->wash_note, 
                             'clothes_id' => $clothes_id, 
                             'wash_type' => $request->wash_type, 
-                            'wash_checkpoint' => $request->wash_checkpoint, 
-                            'created_at' => date('Y-m-d H:i:s'), 
-                            'created_by' => $user_id, 
-                            'finished_at' => null
-                        ]); 
-    
+                            'wash_checkpoint' => $request->wash_checkpoint
+                        ], $user_id); 
                         if($res){
-                            // History
-                            Audit::createHistory('Wash', $cl->clothes_name, $user_id);
+                            // Create history
+                            Audit::createHistory('Wash', $clothes->clothes_name, $user_id);
     
+                            // Return success response
                             return response()->json([
                                 'status' => 'success',
                                 'message' => Generator::getMessageTemplate("create", 'clothes wash history'),
@@ -1870,7 +1902,7 @@ class Commands extends Controller
                 } else {
                     return response()->json([
                         'status' => 'failed',
-                        'message' => Generator::getMessageTemplate("not_found", 'clothes'),
+                        'message' => Generator::getMessageTemplate("not_found", $this->module),
                     ], Response::HTTP_NOT_FOUND);
                 }
             }           

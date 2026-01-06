@@ -5,6 +5,9 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// Helper
+use App\Helpers\Generator;
+
 /**
  * @OA\Schema(
  *     schema="Schedule",
@@ -89,7 +92,19 @@ class ScheduleModel extends Model
         return count($res) > 0 ? $res : null;
     }
 
+    public static function createSchedule($data, $user_id){
+        $data['id'] = Generator::getUUID();
+        $data['created_at'] = date('Y-m-d H:i:s');
+        $data['created_by'] = $user_id;
+
+        return ScheduleModel::create($data);
+    }
+
     public static function hardDeleteScheduleByClothesId($clothes_id){
         return ScheduleModel::where('clothes_id',$clothes_id)->delete();
+    }
+
+    public static function hardDeleteScheduleById($id, $user_id){
+        return ScheduleModel::where('id',$id)->where('created_by',$user_id)->delete();
     }
 }

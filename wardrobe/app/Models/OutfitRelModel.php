@@ -4,6 +4,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// Helper
+use App\Helpers\Generator;
+
 /**
  * @OA\Schema(
  *     schema="OutfitRelation",
@@ -58,6 +61,14 @@ class OutfitRelModel extends Model
             ->join('clothes', 'clothes.id', '=', 'outfit_relation.clothes_id')
             ->where('outfit_id', $outfit_id)
             ->get();
+    }
+
+    public static function createOutfitRel($data, $user_id){
+        $data['id'] = Generator::getUUID();
+        $data['created_at'] = date('Y-m-d H:i:s');
+        $data['created_by'] = $user_id;
+
+        return OutfitRelModel::create($data);
     }
 
     public static function deleteRelation($user_id, $clothes_id, $outfit_id){

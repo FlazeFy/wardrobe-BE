@@ -4,6 +4,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// Helper
+use App\Helpers\Generator;
+
 /**
  * @OA\Schema(
  *     schema="OutfitUsed",
@@ -71,5 +74,18 @@ class OutfitUsedModel extends Model
         }
             
         return $res->groupByRaw("MONTH(created_at)")->get();
+    }
+
+    public static function createOutfitUsed($outfit_id, $user_id){
+        $data['id'] = Generator::getUUID();
+        $data['created_at'] = date('Y-m-d H:i:s');
+        $data['created_by'] = $user_id;
+        $data['outfit_id'] = $outfit_id;
+
+        return OutfitUsedModel::create($data);
+    }
+
+    public static function hardDeleteOutfitUsedById($id, $user_id){
+        return OutfitUsedModel::where('id',$id)->where('created_by',$user_id)->delete();
     }
 }

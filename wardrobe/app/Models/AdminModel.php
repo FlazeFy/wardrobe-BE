@@ -43,7 +43,7 @@ class AdminModel extends Authenticatable
     protected $primaryKey = 'id';
     protected $fillable = ['id', 'username', 'password', 'email', 'telegram_user_id', 'telegram_is_valid', 'created_at', 'updated_at'];
 
-    public static function getProfile($id){
+    public static function getSocial($id){
         return AdminModel::select('username','email','created_at','updated_at')->where('id',$id)->first();
     }
 
@@ -53,29 +53,20 @@ class AdminModel extends Authenticatable
         return count($res) > 0 ? $res : null;
     }
 
+    public static function getByUsername($username){
+        return AdminModel::where('username',$username)->first();
+    }
+
     public static function getAppsSummaryForLastNDays($days){
-        $res_clothes = ClothesModel::selectRaw('count(1) as total')
-            ->whereDate('created_at', '>=', Carbon::now()->subDays($days))->first();
+        $res_clothes = ClothesModel::selectRaw('count(1) as total')->whereDate('created_at', '>=', Carbon::now()->subDays($days))->first();
+        $res_user = UserModel::selectRaw('count(1) as total')->whereDate('created_at', '>=', Carbon::now()->subDays($days))->first();
+        $res_outfit = OutfitModel::selectRaw('count(1) as total')->whereDate('created_at', '>=', Carbon::now()->subDays($days))->first();
+        $res_wash = WashModel::selectRaw('count(1) as total')->whereDate('created_at', '>=', Carbon::now()->subDays($days))->first();
+        $res_clothes_used = ClothesUsedModel::selectRaw('count(1) as total')->whereDate('created_at', '>=', Carbon::now()->subDays($days))->first();
+        $res_question = QuestionModel::selectRaw('count(1) as total')->whereDate('created_at', '>=', Carbon::now()->subDays($days))->first();
+        $res_error = ErrorModel::selectRaw('count(1) as total')->whereDate('created_at', '>=', Carbon::now()->subDays($days))->first();
 
-        $res_user = UserModel::selectRaw('count(1) as total')
-            ->whereDate('created_at', '>=', Carbon::now()->subDays($days))->first();
-
-        $res_outfit = OutfitModel::selectRaw('count(1) as total')
-            ->whereDate('created_at', '>=', Carbon::now()->subDays($days))->first();
-
-        $res_wash = WashModel::selectRaw('count(1) as total')
-            ->whereDate('created_at', '>=', Carbon::now()->subDays($days))->first();
-
-        $res_clothes_used = ClothesUsedModel::selectRaw('count(1) as total')
-            ->whereDate('created_at', '>=', Carbon::now()->subDays($days))->first();
-
-        $res_question = QuestionModel::selectRaw('count(1) as total')
-            ->whereDate('created_at', '>=', Carbon::now()->subDays($days))->first();
-
-        $res_error = ErrorModel::selectRaw('count(1) as total')
-            ->whereDate('created_at', '>=', Carbon::now()->subDays($days))->first();
-
-        $final_res = (object)[
+        return (object)[
             'clothes_created' => $res_clothes->total,
             'new_user' => $res_user->total,
             'outfit_generated' => $res_outfit->total,
@@ -84,7 +75,5 @@ class AdminModel extends Authenticatable
             'question_created' => $res_question->total,
             'error_happen' => $res_error->total,
         ];
-
-        return $final_res;
     }
 }

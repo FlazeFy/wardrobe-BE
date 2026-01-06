@@ -969,7 +969,7 @@ class Queries extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/clothes/outfit/last",
-     *     summary="Show last outfit",
+     *     summary="Get Last Outfit",
      *     tags={"Clothes"},
      *     @OA\Response(
      *         response=200,

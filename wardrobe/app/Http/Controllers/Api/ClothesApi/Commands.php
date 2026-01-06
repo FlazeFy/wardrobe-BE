@@ -30,6 +30,7 @@ use App\Helpers\Validation;
 use App\Helpers\Audit;
 use App\Helpers\Firebase;
 use App\Helpers\Formula;
+use App\Helpers\Broadcast;
 // Jobs
 use App\Jobs\ProcessMailer;
 
@@ -110,7 +111,7 @@ class Commands extends Controller
                 Audit::createHistory('Permanentally Delete', $clothes->clothes_name, $user_id);
 
                 // Send FCM Notification
-                $user = UserModel::getProfile($user_id);
+                $user = UserModel::getSocial($user_id);
                 if($user->firebase_fcm_token){
                     $msg_body = "Your clothes called '$clothes->clothes_name' has been permanently removed from Wardrobe";
                     Firebase::sendNotif($user->firebase_fcm_token, $msg_body, $user->username, $id);
@@ -348,7 +349,7 @@ class Commands extends Controller
     
                     if($res){
                         // Send FCM Notification
-                        $user = UserModel::getProfile($user_id);
+                        $user = UserModel::getSocial($user_id);
                         if($user->firebase_fcm_token){
                             $clothes = ClothesModel::select('clothes_name')->where('id',$clothes_id)->first();
                             $msg_body = "Your clothes called '$clothes->clothes_name' has been added to weekly schedule and set to wear on every $day";
@@ -740,7 +741,7 @@ class Commands extends Controller
                         $user = UserModel::getSocial($user_id);
 
                         // Send FCM Notification
-                        $user = UserModel::getProfile($user_id);
+                        $user = UserModel::getSocial($user_id);
                         if($user->firebase_fcm_token){
                             $msg_body = "Your clothes called $request->clothes_name has been added to wardrobe. You're set to wear it!";
                             Firebase::sendNotif($user->firebase_fcm_token, $msg_body, $user->username, $id);
@@ -869,12 +870,7 @@ class Commands extends Controller
                             file_put_contents($pdfFilePath, $pdfContent);
                             $inputFile = InputFile::create($pdfFilePath, $pdfFilePath);
                             
-                            $response = Telegram::sendDocument([
-                                'chat_id' => $user->telegram_user_id,
-                                'document' => $inputFile,
-                                'caption' => $message,
-                                'parse_mode' => 'HTML'
-                            ]);
+                            $response = Broadcast::sendTelegramDoc($user->telegram_user_id, $inputFile, $message);
                             unlink($pdfFilePath);
                         }
 
@@ -973,7 +969,7 @@ class Commands extends Controller
                 Audit::createHistory('Recover', $clothes->clothes_name, $user_id);
 
                 // Send FCM Notification
-                $user = UserModel::getProfile($user_id);
+                $user = UserModel::getSocial($user_id);
                 if($user->firebase_fcm_token){
                     $msg_body = "Your clothes called $clothes->clothes_name has been recovered from the trash";
                     Firebase::sendNotif($user->firebase_fcm_token, $msg_body, $user->username, $id);
@@ -1659,7 +1655,7 @@ class Commands extends Controller
 
                 if($success_outfit > 0){
                     // Send FCM Notification
-                    $user = UserModel::getProfile($user_id);
+                    $user = UserModel::getSocial($user_id);
                     if($user->firebase_fcm_token){
                         $outfit = OutfitModel::select('outfit_name')->where('id',$outfit_id)->first();
                         $msg_body = "There is a clothes changes in outfit's '$outfit->outfit_name'";
@@ -1747,7 +1743,7 @@ class Commands extends Controller
 
             if($rows > 0){
                 // Send FCM Notification
-                $user = UserModel::getProfile($user_id);
+                $user = UserModel::getSocial($user_id);
                 if($user->firebase_fcm_token){
                     $clothes = ClothesModel::select('clothes_name')->where('id',$clothes_id)->first();
                     $outfit = OutfitModel::select('outfit_name')->where('id',$outfit_id)->first();

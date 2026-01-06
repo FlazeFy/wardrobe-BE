@@ -31,6 +31,7 @@ class ClothesModelFactory extends Factory
             'clothes_price' => $price, 
             'clothes_buy_at' => Generator::getRandomDate(0), 
             'clothes_qty' => mt_rand(1, 3), 
+            'clothes_image' => null,
             'is_faded' => $ran, 
             'has_washed' => $ran, 
             'has_ironed' => $ran2, 

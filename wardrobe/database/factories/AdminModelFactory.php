@@ -1,6 +1,7 @@
 <?php
 
 namespace Database\Factories;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 // Helper
@@ -11,11 +12,12 @@ class AdminModelFactory extends Factory
     public function definition(): array
     {
         $ran = mt_rand(0, 1);
-        
+        $password = 'nopass123';
+
         return [
             'id' => Generator::getUUID(), 
             'username' => fake()->username(), 
-            'password' => fake()->password(), 
+            'password' => Hash::make($password), 
             'email' => fake()->unique()->safeEmail(), 
             'telegram_user_id' => null,
             'telegram_is_valid' => 0,

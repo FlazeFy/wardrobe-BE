@@ -7,19 +7,33 @@ use Illuminate\Http\Response;
 
 // Models
 use App\Models\UserModel;
-
 // Helper
 use App\Helpers\Validation;
 use App\Helpers\Generator;
 
 class Commands extends Controller
 {
+    private $module;
+
+    public function __construct()
+    {
+        $this->module = "profile";
+    }
+
    /**
      * @OA\POST(
      *     path="/api/v1/user/fcm",
-     *     summary="Update user FCM token",
-     *     description="Update user's Firebase Cloud Messaging token from mobile. This request is using MySQL database.",
+     *     summary="Put Update User FCM Token",
+     *     description="This request is used to update user's Firebase Cloud Messaging token from mobile. This request interacts with the MySQL database, and has a protected routes",
      *     tags={"User"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"firebase_fcm_token"},
+     *             @OA\Property(property="firebase_fcm_token", type="string", example="123456789")
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=200,
      *         description="fcm updated successfully",
@@ -27,6 +41,14 @@ class Commands extends Controller
      *             type="object",
      *             @OA\Property(property="status", type="string", example="success"),
      *             @OA\Property(property="message", type="string", example="fcm updated")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
      *         )
      *     ),
      *     @OA\Response(
@@ -62,7 +84,7 @@ class Commands extends Controller
         try{
             $user_id = $request->user()->id;
 
-            // Validator
+            // Validate request body
             $validator = Validation::getValidateUser($request,'update_fcm');
             if ($validator->fails()) {
                 return response()->json([
@@ -70,16 +92,13 @@ class Commands extends Controller
                     'message' => $validator->errors()
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             } else {
-                // Service : Update
-                $rows = UserModel::where('id',$user_id)->update([
-                    'firebase_fcm_token' => $request->firebase_fcm_token,
-                ]);
-
-                // Respond
+                // Update user by id
+                $rows = UserModel::updateUserById(['firebase_fcm_token' => $request->firebase_fcm_token],$user_id);
                 if($rows > 0){
+                    // Return success response
                     return response()->json([
                         'status' => 'success',
-                        'message' => Generator::getMessageTemplate("update", 'fcm'),
+                        'message' => Generator::getMessageTemplate("update", $this->module),
                     ], Response::HTTP_OK);
                 } else {
                     return response()->json([

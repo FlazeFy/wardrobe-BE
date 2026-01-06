@@ -13,6 +13,7 @@ use Dompdf\Adapter\CPDF;
 
 // Helper
 use App\Helpers\Generator;
+use App\Helpers\Broadcast;
 // Model
 use App\Models\ErrorModel;
 use App\Models\AdminModel;
@@ -87,16 +88,11 @@ class AuditSchedule
                 file_put_contents($pdfFilePath, $pdfContent);
                 $inputFile = InputFile::create($pdfFilePath, $pdfFilePath);
 
-                foreach($admin as $dt){
-                    $message = "[ADMIN] Hello $dt->username, the system just run an audit error, with result of $total error found. Here's the document";
-                    
+                foreach($admin as $dt){                    
+                    // Send telegram message with the file
                     if($dt->telegram_user_id && $dt->telegram_is_valid == 1){
-                        $response = Telegram::sendDocument([
-                            'chat_id' => $dt->telegram_user_id,
-                            'document' => $inputFile,
-                            'caption' => $message,
-                            'parse_mode' => 'HTML'
-                        ]);
+                        $message = "[ADMIN] Hello $dt->username, the system just run an audit error, with result of $total error found. Here's the document";
+                        Broadcast::sendTelegramDoc($dt->telegram_user_id, $inputFile, $message);
                     }
                 }
         

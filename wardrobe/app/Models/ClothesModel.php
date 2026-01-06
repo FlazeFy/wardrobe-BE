@@ -67,6 +67,10 @@ class ClothesModel extends Model
         return $res;
     }
 
+    public static function getClothesById($id, $user_id){
+        return ClothesModel::where('id',$id)->where('created_by',$user_id)->first();
+    }
+
     public static function getRandomWithFreeSchedule($user_id){
         return ClothesModel::select(
                 'clothes.id', DB::raw("GROUP_CONCAT(schedule.day ORDER BY schedule.day SEPARATOR ', ') as days")

@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers\Api\ExportApi;
-
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
@@ -15,7 +14,6 @@ use Dompdf\Options;
 use Dompdf\Canvas\Factory as CanvasFactory;
 use Dompdf\Options as DompdfOptions;
 use Dompdf\Adapter\CPDF;
-use Telegram\Bot\Laravel\Facades\Telegram;
 use Telegram\Bot\FileUpload\InputFile;
 use Carbon\Carbon;
 
@@ -27,13 +25,12 @@ use App\Models\ScheduleModel;
 use App\Models\WashModel;
 use App\Models\HistoryModel;
 use App\Models\OutfitRelModel;
-
 // Export
 use App\Exports\CalendarClothesExport;
-
 // Helper
 use App\Helpers\Generator;
 use App\Helpers\Document;
+use App\Helpers\Broadcast;
 
 class Queries extends Controller
 {
@@ -42,12 +39,16 @@ class Queries extends Controller
         try {
             $user_id = $request->user()->id;
             $datetime = date('Y-m-d_H-i-s');
-            $user = UserModel::getProfile($user_id);
-            $file_name = "clothes-$user->username-$datetime.xlsx";
+
+            // Get user profile by ID
+            $user = UserModel::getSocial($user_id);
     
+            // Get dataset to export
             $active_clothes = ClothesModel::getClothesExport($user_id, 'active');
             $deleted_clothes = ClothesModel::getClothesExport($user_id, 'deleted');
     
+            // Init Excel export
+            $file_name = "clothes-$user->username-$datetime.xlsx";
             Excel::store(new class($active_clothes, $deleted_clothes) implements WithMultipleSheets {
                 private $activeClothes;
                 private $deletedClothes;
@@ -105,25 +106,22 @@ class Queries extends Controller
                 }
             }, $file_name, 'public');
     
+            // Save at local storage (temp)
             $storagePath = storage_path("app/public/$file_name");
-            $publicPath = public_path($file_name);
             if (!file_exists($storagePath)) {
                 throw new \Exception("File not found: $storagePath");
             }
-            copy($storagePath, $publicPath);
     
-            if ($user && $user->telegram_is_valid == 1 && $user->telegram_user_id) {
-                $inputFile = InputFile::create($publicPath, $file_name);
+            if ($user && $user->telegram_is_valid === 1 && $user->telegram_user_id) {
+                // Create file to attach in Telegram message
+                $inputFile = InputFile::create($storagePath, $file_name);
     
-                Telegram::sendDocument([
-                    'chat_id' => $user->telegram_user_id,
-                    'document' => $inputFile,
-                    'caption' => "Your clothes export is ready",
-                    'parse_mode' => 'HTML',
-                ]);
+                // Send telegram message with the file
+                Broadcast::sendTelegramDoc($user->telegram_user_id, $inputFile, "Your clothes export is ready");
             }
     
-            return response()->download($publicPath)->deleteFileAfterSend(true);
+            // Return success response
+            return response()->download($storagePath)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -137,11 +135,15 @@ class Queries extends Controller
         try {
             $user_id = $request->user()->id;
             $datetime = date('Y-m-d_H-i-s');
-            $user = UserModel::getProfile($user_id);
-            $file_name = "clothes_used-$user->username-$datetime.xlsx";
 
+            // Get user profile by ID
+            $user = UserModel::getSocial($user_id);
+
+            // Get dataset to export
             $clothes_used = ClothesUsedModel::getClothesUsedExport($user_id);
 
+            // Init Excel export
+            $file_name = "clothes_used-$user->username-$datetime.xlsx";
             Excel::store(new class($clothes_used) implements WithMultipleSheets {
                 private $clothes_used;
 
@@ -177,25 +179,22 @@ class Queries extends Controller
                 }
             }, $file_name, 'public');
     
+            // Save at local storage (temp)
             $storagePath = storage_path("app/public/$file_name");
-            $publicPath = public_path($file_name);
             if (!file_exists($storagePath)) {
                 throw new \Exception("File not found: $storagePath");
             }
-            copy($storagePath, $publicPath);
     
-            if ($user && $user->telegram_is_valid == 1 && $user->telegram_user_id) {
-                $inputFile = InputFile::create($publicPath, $file_name);
+            if ($user && $user->telegram_is_valid === 1 && $user->telegram_user_id) {
+                // Create file to attach in Telegram message
+                $inputFile = InputFile::create($storagePath, $file_name);
     
-                Telegram::sendDocument([
-                    'chat_id' => $user->telegram_user_id,
-                    'document' => $inputFile,
-                    'caption' => "Your clothes used export is ready",
-                    'parse_mode' => 'HTML',
-                ]);
+                // Send telegram message with the file
+                Broadcast::sendTelegramDoc($user->telegram_user_id, $inputFile, "Your clothes used export is ready");
             }
     
-            return response()->download($publicPath)->deleteFileAfterSend(true);
+            // Return success response
+            return response()->download($storagePath)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -209,14 +208,18 @@ class Queries extends Controller
         try {
             $user_id = $request->user()->id;
             $datetime = date('Y-m-d_H-i-s');
-            $user = UserModel::getProfile($user_id);
-            $file_name = "wash_history-$user->username-$datetime.xlsx";
 
+            // Get user profile by ID
+            $user = UserModel::getSocial($user_id);
+
+            // Get dataset to export
             $wash_history = WashModel::getWashExport($user_id)->map(function ($col) {
                 unset($col->id);
                 return $col;
             });
 
+            // Init Excel export
+            $file_name = "wash_history-$user->username-$datetime.xlsx";
             Excel::store(new class($wash_history) implements WithMultipleSheets {
                 private $wash_history;
 
@@ -252,25 +255,22 @@ class Queries extends Controller
                 }
             }, $file_name, 'public');
         
+            // Save at local storage (temp)
             $storagePath = storage_path("app/public/$file_name");
-            $publicPath = public_path($file_name);
             if (!file_exists($storagePath)) {
                 throw new \Exception("File not found: $storagePath");
             }
-            copy($storagePath, $publicPath);
 
-            if ($user && $user->telegram_is_valid == 1 && $user->telegram_user_id) {
-                $inputFile = InputFile::create($publicPath, $file_name);
+            if ($user && $user->telegram_is_valid === 1 && $user->telegram_user_id) {
+                // Create file to attach in Telegram message
+                $inputFile = InputFile::create($storagePath, $file_name);
 
-                Telegram::sendDocument([
-                    'chat_id' => $user->telegram_user_id,
-                    'document' => $inputFile,
-                    'caption' => "Your wash history export is ready",
-                    'parse_mode' => 'HTML',
-                ]);
+                // Send telegram message with the file
+                Broadcast::sendTelegramDoc($user->telegram_user_id, $inputFile, "Your wash history export is ready");
             }
 
-            return response()->download($publicPath)->deleteFileAfterSend(true);
+            // Return success response
+            return response()->download($storagePath)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -284,11 +284,15 @@ class Queries extends Controller
         try {
             $user_id = $request->user()->id;
             $datetime = date('Y-m-d_H-i-s');
-            $user = UserModel::getProfile($user_id);
-            $file_name = "history-$user->username-$datetime.xlsx";
 
+            // Get user profile by ID
+            $user = UserModel::getSocial($user_id);
+            
+            // Get dataset to export
             $history = HistoryModel::getHistoryExport($user_id);
 
+            // Init Excel export
+            $file_name = "history-$user->username-$datetime.xlsx";
             Excel::store(new class($history) implements WithMultipleSheets {
                 private $history;
 
@@ -324,25 +328,22 @@ class Queries extends Controller
                 }
             }, $file_name, 'public');
         
+            // Save at local storage (temp)
             $storagePath = storage_path("app/public/$file_name");
-            $publicPath = public_path($file_name);
             if (!file_exists($storagePath)) {
                 throw new \Exception("File not found: $storagePath");
             }
-            copy($storagePath, $publicPath);
 
-            if ($user && $user->telegram_is_valid == 1 && $user->telegram_user_id) {
-                $inputFile = InputFile::create($publicPath, $file_name);
+            if ($user && $user->telegram_is_valid === 1 && $user->telegram_user_id) {
+                // Create file to attach in Telegram message
+                $inputFile = InputFile::create($storagePath, $file_name);
 
-                Telegram::sendDocument([
-                    'chat_id' => $user->telegram_user_id,
-                    'document' => $inputFile,
-                    'caption' => "Your apps history export is ready",
-                    'parse_mode' => 'HTML',
-                ]);
+                // Send telegram message with the file
+                Broadcast::sendTelegramDoc($user->telegram_user_id, $inputFile, "Your apps history export is ready");
             }
 
-            return response()->download($publicPath)->deleteFileAfterSend(true);
+            // Return success response
+            return response()->download($storagePath)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -355,38 +356,42 @@ class Queries extends Controller
         try {
             $user_id = $request->user()->id;
             $datetime = date('Y-m-d_H-i-s');
-            $user = UserModel::getProfile($user_id);
+
+            // Get user profile by ID
+            $user = UserModel::getSocial($user_id);
+
+            // Get dataset to export
+            $res_used_history = ClothesUsedModel::getClothesUsedHistoryCalendar($user_id, $year, null)->map(function($col) {
+                return [
+                    'date' => Carbon::parse($col->created_at)->format('Y-m-d'),
+                    'clothes_name' => $col->clothes_name,
+                    'clothes_type' => $col->clothes_type
+                ];
+            });
+            $res_wash_schedule = WashModel::getWashCalendar($user_id, $year, null)->map(function($col) {
+                return [
+                    'date' => Carbon::parse($col->created_at)->format('Y-m-d'),
+                    'clothes_name' => $col->clothes_name,
+                    'clothes_type' => $col->clothes_type
+                ];
+            });
+            $res_buyed_history = ClothesModel::getClothesBuyedCalendar($user_id, $year, null)->map(function($col) {
+                return [
+                    'date' => Carbon::parse($col->created_at)->format('Y-m-d'),
+                    'clothes_name' => $col->clothes_name,
+                    'clothes_type' => $col->clothes_type
+                ];
+            });
+            $res_add_wardrobe = ClothesModel::getClothesCreatedCalendar($user_id, $year, null)->map(function($col) {
+                return [
+                    'date' => Carbon::parse($col->created_at)->format('Y-m-d'),
+                    'clothes_name' => $col->clothes_name,
+                    'clothes_type' => $col->clothes_type
+                ];
+            });
+
+            // Init Excel export
             $file_name = "calendar-$year-$user->username-$datetime.xlsx";
-
-            $res_used_history = ClothesUsedModel::getClothesUsedHistoryCalendar($user_id, $year, null)->get()->map(function($col) {
-                return [
-                    'date' => Carbon::parse($col->created_at)->format('Y-m-d'),
-                    'clothes_name' => $col->clothes_name,
-                    'clothes_type' => $col->clothes_type
-                ];
-            });
-            $res_wash_schedule = WashModel::getWashCalendar($user_id, $year, null)->get()->map(function($col) {
-                return [
-                    'date' => Carbon::parse($col->created_at)->format('Y-m-d'),
-                    'clothes_name' => $col->clothes_name,
-                    'clothes_type' => $col->clothes_type
-                ];
-            });
-            $res_buyed_history = ClothesModel::getClothesBuyedCalendar($user_id, $year, null)->get()->map(function($col) {
-                return [
-                    'date' => Carbon::parse($col->created_at)->format('Y-m-d'),
-                    'clothes_name' => $col->clothes_name,
-                    'clothes_type' => $col->clothes_type
-                ];
-            });
-            $res_add_wardrobe = ClothesModel::getClothesCreatedCalendar($user_id, $year, null)->get()->map(function($col) {
-                return [
-                    'date' => Carbon::parse($col->created_at)->format('Y-m-d'),
-                    'clothes_name' => $col->clothes_name,
-                    'clothes_type' => $col->clothes_type
-                ];
-            });
-
             Excel::store(new class($res_used_history, $res_wash_schedule, $res_buyed_history, $res_add_wardrobe) implements WithMultipleSheets {
                 private $res_used_history;
                 private $res_wash_schedule;
@@ -412,25 +417,22 @@ class Queries extends Controller
                 }
             }, $file_name, 'public');
         
+            // Save at local storage (temp)
             $storagePath = storage_path("app/public/$file_name");
-            $publicPath = public_path($file_name);
             if (!file_exists($storagePath)) {
                 throw new \Exception("File not found: $storagePath");
             }
-            copy($storagePath, $publicPath);
 
-            if ($user && $user->telegram_is_valid == 1 && $user->telegram_user_id) {
-                $inputFile = InputFile::create($publicPath, $file_name);
+            if ($user && $user->telegram_is_valid === 1 && $user->telegram_user_id) {
+                // Create file to attach in Telegram message
+                $inputFile = InputFile::create($storagePath, $file_name);
 
-                Telegram::sendDocument([
-                    'chat_id' => $user->telegram_user_id,
-                    'document' => $inputFile,
-                    'caption' => "Your calendar export is ready",
-                    'parse_mode' => 'HTML',
-                ]);
+                // Send telegram message with the file
+                Broadcast::sendTelegramDoc($user->telegram_user_id, $inputFile, "Your calendar export is ready");
             }
 
-            return response()->download($publicPath)->deleteFileAfterSend(true);
+            // Return success response
+            return response()->download($storagePath)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -443,15 +445,18 @@ class Queries extends Controller
         try {
             $user_id = $request->user()->id;
             $datetime = date('Y-m-d_H-i-s');
-            $user = UserModel::getProfile($user_id);
-            $file_name = "calendar-daily-$date-$user->username-$datetime.pdf";
 
+            // Get user profile by ID
+            $user = UserModel::getSocial($user_id);
+            
+            // Get dataset to export
             $res_used_history = ClothesUsedModel::getClothesUsedHistoryCalendar($user_id, null, null, $date);
             $res_wash_schedule = WashModel::getWashCalendar($user_id, null, null, $date);
             $res_weekly_schedule = ScheduleModel::getWeeklyScheduleCalendar($user_id, $date);
             $res_buyed_history = ClothesModel::getClothesBuyedCalendar($user_id, null, null, $date);
             $res_add_wardrobe = ClothesModel::getClothesCreatedCalendar($user_id, null, null, $date);
 
+            // Prepare document config
             $html = Document::documentDailyWeeklyReport(null,null,null,'daily',$date,$res_used_history,$res_wash_schedule,$res_weekly_schedule,$res_buyed_history,$res_add_wardrobe);
             $options = new DompdfOptions();
             $options->set('defaultFont', 'Helvetica');
@@ -459,24 +464,26 @@ class Queries extends Controller
             $dompdf->loadHtml($html);
             $dompdf->setPaper('A4', 'portrait');
             $dompdf->render();
+            $pdfContent = $dompdf->output();
 
-            if($user->telegram_user_id){
-                $pdfContent = $dompdf->output();
-                $pdfFilePath = public_path($file_name);
-                file_put_contents($pdfFilePath, $pdfContent);
-                $inputFile = InputFile::create($pdfFilePath, $pdfFilePath);
+            $file_name = "calendar-daily-$date-$user->username-$datetime.pdf";
+            if ($user && $user->telegram_is_valid === 1 && $user->telegram_user_id) {
+                // Create a temporary file
+                $tmpFilePath = tempnam(sys_get_temp_dir(), 'pdf_');
+                file_put_contents($tmpFilePath, $pdfContent);
 
-                Telegram::sendDocument([
-                    'chat_id' => $user->telegram_user_id,
-                    'document' => $inputFile,
-                    'caption' => "Your daily report is ready",
-                    'parse_mode' => 'HTML'
-                ]);
+                // Wrap it as InputFile with correct filename
+                $inputFile = InputFile::create($tmpFilePath, $file_name);
 
-                unlink($pdfFilePath);
+                // Send telegram message with the file
+                Broadcast::sendTelegramDoc($user->telegram_user_id, $inputFile, "Your daily report is ready");
+
+                // Clean up temp file
+                unlink($tmpFilePath);
             }
 
-            return response($dompdf->output(), 200)
+            // Return success response
+            return response($pdfContent, 200)
                 ->header('Content-Type', 'application/pdf')
                 ->header('Content-Disposition', "inline; filename='$file_name'");
         } catch (\Exception $e) {
@@ -491,21 +498,21 @@ class Queries extends Controller
         try {
             $user_id = $request->user()->id;
             $datetime = date('Y-m-d_H-i-s');
-            $user = UserModel::getProfile($user_id);
 
-            $res_clothes = ClothesModel::select('*')
-                ->where('id',$id)
-                ->where('created_by',$user_id)
-                ->first();
+            // Get user profile by ID
+            $user = UserModel::getSocial($user_id);
 
+            // Check if clothes found
+            $res_clothes = ClothesModel::getClothesById($id, $user_id);
             if($res_clothes){
+                // Get dataset to export
                 $res_used = ClothesUsedModel::getClothesUsedHistory($id,$user_id);
                 $res_wash = WashModel::getWashHistory($id,$user_id);
                 $last_used = ClothesUsedModel::getLastUsed($user_id);
                 $res_schedule = ScheduleModel::getScheduleByClothes($id, $user_id);
                 $res_outfit = OutfitRelModel::getClothesFoundInOutfit($id,$user_id);
-                $file_name = "clothes-detail-$res_clothes->clothes_name-$user->username-$datetime.pdf";
 
+                // Prepare document config
                 $html = Document::documentClothesDetail(null,null,null,$res_clothes,$res_used,$res_wash,$last_used,$res_schedule,$res_outfit);
                 $options = new DompdfOptions();
                 $options->set('defaultFont', 'Helvetica');
@@ -513,24 +520,26 @@ class Queries extends Controller
                 $dompdf->loadHtml($html);
                 $dompdf->setPaper('A4', 'portrait');
                 $dompdf->render();
+                $pdfContent = $dompdf->output();
 
-                if($user->telegram_user_id){
-                    $pdfContent = $dompdf->output();
-                    $pdfFilePath = public_path($file_name);
-                    file_put_contents($pdfFilePath, $pdfContent);
-                    $inputFile = InputFile::create($pdfFilePath, $pdfFilePath);
+                $file_name = "clothes-detail-$res_clothes->clothes_name-$user->username-$datetime.pdf";
+                if ($user && $user->telegram_is_valid === 1 && $user->telegram_user_id) {
+                    // Create a temporary file
+                    $tmpFilePath = tempnam(sys_get_temp_dir(), 'pdf_');
+                    file_put_contents($tmpFilePath, $pdfContent);
 
-                    Telegram::sendDocument([
-                        'chat_id' => $user->telegram_user_id,
-                        'document' => $inputFile,
-                        'caption' => "Your clothes detail document is ready",
-                        'parse_mode' => 'HTML'
-                    ]);
+                    // Wrap it as InputFile with correct filename
+                    $inputFile = InputFile::create($tmpFilePath, $file_name);
 
-                    unlink($pdfFilePath);
+                    // Send telegram message with the file
+                    Broadcast::sendTelegramDoc($user->telegram_user_id, $inputFile, "Your daily report is ready");
+
+                    // Clean up temp file
+                    unlink($tmpFilePath);
                 }
 
-                return response($dompdf->output(), 200)
+                // Return success response
+                return response($pdfContent, 200)
                     ->header('Content-Type', 'application/pdf')
                     ->header('Content-Disposition', "inline; filename='$file_name'");
             } else {

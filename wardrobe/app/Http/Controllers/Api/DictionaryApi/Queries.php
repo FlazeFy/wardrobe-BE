@@ -35,7 +35,7 @@ class Queries extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="dictionary found",
+     *         description="dictionary fetched successfully",
      *         @OA\JsonContent(type="object",
      *             @OA\Property(property="status", type="string", example="success"),
      *             @OA\Property(property="message", type="string", example="clothes fetched"),
@@ -108,7 +108,7 @@ class Queries extends Controller
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
-     *         description="clothes category type found",
+     *         description="clothes category fetched successfully",
      *         @OA\JsonContent(type="object",
      *             @OA\Property(property="status", type="string", example="success"),
      *             @OA\Property(property="message", type="string", example="clothes category type fetched"),

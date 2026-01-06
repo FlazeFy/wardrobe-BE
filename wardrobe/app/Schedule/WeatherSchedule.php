@@ -84,7 +84,7 @@ class WeatherSchedule
 
             if($admin){
                 foreach($admin as $dt){
-                    $message = "[ADMIN] Hello $dt->username, there is an error in scheduler : weather_routine_fetch. Here's the detail :\n\n".$e->getMessage();
+                    $message = "[ADMIN] Hello $dt->username, there is an error in scheduler : weather_routine_fetch. Here's the detail :\n\n".Generator::getMessageTemplate("unknown_error", null);
 
                     if($dt->telegram_user_id && $dt->telegram_is_valid == 1){
                         $response = Telegram::sendMessage([

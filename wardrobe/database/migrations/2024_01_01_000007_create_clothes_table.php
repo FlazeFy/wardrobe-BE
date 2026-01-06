@@ -27,6 +27,7 @@ return new class extends Migration
             $table->boolean('has_ironed');
             $table->boolean('is_favorite');
             $table->boolean('is_scheduled');
+            $table->json('clothes_image')->nullable();
 
             // Props
             $table->dateTime('created_at', $precision = 0);

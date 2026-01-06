@@ -8,22 +8,28 @@ use App\Http\Controllers\Controller;
 // Models
 use App\Models\UserModel;
 use App\Models\AdminModel;
-
 // Helpers
 use App\Helpers\Generator;
 
 class Queries extends Controller
 {
+    private $module;
+
+    public function __construct()
+    {
+        $this->module = "profile";
+    }
+
     /**
      * @OA\GET(
      *     path="/api/v1/user/my",
-     *     summary="Get my profile",
-     *     description="This request is used to get user profile. This request is using MySql database, and have a protected routes",
+     *     summary="Get My Profile",
+     *     description="This request is used to get user profile. This request interacts with the MySQL database, and has a protected routes",
      *     tags={"User"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
-     *         description="profile fetched",
+     *         description="Profile fetched successfully",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="success"),
      *             @OA\Property(property="message", type="string", example="profile fetched"),
@@ -67,25 +73,24 @@ class Queries extends Controller
     {
         try{
             $user_id = $request->user()->id;
-            $res = null;
 
-            $is_admin = AdminModel::getProfile($user_id);
-            if($is_admin){
-                $res = $is_admin;
-            } else {
-                $res = UserModel::getProfile($user_id);
+            // Get user profile by role
+            $res = AdminModel::getSocial($user_id);
+            if($res === null){
+                $res = UserModel::getSocial($user_id);
             }
 
-            if ($res) {
+            if($res) {
+                // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", 'profile'),
+                    'message' => Generator::getMessageTemplate("fetch", $this->module),
                     'data' => $res
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", 'profile'),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -99,12 +104,13 @@ class Queries extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/user/my_year",
-     *     summary="Get Available Year for User to Filter",
-     *     description="This request is used to get all year found on content (clothes, outfit, wash, schedule). This request is using MySql database",
+     *     summary="Get Available Year",
+     *     description="This request is used to get all year found on content (clothes, outfit, wash, schedule). This request interacts with the MySQL database, and has a protected routes",
      *     tags={"User"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
-     *         description="year filter fetched",
+     *         description="Year filter fetched successfully. Ordered in descending order by `year`",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="success"),
      *             @OA\Property(property="message", type="string", example="year filter fetched"),
@@ -113,6 +119,22 @@ class Queries extends Controller
      *                      @OA\Property(property="year", type="integer", example=2024)
      *                  )
      *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="year failed to fetched",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="year filter not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="protected route need to include sign in token as authorization bearer",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
      *         )
      *     ),
      *     @OA\Response(
@@ -128,13 +150,22 @@ class Queries extends Controller
     public function get_my_available_year_filter(Request $request){
         try{
             $user_id = $request->user()->id;
-            $res = UserModel::getMyAvailableYearFilter($user_id);
 
-            return response()->json([
-                'status' => 'success',
-                'message' => Generator::getMessageTemplate("fetch", 'year filter'),
-                'data' => $res
-            ], Response::HTTP_OK);
+            // Get user's year by the content they post
+            $res = UserModel::getMyAvailableYearFilter($user_id);
+            if($res && count($res) > 0){
+                // Return success response
+                return response()->json([
+                    'status' => 'success',
+                    'message' => Generator::getMessageTemplate("fetch", 'year filter'),
+                    'data' => $res
+                ], Response::HTTP_OK);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => Generator::getMessageTemplate("not_found", 'year filter'),
+                ], Response::HTTP_NOT_FOUND);
+            }
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',

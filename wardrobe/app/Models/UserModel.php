@@ -91,12 +91,6 @@ class UserModel extends Authenticatable
         return $res;
     }
 
-    public static function getProfile($id){
-        return UserModel::select('username','email','telegram_user_id','telegram_is_valid','created_at','updated_at')
-            ->where('id',$id)
-            ->first();
-    }
-
     public static function getMyAvailableYearFilter($user_id){
         $clothes_years = ClothesModel::selectRaw('YEAR(created_at) as year')
             ->where('created_by', $user_id)
@@ -159,6 +153,17 @@ class UserModel extends Authenticatable
             ->get();
 
         return count($res) > 0 ? $res : null;
+    }
+
+    public static function getByUsername($username){
+        return UserModel::where('username',$username)->first();
+    }
+
+    public static function updateUserById($data,$id){
+        if (!(count($data) === 1 && array_key_exists('firebase_fcm_token', $data))) {
+            $data['updated_at'] = date('Y-m-d H:i:s');
+        }
+        return UserModel::where('id',$id)->update($data);
     }
 
     public function latestTrack()

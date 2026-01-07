@@ -24,13 +24,15 @@ class CleanSchedule
     public static function clean_history()
     {
         $days = 30;
-        $total = HistoryModel::deleteHistoryForLastNDays($days);
-        $admin = AdminModel::getAllContact();
 
+        // Delete history for last n days
+        $total = HistoryModel::deleteHistoryForLastNDays($days);
+        // Get admin contact
+        $admin = AdminModel::getAllContact();
         if($admin){
             foreach($admin as $dt){
+                // Broadcast Telegram
                 $message = "[ADMIN] Hello $dt->username, the system just run a clean history, with result of $total history executed";
-
                 if($dt->telegram_user_id && $dt->telegram_is_valid == 1){
                     Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                 }
@@ -43,14 +45,17 @@ class CleanSchedule
         $days = 30;
         $total_clothes = 0;
         $total_user = 0;
-        $plan = ClothesModel::getClothesPlanDestroy($days);
-        $admin = AdminModel::getAllContact();
 
+        // Get clothes who is ready to deleted
+        $plan = ClothesModel::getClothesPlanDestroy($days);
+        // Get all contact
+        $admin = AdminModel::getAllContact();
         if($plan){
             $user_before = "";
             $list_clothes = "";
 
             foreach ($plan as $idx => $dt) {
+                // Delete all data who the model related to clothes
                 ClothesModel::destroy($dt->id);
                 OutfitRelModel::hardDeleteOutfitRelByClothesId($dt->id);
                 WashModel::hardDeleteWashByClothesId($dt->id);
@@ -68,9 +73,12 @@ class CleanSchedule
                 if ($is_last_or_diff_user) {
                     $message = "Hello $dt->username, We've recently cleaned up your deleted clothes. Here are the details:\n\n$list_clothes";
 
+                    // Broadcast Telegram
                     if ($dt->telegram_user_id && $dt->telegram_is_valid == 1) {
                         Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                     }
+
+                    // Broadcast FCM Notification
                     if($dt->firebase_fcm_token){
                         $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
                         $messaging = $factory->createMessaging();
@@ -89,8 +97,8 @@ class CleanSchedule
 
         if($admin){
             foreach($admin as $dt){
+                // Broadcast Telegram
                 $message = "[ADMIN] Hello $dt->username, the system just run a clean deleted clothes, with result of $total_clothes clothes executed from $total_user user";
-
                 if($dt->telegram_user_id && $dt->telegram_is_valid == 1){
                     Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                 }

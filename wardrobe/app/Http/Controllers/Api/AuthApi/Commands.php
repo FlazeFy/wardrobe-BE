@@ -319,6 +319,7 @@ class Commands extends Controller
                         'result' => Generator::getMessageTemplate("custom", 'invalid token'),
                     ], Response::HTTP_NOT_FOUND);
                 } else {
+                    // Check if token already expired
                     $date_request = $is_exist->created_at;
                     $date_now = Carbon::now();
                     $is_expired = $date_now->diffInMinutes($date_request) > 20;

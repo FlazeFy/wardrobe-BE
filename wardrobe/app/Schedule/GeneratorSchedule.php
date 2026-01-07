@@ -82,6 +82,7 @@ class GeneratorSchedule
 
                     $list_clothes = "";
 
+                    // Prepare sentece of list clothes
                     foreach ($final_res as $dt) {
                         $list_clothes .= "- ".ucwords($dt['clothes_name'])." (".ucwords($dt['clothes_type'])." - ".ucwords($dt['clothes_color']).")\n";
                         if($dt['last_used']){
@@ -91,14 +92,15 @@ class GeneratorSchedule
                         }
                     }
 
+                    // Broadcast Telegram
                     $message = "Hello $user->username, we've just got you a suggestion for the tommorow outfit. Here are the details:\n\n$list_clothes";
                     Broadcast::sendTelegramMessage($user->telegram_user_id, $message);
 
+                    // Broadcast FCM Notification
                     if($user->firebase_fcm_token){
                         $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
                         $messaging = $factory->createMessaging();
-                        $message_fcm = CloudMessage::withTarget('token', $user->firebase_fcm_token)
-                            ->withNotification(Notification::create("Hello $user->username, we've just got you a suggestion for the tommorow outfit", $user->firebase_fcm_token));
+                        $message_fcm = CloudMessage::withTarget('token', $user->firebase_fcm_token)->withNotification(Notification::create("Hello $user->username, we've just got you a suggestion for the tommorow outfit", $user->firebase_fcm_token));
                         $response = $messaging->send($message_fcm);
                     }
                 }

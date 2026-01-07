@@ -251,7 +251,7 @@ class Queries extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/stats/clothes/yearly/{ctx}",
-     *     summary="Get yearly stats activity",
+     *     summary="Get Yearly Stats Activity",
      *     description="This request is used to get yearly stats activity using given `ctx`. This request interacts with the MySQL database, has a protected routes",
      *     tags={"Stats"},
      *     security={{"bearerAuth":{}}},

@@ -22,8 +22,8 @@ class AuditSchedule
 {
     public static function audit_error()
     {
+        // Get all error
         $summary = ErrorModel::getAllErrorAudit();
-        
         if($summary){
             $audit = "";
             $total = count($summary);
@@ -45,9 +45,10 @@ class AuditSchedule
                 ";
             }
             
+            // Get admin contact
             $admin = AdminModel::getAllContact();
-
             if($admin){
+                // Prepare document config
                 $datetime = date("Y-m-d H:i:s");    
                 $options = new DompdfOptions();
                 $options->set('defaultFont', 'Helvetica');
@@ -84,35 +85,41 @@ class AuditSchedule
                 $dompdf->render();
         
                 $pdfContent = $dompdf->output();
-                $pdfFilePath = public_path("audit_error_$datetime.pdf");
-                file_put_contents($pdfFilePath, $pdfContent);
-                $inputFile = InputFile::create($pdfFilePath, $pdfFilePath);
+
+                // Create a temporary file
+                $tmpFilePath = tempnam(sys_get_temp_dir(), 'pdf_');
+                file_put_contents($tmpFilePath, $pdfContent);
+
+                // Wrap it as InputFile with correct filename
+                $inputFile = InputFile::create($tmpFilePath, $file_name);
 
                 foreach($admin as $dt){                    
-                    // Send telegram message with the file
+                    // Broadcast FCM Notification
                     if($dt->telegram_user_id && $dt->telegram_is_valid == 1){
                         $message = "[ADMIN] Hello $dt->username, the system just run an audit error, with result of $total error found. Here's the document";
                         Broadcast::sendTelegramDoc($dt->telegram_user_id, $inputFile, $message);
                     }
                 }
         
-                unlink($pdfFilePath);
+                // Clean up temp file
+                unlink($tmpFilePath);
             }
         }
     }
 
     public static function audit_apps(){
         $days = 7;
+
+        // Get apps summary for last n days
         $summary = AdminModel::getAppsSummaryForLastNDays($days);
-
         if($summary){
+            // Get admin contact
             $admin = AdminModel::getAllContact();
-
             if($admin){
                 foreach($admin as $dt){
+                    // Broadcast FCM Notification
                     $message_template = "[ADMIN] Hello $dt->username, here's the apps summary for the last $days days:";
                     $message = "$message_template\n\n- Clothes Created: $summary->clothes_created\n- Outfit Generated: $summary->outfit_generated\n- Wash Created: $summary->wash_created\n- Clothes Used: $summary->clothes_used\n- New User : $summary->new_user\n- Question Created : $summary->question_created\n- Error Happen : $summary->error_happen";
-
                     if($dt->telegram_user_id && $dt->telegram_is_valid == 1){
                         Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                     }

@@ -28,13 +28,15 @@ class ReminderSchedule
     {
         $days = 30 ; // the total days must same with the one in clean deleted history
         $pre_remind_days = 3;
-        $plan = ClothesModel::getClothesPrePlanDestroy($days - $pre_remind_days);
 
+        // Get clothes who ready to permanently deleted
+        $plan = ClothesModel::getClothesPrePlanDestroy($days - $pre_remind_days);
         if($plan){
             $user_before = "";
             $list_clothes = "";
             
             foreach ($plan as $idx => $dt) {
+                // Prepare sentece of list clothes
                 if ($user_before == "" || $user_before == $dt->username) {
                     $extra_desc = "";
                     if($dt->total_outfit_attached > 0){
@@ -49,14 +51,16 @@ class ReminderSchedule
                 if ($is_last_or_diff_user) {
                     $message = "Hello $dt->username, We're here to remind you. That some of your clothes are set to deleted in $pre_remind_days days from now. Here are the details:\n\n$list_clothes";
 
+                    // Broadcast Telegram
                     if ($dt->telegram_user_id && $dt->telegram_is_valid == 1) {
                         Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                     }
+
+                    // Broadcast FCM Notification
                     if($dt->firebase_fcm_token){
                         $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
                         $messaging = $factory->createMessaging();
-                        $message_fcm = CloudMessage::withTarget('token', $dt->firebase_fcm_token)
-                            ->withNotification(Notification::create($message, $dt->firebase_fcm_token));
+                        $message_fcm = CloudMessage::withTarget('token', $dt->firebase_fcm_token)->withNotification(Notification::create($message, $dt->firebase_fcm_token));
                         $response = $messaging->send($message_fcm);
                     }
 
@@ -70,13 +74,14 @@ class ReminderSchedule
 
     public static function remind_unwashed_clothes()
     {
+        // Get unwashed clothes
         $clothes = ClothesModel::getUnwashedClothes();
-
         if($clothes){
             $user_before = "";
             $list_clothes = "";
             
             foreach ($clothes as $idx => $dt) {
+                // Prepare sentece of list clothes
                 if ($user_before == "" || $user_before == $dt->username) {
                     $extra_desc = "";
                     if($dt->clothes_buy_at || $dt->is_favorite == 1 || $dt->is_scheduled == 1){
@@ -112,14 +117,16 @@ class ReminderSchedule
                 if ($is_last_or_diff_user) {
                     $message = "Hello $dt->username, We're here to remind you. You have some clothes that has not been washed yet. Here are the details:\n\n$list_clothes";
 
+                    // Broadcast Telegram
                     if ($dt->telegram_user_id && $dt->telegram_is_valid == 1) {
                         Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                     }
+
+                    // Broadcast FCM Notification
                     if($dt->firebase_fcm_token){
                         $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
                         $messaging = $factory->createMessaging();
-                        $message_fcm = CloudMessage::withTarget('token', $dt->firebase_fcm_token)
-                            ->withNotification(Notification::create($message, $dt->firebase_fcm_token));
+                        $message_fcm = CloudMessage::withTarget('token', $dt->firebase_fcm_token)->withNotification(Notification::create($message, $dt->firebase_fcm_token));
                         $response = $messaging->send($message_fcm);
                     }
 
@@ -133,13 +140,14 @@ class ReminderSchedule
 
     public static function remind_unironed_clothes()
     {
+        // Get unironed clothes 
         $clothes = ClothesModel::getUnironedClothes();
-
         if($clothes){
             $user_before = "";
             $list_clothes = "";
             
             foreach ($clothes as $idx => $dt) {
+                // Prepare sentece of list clothes
                 if ($user_before == "" || $user_before == $dt->username) {
                     $extra_desc = " (";
 
@@ -172,14 +180,16 @@ class ReminderSchedule
                 if ($is_last_or_diff_user) {
                     $message = "Hello $dt->username, We're here to remind you. You have some clothes that has not been ironed yet. We only suggest the clothes that is made from cotton, linen, silk, or rayon. Here are the details:\n\n$list_clothes";
 
+                    // Broadcast Telegram
                     if ($dt->telegram_user_id && $dt->telegram_is_valid == 1) {
                         Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                     }
+
+                    // Broadcast FCM Notification
                     if($dt->firebase_fcm_token){
                         $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
                         $messaging = $factory->createMessaging();
-                        $message_fcm = CloudMessage::withTarget('token', $dt->firebase_fcm_token)
-                            ->withNotification(Notification::create($message, $dt->firebase_fcm_token));
+                        $message_fcm = CloudMessage::withTarget('token', $dt->firebase_fcm_token)->withNotification(Notification::create($message, $dt->firebase_fcm_token));
                         $response = $messaging->send($message_fcm);
                     }
 
@@ -194,13 +204,15 @@ class ReminderSchedule
     public static function remind_unused_clothes()
     {
         $days = 60;
-        $clothes = ClothesModel::getUnusedClothes($days);
 
+        // Get unused clothes
+        $clothes = ClothesModel::getUnusedClothes($days);
         if($clothes){
             $user_before = "";
             $list_clothes = "";
             
             foreach ($clothes as $idx => $dt) {
+                // Prepare sentece of list clothes
                 if ($user_before == "" || $user_before == $dt->username) {
                     if($dt->total_used > 0){
                         $extra_desc = "Last used at ".date('Y-m-d',strtotime($dt->last_used));
@@ -221,14 +233,16 @@ class ReminderSchedule
                 if ($is_last_or_diff_user) {
                     $message = "Hello $dt->username, We're here to remind you. You have some clothes that has never been used since $days days after washed or being added to Wardrobe. Here are the details:\n\n$list_clothes\n\nUse and wash it again to keep your clothes at good quality and not smell musty";
 
+                    // Broadcast Telegram
                     if ($dt->telegram_user_id && $dt->telegram_is_valid == 1) {
                         Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                     }
+
+                    // Broadcast FCM Notification
                     if($dt->firebase_fcm_token){
                         $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
                         $messaging = $factory->createMessaging();
-                        $message_fcm = CloudMessage::withTarget('token', $dt->firebase_fcm_token)
-                            ->withNotification(Notification::create($message, $dt->firebase_fcm_token));
+                        $message_fcm = CloudMessage::withTarget('token', $dt->firebase_fcm_token)->withNotification(Notification::create($message, $dt->firebase_fcm_token));
                         $response = $messaging->send($message_fcm);
                     }
 
@@ -244,13 +258,15 @@ class ReminderSchedule
     {
         $today = date('Y-m-d');
         $tomorrow = Carbon::parse($today)->addDay()->format('D');
-        $clothes = ScheduleModel::getPlanSchedule($tomorrow);
 
+        // Get schedule by date
+        $clothes = ScheduleModel::getPlanSchedule($tomorrow);
         if($clothes){
             $user_before = "";
             $list_clothes = "";
             
             foreach ($clothes as $idx => $dt) {
+                // Prepare sentece of list clothes
                 if ($user_before == "" || $user_before == $dt->username) {
                     $extra_desc = " (";
 
@@ -273,17 +289,18 @@ class ReminderSchedule
                 if ($is_last_or_diff_user) {
                     $message = "Hello $dt->username, We're here to remind you. You have some schedule for tommorow (".ucfirst($tomorrow).") to follow. Here are the details:\n\n$list_clothes";
 
+                    // Broadcast Telegram
                     if ($dt->telegram_user_id && $dt->telegram_is_valid == 1) {
                         Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                     }
 
                     $list_clothes = "";
 
+                    // Broadcast FCM Notification
                     if($dt->firebase_fcm_token){
                         $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
                         $messaging = $factory->createMessaging();
-                        $message_fcm = CloudMessage::withTarget('token', $dt->firebase_fcm_token)
-                            ->withNotification(Notification::create($message, $dt->firebase_fcm_token));
+                        $message_fcm = CloudMessage::withTarget('token', $dt->firebase_fcm_token)->withNotification(Notification::create($message, $dt->firebase_fcm_token));
                         $response = $messaging->send($message_fcm);
                     }
                 }
@@ -295,12 +312,13 @@ class ReminderSchedule
 
     public static function remind_unanswered_question()
     {
+        // Get question that still not been answered
         $question = QuestionModel::getUnansweredQuestion();
-
         if($question){
             $list_question = "";
             $audit_tbody = "";
             
+            // Prepare sentece of list question
             foreach ($question as $idx => $dt) {
                 $list_question .= "- ".ucfirst($dt->question)."\nNotes: <i>ask at $dt->created_at</i>\n\n";
 
@@ -313,8 +331,10 @@ class ReminderSchedule
                 ";
             }
 
+            // Get admin contact 
             $admin = AdminModel::getAllContact();
             if($admin){
+                // Prepare document config
                 $datetime = date("Y-m-d H:i:s");    
                 $options = new DompdfOptions();
                 $options->set('defaultFont', 'Helvetica');
@@ -350,9 +370,13 @@ class ReminderSchedule
                 $dompdf->render();
         
                 $pdfContent = $dompdf->output();
-                $pdfFilePath = public_path("reminder_unanswered_question_$datetime.pdf");
-                file_put_contents($pdfFilePath, $pdfContent);
-                $inputFile = InputFile::create($pdfFilePath, $pdfFilePath);
+                
+                // Create a temporary file
+                $tmpFilePath = tempnam(sys_get_temp_dir(), 'pdf_');
+                file_put_contents($tmpFilePath, $pdfContent);
+
+                // Wrap it as InputFile with correct filename
+                $inputFile = InputFile::create($tmpFilePath, $file_name);
 
                 foreach($admin as $dt){    
                     // Send telegram message with the file
@@ -362,7 +386,8 @@ class ReminderSchedule
                     }
                 }
 
-                unlink($pdfFilePath);
+                // Clean up temp file
+                unlink($tmpFilePath);
             }
         }
     }
@@ -370,12 +395,14 @@ class ReminderSchedule
     public static function remind_old_last_track()
     {
         $days = 5;
-        $old_track = UserTrackModel::getOldLastTrack($days);
 
+        // Get user track that has passed n days
+        $old_track = UserTrackModel::getOldLastTrack($days);
         if($old_track){            
             foreach ($old_track as $dt) {
                 $message = "Hello ".$dt['username'].", We've noticed that your last location record when using Wardrobe is at ".date("Y-m-d H:i",strtotime($dt['last_track'])).".\n\nKeep update your location via opened the Wardrobe Web or Mobile version. Or maybe just send your current location via Wardrobe Telegram BOT.";
     
+                // Broadcast Telegram
                 if($dt['telegram_user_id'] && $dt['telegram_is_valid'] == 1){
                     Broadcast::sendTelegramMessage($dt['telegram_user_id'], $message);
                 }
@@ -385,13 +412,15 @@ class ReminderSchedule
 
     public static function remind_wash_used_clothes(){
         $days = 7;
-        $clothes = ClothesUsedModel::getUsedClothesReadyToWash($days);
 
+        // Get used clothes that ready to wash
+        $clothes = ClothesUsedModel::getUsedClothesReadyToWash($days);
         if($clothes){          
             $user_before = "";
             $list_clothes = "";
 
             foreach ($clothes as $idx => $dt) {
+                // Prepare sentece of list clothes
                 if ($user_before == "" || $user_before == $dt->username) {
                     $extra_desc = "";
 
@@ -417,14 +446,16 @@ class ReminderSchedule
                 if ($is_last_or_diff_user) {
                     $message = "Hello $dt->username, We've noticed that some of your clothes are not washed after being used after $days days from now. Don't forget to wash your used clothes, here's the detail:\n\n$list_clothes";
     
+                    // Broadcast Telegram
                     if($dt->telegram_user_id && $dt->telegram_is_valid == 1){
                         Broadcast::sendTelegramMessage($dt->telegram_user_id, $message);
                     }
+
+                    // Broadcast FCM Notification
                     if($dt->firebase_fcm_token){
                         $factory = (new Factory)->withServiceAccount(base_path('/firebase/wardrobe-26571-firebase-adminsdk-fint4-9966f0909b.json'));
                         $messaging = $factory->createMessaging();
-                        $message_fcm = CloudMessage::withTarget('token', $dt->firebase_fcm_token)
-                            ->withNotification(Notification::create($message, $dt->firebase_fcm_token));
+                        $message_fcm = CloudMessage::withTarget('token', $dt->firebase_fcm_token)->withNotification(Notification::create($message, $dt->firebase_fcm_token));
                         $response = $messaging->send($message_fcm);
                     }
 

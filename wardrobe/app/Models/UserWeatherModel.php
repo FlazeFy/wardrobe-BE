@@ -5,6 +5,9 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// Helper
+use App\Helpers\Generator;
+
 /**
  * @OA\Schema(
  *     schema="UserWeather",
@@ -31,4 +34,12 @@ class UserWeatherModel extends Model
     protected $table = 'user_weather';
     protected $primaryKey = 'id';
     protected $fillable = ['id', 'weather_temp', 'weather_humid', 'weather_city', 'weather_condition', 'weather_hit_from', 'created_at', 'created_by'];
+
+    public static function createUserWeather($data, $user_id){
+        $data['id'] = Generator::getUUID();
+        $data['created_at'] = date('Y-m-d H:i:s');
+        $data['created_by'] = $user_id;
+
+        return UserWeatherModel::create($data);
+    }
 }

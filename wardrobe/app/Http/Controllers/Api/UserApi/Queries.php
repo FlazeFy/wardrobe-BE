@@ -69,7 +69,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_my_profile(Request $request)
+    public function getMyProfile(Request $request)
     {
         try{
             $user_id = $request->user()->id;
@@ -147,7 +147,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_my_available_year_filter(Request $request){
+    public function getMyAvailableYearFilter(Request $request){
         try{
             $user_id = $request->user()->id;
 

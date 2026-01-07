@@ -95,7 +95,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function hard_delete_clothes_by_id(Request $request, $id)
+    public function hardDeleteClothesByID(Request $request, $id)
     {
         try {
             $user_id = $request->user()->id;
@@ -202,7 +202,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function soft_delete_clothes_by_id(Request $request, $id)
+    public function softDeleteClothesByID(Request $request, $id)
     {
         try{
             $user_id = $request->user()->id;
@@ -274,7 +274,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function post_history_clothes(Request $request)
+    public function postHistoryClothes(Request $request)
     {
         try{
             // Validate request body
@@ -355,7 +355,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function post_schedule(Request $request)
+    public function postSchedule(Request $request)
     {
         try{
             // Validate request body
@@ -422,7 +422,8 @@ class Commands extends Controller
     /**
      * @OA\PUT(
      *     path="/api/v1/clothes/update_checkpoint/{id}",
-     *     summary="Put Update Clothes Wash By ID",
+     *     summary="Put Update Clothes Wash Checkpoint By ID",
+     *     description="This request is used to update clothes wash checkpoint by given `id`. This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="id",
@@ -466,7 +467,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function update_wash_by_clothes_id(Request $request, $id)
+    public function updateWashByClothesID(Request $request, $id)
     {
         try{
             $user_id = $request->user()->id;
@@ -541,7 +542,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function hard_delete_wash_by_id(Request $request, $id)
+    public function hardDeleteWashByID(Request $request, $id)
     {
         try {
             $user_id = $request->user()->id;
@@ -616,7 +617,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function hard_delete_clothes_used_by_id(Request $request, $id)
+    public function hardDeleteClothesUsedByID(Request $request, $id)
     {
         try {
             $user_id = $request->user()->id;
@@ -692,7 +693,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function post_clothes(Request $request)
+    public function postClothes(Request $request)
     {
         try{
             $user_id = $request->user()->id;
@@ -982,7 +983,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function recover_clothes_by_id(Request $request, $id)
+    public function recoverClothesByID(Request $request, $id)
     {
         try{
             $user_id = $request->user()->id;
@@ -1069,7 +1070,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function hard_delete_schedule_by_id(Request $request, $id)
+    public function hardDeleteScheduleByID(Request $request, $id)
     {
         try{
             $user_id = $request->user()->id;
@@ -1149,7 +1150,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function post_generated_outfit(Request $request)
+    public function postGeneratedOutfit(Request $request)
     {
         try{
             $user_id = $request->user()->id;
@@ -1265,7 +1266,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function post_save_outfit(Request $request)
+    public function postSaveOutfit(Request $request)
     {
         try{
             $user_id = $request->user()->id;
@@ -1403,7 +1404,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function hard_delete_used_outfit_by_id(Request $request, $id){
+    public function hardDeleteUsedOutfitByID(Request $request, $id){
         try{
             $user_id = $request->user()->id;
 
@@ -1469,7 +1470,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function post_save_outfit_history(Request $request)
+    public function postSaveOutfitHistory(Request $request)
     {
         try{
             $user_id = $request->user()->id;
@@ -1608,7 +1609,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function post_save_clothes_outfit(Request $request){
+    public function postSaveClothesOutfit(Request $request){
         try{
             $user_id = $request->user()->id;
             $outfit_id = $request->outfit_id;
@@ -1748,7 +1749,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function hard_delete_clothes_outfit_by_id(Request $request, $clothes_id, $outfit_id){
+    public function hardDeleteClothesOutfitByID(Request $request, $clothes_id, $outfit_id){
         try{
             $user_id = $request->user()->id;
 
@@ -1835,7 +1836,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function post_wash_clothes(Request $request){
+    public function postWashClothes(Request $request){
         try{
             $user_id = $request->user()->id;
 

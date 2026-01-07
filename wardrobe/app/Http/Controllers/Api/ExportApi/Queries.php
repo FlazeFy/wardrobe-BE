@@ -34,7 +34,7 @@ use App\Helpers\Broadcast;
 
 class Queries extends Controller
 {
-    public function get_export_clothes_excel(Request $request)
+    public function getExportClothesExcel(Request $request)
     {
         try {
             $user_id = $request->user()->id;
@@ -130,7 +130,7 @@ class Queries extends Controller
         }
     }
 
-    public function get_export_clothes_used_excel(Request $request)
+    public function getExportClothesUsedExcel(Request $request)
     {
         try {
             $user_id = $request->user()->id;
@@ -203,7 +203,7 @@ class Queries extends Controller
         }
     }
 
-    public function get_export_wash_excel(Request $request)
+    public function getExportWashExcel(Request $request)
     {
         try {
             $user_id = $request->user()->id;
@@ -279,7 +279,7 @@ class Queries extends Controller
         }
     }
 
-    public function get_export_history_excel(Request $request)
+    public function getExportHistoryExcel(Request $request)
     {
         try {
             $user_id = $request->user()->id;
@@ -352,7 +352,7 @@ class Queries extends Controller
         }
     }
 
-    public function get_export_clothes_calendar_excel(Request $request, $year){
+    public function getExportClothesCalendarExcel(Request $request, $year){
         try {
             $user_id = $request->user()->id;
             $datetime = date('Y-m-d_H-i-s');
@@ -441,7 +441,7 @@ class Queries extends Controller
         }
     }
 
-    public function get_export_clothes_calendar_daily_pdf(Request $request, $date){
+    public function getExportClothesCalendarDailyPdf(Request $request, $date){
         try {
             $user_id = $request->user()->id;
             $datetime = date('Y-m-d_H-i-s');
@@ -494,7 +494,7 @@ class Queries extends Controller
         }
     }
 
-    public function get_export_clothes_detail_by_id_pdf(Request $request, $id){
+    public function getExportClothesDetailByIDPdf(Request $request, $id){
         try {
             $user_id = $request->user()->id;
             $datetime = date('Y-m-d_H-i-s');

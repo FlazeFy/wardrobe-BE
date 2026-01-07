@@ -15,6 +15,9 @@ use App\Models\WashModel;
 use App\Models\ScheduleModel;
 use App\Models\UserTrackModel;
 
+// Helper
+use App\Helpers\Generator;
+
 /**
  * @OA\Schema(
  *     schema="User",
@@ -157,6 +160,20 @@ class UserModel extends Authenticatable
 
     public static function getByUsername($username){
         return UserModel::where('username',$username)->first();
+    }
+
+    public static function isUsernameOrEmailUsed($username, $email){
+        return UserModel::where('username', $username)->orwhere('email',$email)->exists();
+    }
+
+    public static function createUser($data){
+        $data['id'] = Generator::getUUID();
+        $data['created_at'] = date('Y-m-d H:i:s');
+        $data['telegram_is_valid'] = 0;
+        $data['telegram_user_id'] = null;
+        $data['updated_at'] = null;
+
+        return UserModel::create($data);
     }
 
     public static function updateUserById($data,$id){

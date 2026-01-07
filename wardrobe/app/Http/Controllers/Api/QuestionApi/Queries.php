@@ -13,6 +13,7 @@ use App\Helpers\Generator;
 class Queries extends Controller
 {
     private $module;
+    
     public function __construct()
     {
         $this->module = "question";
@@ -59,7 +60,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_question_faq()
+    public function getQuestionFAQ()
     {
         try{
             // Get FAQ (question)

@@ -145,7 +145,8 @@ class Commands extends Controller
     /**
      * @OA\POST(
      *     path="/api/v1/register",
-     *     summary="Register to the Apps",
+     *     summary="Post Register Apps",
+     *     description="This authentication request is used to register / sign up new account. This request interacts with the MySQL database and broadcast with mailer.",
      *     tags={"Auth"},
      *     @OA\Response(
      *         response=201,
@@ -187,42 +188,35 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function register(Request $request)
+    public function postRegister(Request $request)
     {
         try {
+            // Validate request body
             $validator = Validation::getValidateRegister($request);
-
             if ($validator->fails()) {
-                $errors = $validator->messages();
-
                 return response()->json([
                     'status' => 'failed',
-                    'result' => $errors,
+                    'result' => $validator->messages(),
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             } else {
+                // Make sure password has number
                 $validPass = Validation::hasNumber($request->password);
-
                 if($validPass){
-                    $is_exist = UserModel::where('username', $request->username)->orwhere('email',$request->email)->first();
-
+                    // Make sure username or email not used
+                    $is_exist = UserModel::isUsernameOrEmailUsed($request->username, $request->email);
                     if ($is_exist) {
                         return response()->json([
                             'status' => 'failed',
                             'result' => Generator::getMessageTemplate("custom", 'username or email already been used'),
                         ], Response::HTTP_CONFLICT);
                     } else {
-                        $user = UserModel::create([
-                            'id' => Generator::getUUID(), 
+                        // Create user
+                        $user = UserModel::createUser([
                             'username' => $request->username, 
                             'password' => Hash::make($request->password), 
                             'email' => $request->email, 
-                            'telegram_is_valid' => 0, 
-                            'telegram_user_id' => null, 
-                            'firebase_fcm_token' => $request->firebase_fcm_token ?? null, 
-                            'created_at' => date('Y-m-d H:i:s'), 
-                            'updated_at' => null
+                            'firebase_fcm_token' => $request->firebase_fcm_token ?? null
                         ]);
-
                         if($user){
                             $token = $user->createToken('login')->plainTextToken;
                             unset($user->password);
@@ -231,18 +225,14 @@ class Commands extends Controller
                             unset($user->firebase_fcm_token);
                             unset($user->updated_at);
 
+                            // Create user request
                             $token = Generator::getToken();
-                            UserRequestModel::create([
-                                'id' => Generator::getUUID(),
-                                'request_token' => $token,
-                                'request_context' => 'register',
-                                'created_at' => date("Y-m-d H:i:s"),
-                                'created_by' => $user->id,
-                                'validated_at' => null
-                            ]);
+                            UserRequestModel::createUserRequest(['request_token' => $token, 'request_context' => 'register'], $user_id);
 
+                            // Broadcast email
                             dispatch(new WelcomeMailer($user->username, $user->email, $token));
 
+                            // Return success response
                             return response()->json([
                                 'status' => 'success',
                                 'result' => $user,    
@@ -258,11 +248,7 @@ class Commands extends Controller
                 } else {
                     return response()->json([
                         'status' => 'failed',
-                        'result' => [
-                            "password" => [
-                                "Password must contain number"
-                            ]
-                        ],
+                        'result' => [ "password" => [ "Password must contain number" ]],
                     ], Response::HTTP_UNPROCESSABLE_ENTITY);
                 }
             }
@@ -277,7 +263,8 @@ class Commands extends Controller
     /**
      * @OA\POST(
      *     path="/api/v1/register/validate",
-     *     summary="Validate the registered account",
+     *     summary="Post Validate Registered Account",
+     *     description="This authentication request is used to validate request token for newly created account. This request interacts with the MySQL database.",
      *     tags={"Auth"},
      *     @OA\Response(
      *         response=201,
@@ -313,21 +300,19 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function validate_register(Request $request)
+    public function postValidateRegister(Request $request)
     {
         try {
+            // Validate request body
             $validator = Validation::getValidateRegisterToken($request);
-
             if ($validator->fails()) {
-                $errors = $validator->messages();
-
                 return response()->json([
                     'status' => 'failed',
-                    'result' => $errors,
+                    'result' => $validator->messages(),
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             } else {
+                // Make sure token is exist
                 $is_exist = UserRequestModel::validateToken($request->username, $request->token, 'register');
-
                 if ($is_exist == null) {
                     return response()->json([
                         'status' => 'failed',
@@ -344,11 +329,10 @@ class Commands extends Controller
                             'message' => Generator::getMessageTemplate("custom", 'the token has expired')
                         ], Response::HTTP_BAD_REQUEST);
                     } else {
-                        $res = UserRequestModel::where('id',$is_exist->id)->update([
-                            'validated_at' => date('Y-m-d H:i:s')
-                        ]);
-
+                        // Update user request by ID
+                        $res = UserRequestModel::updateUserRequestById(['validated_at' => date('Y-m-d H:i:s')], $is_exist->id);
                         if($res > 0){
+                            // Return success response
                             return response()->json([
                                 'status' => 'success',
                                 'message' => Generator::getMessageTemplate("custom", "account has been validated. Welcome $request->username")      

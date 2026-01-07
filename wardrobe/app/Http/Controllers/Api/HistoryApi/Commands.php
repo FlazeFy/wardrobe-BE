@@ -13,6 +13,7 @@ use App\Helpers\Generator;
 class Commands extends Controller
 {
     private $module;
+    
     public function __construct()
     {
         $this->module = "history";
@@ -67,7 +68,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function hard_delete_history_by_id(Request $request, $id)
+    public function hardDeleteHistoryByID(Request $request, $id)
     {
         try{
             $user_id = $request->user()->id;

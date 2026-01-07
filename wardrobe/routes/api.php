@@ -28,27 +28,27 @@ use App\Http\Controllers\Api\QuestionApi\Commands as CommandQuestionApi;
 Route::post('/v1/login', [CommandAuthApi::class, 'postLogin']);
 
 Route::prefix('/v1/register')->group(function () {
-    Route::post('/', [CommandAuthApi::class, 'register']);
-    Route::post('/validate', [CommandAuthApi::class, 'validate_register']);
+    Route::post('/', [CommandAuthApi::class, 'postRegister']);
+    Route::post('/validate', [CommandAuthApi::class, 'postValidateRegister']);
 });
 
 Route::prefix('/v1/question')->group(function () {
-    Route::get('/faq', [QueriesQuestionApi::class, 'get_question_faq']);
-    Route::post('/', [CommandQuestionApi::class, 'post_question']);
+    Route::get('/faq', [QueriesQuestionApi::class, 'getQuestionFAQ']);
+    Route::post('/', [CommandQuestionApi::class, 'postQuestion']);
 });
 
 Route::prefix('/v1/stats')->group(function () {
-    Route::get('/all', [QueriesStatsApi::class, 'get_all_stats']);
-    Route::get('/feedback/top', [QueriesStatsApi::class, 'get_top_feedback']);
+    Route::get('/all', [QueriesStatsApi::class, 'getAppsSummary']);
+    Route::get('/feedback/top', [QueriesStatsApi::class, 'getTopFeedback']);
     Route::prefix('/clothes')->group(function () {
-        Route::get('/yearly/{ctx}', [QueriesStatsApi::class, 'get_stats_yearly_context']);
-        Route::get('/summary', [QueriesStatsApi::class, 'get_stats_summary']);
-        Route::post('/by/{ctx}', [CommandStatsApi::class, 'get_stats_clothes_most_context']);
-        Route::get('/monthly/created_buyed/{year}', [QueriesStatsApi::class, 'get_stats_clothes_monthly_created_buyed']);
+        Route::get('/yearly/{ctx}', [QueriesStatsApi::class, 'getStatsYearlyContext']);
+        Route::get('/summary', [QueriesStatsApi::class, 'getStatsSummary']);
+        Route::post('/by/{ctx}', [CommandStatsApi::class, 'getStatsClothesMostContext']);
+        Route::get('/monthly/created_buyed/{year}', [QueriesStatsApi::class, 'getStatsClothesMonthlyCreatedBuyed']);
     });
     Route::prefix('/outfit')->group(function () {
-        Route::get('/monthly/by_outfit/{year}/{outfit_id}', [QueriesStatsApi::class, 'get_stats_outfit_monthly_by_outfit_id']);
-        Route::get('/most/used/{year}', [QueriesStatsApi::class, 'get_stats_outfit_yearly_most_used']);
+        Route::get('/monthly/by_outfit/{year}/{outfit_id}', [QueriesStatsApi::class, 'getStatsOutfitMonthlyByOutfitID']);
+        Route::get('/most/used/{year}', [QueriesStatsApi::class, 'getStatsOutfitYearlyMostUsed']);
     });
 });
 
@@ -57,106 +57,106 @@ Route::prefix('/v1/stats')->group(function () {
 Route::get('/v1/logout', [CommandAuthApi::class, 'postLogout'])->middleware(['auth:sanctum']);
 
 Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
-    Route::get('/header/{category}/{order}', [QueriesClothesApi::class, 'get_all_clothes_header']);
-    Route::get('/detail/{category}/{order}', [QueriesClothesApi::class, 'get_all_clothes_detail']);
-    Route::get('/detail/{clothes_id}', [QueriesClothesApi::class, 'get_clothes_detail_by_id']);
-    Route::get('/trash', [QueriesClothesApi::class, 'get_deleted_clothes']);
-    Route::post('/', [CommandClothesApi::class, 'post_clothes']);
-    Route::put('/recover/{id}', [CommandClothesApi::class, 'recover_clothes_by_id']);
-    Route::delete('/delete/{id}', [CommandClothesApi::class, 'soft_delete_clothes_by_id']);
-    Route::delete('/destroy/{id}', [CommandClothesApi::class, 'hard_delete_clothes_by_id']);
+    Route::get('/header/{category}/{order}', [QueriesClothesApi::class, 'getAllClothesHeader']);
+    Route::get('/detail/{category}/{order}', [QueriesClothesApi::class, 'getAllClothesDetail']);
+    Route::get('/detail/{clothes_id}', [QueriesClothesApi::class, 'getClothesDetailByID']);
+    Route::get('/trash', [QueriesClothesApi::class, 'getDeletedClothes']);
+    Route::post('/', [CommandClothesApi::class, 'postClothes']);
+    Route::put('/recover/{id}', [CommandClothesApi::class, 'recoverClothes_by_id']);
+    Route::delete('/delete/{id}', [CommandClothesApi::class, 'softDeleteClothesByID']);
+    Route::delete('/destroy/{id}', [CommandClothesApi::class, 'hardDeleteClothesByID']);
     Route::prefix('/history')->group(function () {
-        Route::get('/{clothes_id}/{order}', [QueriesClothesApi::class, 'get_clothes_used_history']);
-        Route::get('/last', [QueriesClothesApi::class, 'get_last_history']);
-        Route::post('/', [CommandClothesApi::class, 'post_history_clothes']);
-        Route::delete('/used/{id}', [CommandClothesApi::class, 'hard_delete_clothes_used_by_id']);
+        Route::get('/{clothes_id}/{order}', [QueriesClothesApi::class, 'getClothesUsedHistory']);
+        Route::get('/last', [QueriesClothesApi::class, 'getLastHistory']);
+        Route::post('/', [CommandClothesApi::class, 'postHistoryClothes']);
+        Route::delete('/used/{id}', [CommandClothesApi::class, 'hardDeleteClothesUsedByID']);
     });
     Route::prefix('/wash')->group(function () {
-        Route::get('/checkpoint/{clothes_id}', [QueriesClothesApi::class, 'get_wash_checkpoint_by_clothes_id']);
-        Route::get('/history', [QueriesClothesApi::class, 'get_all_wash_history']);
-        Route::get('/unfinished', [QueriesClothesApi::class, 'get_unfinished_wash']);
-        Route::get('/check/{clothes_id}', [QueriesClothesApi::class, 'get_clothes_wash_status_by_clothes_id']);
-        Route::post('/', [CommandClothesApi::class, 'post_wash_clothes']);
-        Route::put('/update_checkpoint/{id}', [CommandClothesApi::class, 'update_wash_by_clothes_id']);
-        Route::delete('/destroy/{id}', [CommandClothesApi::class, 'hard_delete_wash_by_id']);
+        Route::get('/checkpoint/{clothes_id}', [QueriesClothesApi::class, 'getWashCheckpointByClothesID']);
+        Route::get('/history', [QueriesClothesApi::class, 'getAllWashHistory']);
+        Route::get('/unfinished', [QueriesClothesApi::class, 'getUnfinishedWash']);
+        Route::get('/check/{clothes_id}', [QueriesClothesApi::class, 'getClothesWashStatusByClothesID']);
+        Route::post('/', [CommandClothesApi::class, 'postWashClothes']);
+        Route::put('/update_checkpoint/{id}', [CommandClothesApi::class, 'updateWashByClothesID']);
+        Route::delete('/destroy/{id}', [CommandClothesApi::class, 'hardDeleteWashByID']);
     });
     Route::prefix('/schedule')->group(function () {
-        Route::get('/{day}', [QueriesClothesApi::class, 'get_schedule_by_day']);
-        Route::get('/tomorrow/{day}', [QueriesClothesApi::class, 'get_schedule_tomorrow']);
-        Route::post('/', [CommandClothesApi::class, 'post_schedule']);
-        Route::delete('/destroy/{id}', [CommandClothesApi::class, 'hard_delete_schedule_by_id']);
+        Route::get('/{day}', [QueriesClothesApi::class, 'getScheduleByDay']);
+        Route::get('/tomorrow/{day}', [QueriesClothesApi::class, 'getScheduleTomorrow']);
+        Route::post('/', [CommandClothesApi::class, 'postSchedule']);
+        Route::delete('/destroy/{id}', [CommandClothesApi::class, 'hardDeleteScheduleByID']);
     });
     Route::prefix('/outfit')->group(function () {
-        Route::get('/', [QueriesClothesApi::class, 'get_all_outfit']);
-        Route::get('/last', [QueriesClothesApi::class, 'get_last_outfit']);
-        Route::get('/summary', [QueriesClothesApi::class, 'get_outfit_summary']);
-        Route::get('/history/{id}', [QueriesClothesApi::class, 'get_history_outfit_by_id']);
-        Route::get('/by/{id}', [QueriesClothesApi::class, 'get_outfit_by_id']);
-        Route::post('/generate', [CommandClothesApi::class, 'post_generated_outfit']);
-        Route::post('/save', [CommandClothesApi::class, 'post_save_outfit']);
-        Route::post('/save/clothes', [CommandClothesApi::class, 'post_save_clothes_outfit']);
-        Route::post('/history/save', [CommandClothesApi::class, 'post_save_outfit_history']);
-        Route::delete('/remove/{clothes_id}/{outfit_id}', [CommandClothesApi::class, 'hard_delete_clothes_outfit_by_id']);
-        Route::delete('/history/by/{id}', [CommandClothesApi::class, 'hard_delete_used_outfit_by_id']);
+        Route::get('/', [QueriesClothesApi::class, 'getAllOutfit']);
+        Route::get('/last', [QueriesClothesApi::class, 'getLastOutfit']);
+        Route::get('/summary', [QueriesClothesApi::class, 'getOutfitSummary']);
+        Route::get('/history/{id}', [QueriesClothesApi::class, 'getHistoryOutfitByID']);
+        Route::get('/by/{id}', [QueriesClothesApi::class, 'getOutfitByID']);
+        Route::post('/generate', [CommandClothesApi::class, 'postGeneratedOutfit']);
+        Route::post('/save', [CommandClothesApi::class, 'postSaveOutfit']);
+        Route::post('/save/clothes', [CommandClothesApi::class, 'postSaveClothesOutfit']);
+        Route::post('/history/save', [CommandClothesApi::class, 'postSaveOutfitHistory']);
+        Route::delete('/remove/{clothes_id}/{outfit_id}', [CommandClothesApi::class, 'hardDeleteClothesOutfitByID']);
+        Route::delete('/history/by/{id}', [CommandClothesApi::class, 'hardDeleteUsedOutfitByID']);
     });
-    Route::get('/similiar/{ctx}/{val}/{exc}', [QueriesClothesApi::class, 'get_clothes_similiar_by']);
+    Route::get('/similiar/{ctx}/{val}/{exc}', [QueriesClothesApi::class, 'getClothesSimiliarBy']);
 });
 
 Route::prefix('/v1/stats')->middleware(['auth:sanctum'])->group(function () {
-    Route::get('/clothes/monthly/used/{year}', [QueriesStatsApi::class, 'get_stats_clothes_monthly_used']);
+    Route::get('/clothes/monthly/used/{year}', [QueriesStatsApi::class, 'getStatsClothesMonthlyUsed']);
     Route::prefix('/calendar')->group(function () {
-        Route::get('/{month}/{year}', [QueriesStatsApi::class, 'get_stats_calendar']);
-        Route::get('/detail/date/{date}', [QueriesStatsApi::class, 'get_stats_calendar_by_date']);
+        Route::get('/{month}/{year}', [QueriesStatsApi::class, 'getStatsCalendar']);
+        Route::get('/detail/date/{date}', [QueriesStatsApi::class, 'getStatsCalendarByDate']);
     });
-    Route::get('/wash/summary', [QueriesStatsApi::class, 'get_stats_wash_summary']);
-    Route::get('/clothes/most/used/daily', [QueriesStatsApi::class, 'get_stats_most_used_clothes_daily']);
+    Route::get('/wash/summary', [QueriesStatsApi::class, 'getStatsWashSummary']);
+    Route::get('/clothes/most/used/daily', [QueriesStatsApi::class, 'getStatsMostUsedClothesDaily']);
 });
 
 Route::prefix('/v1/chat')->middleware(['auth:sanctum'])->group(function () {
-    Route::post('/', [CommandChatApi::class, 'post_chat']);
+    Route::post('/', [CommandChatApi::class, 'postChat']);
 });
 
 Route::prefix('/v1/error')->middleware(['auth:sanctum'])->group(function () {
-    Route::get('/', [QueriesErrorController::class, 'get_all_error']);
+    Route::get('/', [QueriesErrorController::class, 'getAllError']);
 });
 
 Route::prefix('/v1/history')->middleware(['auth:sanctum'])->group(function () {
-    Route::get('/', [QueriesHistoryApi::class, 'get_all_history']);
-    Route::delete('/destroy/{id}', [CommandHistoryApi::class, 'hard_delete_history_by_id']);
+    Route::get('/', [QueriesHistoryApi::class, 'getAllHistory']);
+    Route::delete('/destroy/{id}', [CommandHistoryApi::class, 'hardDeleteHistoryByID']);
 });
 
 Route::prefix('/v1/dct')->middleware(['auth:sanctum'])->group(function () {
-    Route::get('/{type}', [QueriesDictionaryApi::class, 'get_dct_by_type']);
-    Route::get('/clothes/category_type', [QueriesDictionaryApi::class, 'get_category_type_clothes']);
-    Route::post('/', [CommandDictionaryApi::class, 'post_dct']);
-    Route::delete('/{id}', [CommandDictionaryApi::class, 'hard_delete_dct_by_id']);
+    Route::get('/{type}', [QueriesDictionaryApi::class, 'getDctByType']);
+    Route::get('/clothes/category_type', [QueriesDictionaryApi::class, 'getCategoryTypeClothes']);
+    Route::post('/', [CommandDictionaryApi::class, 'postDct']);
+    Route::delete('/{id}', [CommandDictionaryApi::class, 'hardDeleteDctByID']);
 });
 
 Route::prefix('/v1/feedback')->middleware(['auth:sanctum'])->group(function () {
-    Route::get('/', [QueriesFeedbackApi::class, 'get_all_feedback']);
-    Route::post('/', [CommandFeedbackApi::class, 'post_feedback']);
+    Route::get('/', [QueriesFeedbackApi::class, 'getAllFeedback']);
+    Route::post('/', [CommandFeedbackApi::class, 'postFeedback']);
 });
 
 Route::prefix('/v1/user')->middleware(['auth:sanctum'])->group(function () {
-    Route::get('/my', [QueriesUserApi::class, 'get_my_profile']);
-    Route::get('/my_year', [QueriesUserApi::class, 'get_my_available_year_filter']);
-    Route::put('/fcm', [CommandUserApi::class, 'update_user_fcm']);
+    Route::get('/my', [QueriesUserApi::class, 'getMyProfile']);
+    Route::get('/my_year', [QueriesUserApi::class, 'getMyAvailableYearFilter']);
+    Route::put('/fcm', [CommandUserApi::class, 'updateUserFcm']);
 });
 
 Route::prefix('/v1/export')->middleware(['auth:sanctum'])->group(function () {
     Route::prefix('/clothes')->group(function () {
-        Route::get('/excel', [QueriesExportApi::class, 'get_export_clothes_excel']);
-        Route::get('/detail/pdf/{id}', [QueriesExportApi::class, 'get_export_clothes_detail_by_id_pdf']);
-        Route::get('/used/excel', [QueriesExportApi::class, 'get_export_clothes_used_excel']);
+        Route::get('/excel', [QueriesExportApi::class, 'getExportClothesExcel']);
+        Route::get('/detail/pdf/{id}', [QueriesExportApi::class, 'getExportClothesDetailByIDPdf']);
+        Route::get('/used/excel', [QueriesExportApi::class, 'getExportClothesUsedExcel']);
         Route::prefix('/calendar')->group(function () {
-            Route::get('/excel/{year}', [QueriesExportApi::class, 'get_export_clothes_calendar_excel']);
-            Route::get('/pdf/{date}', [QueriesExportApi::class, 'get_export_clothes_calendar_daily_pdf']);
+            Route::get('/excel/{year}', [QueriesExportApi::class, 'getExportClothesCalendarExcel']);
+            Route::get('/pdf/{date}', [QueriesExportApi::class, 'getExportClothesCalendarDailyPdf']);
         });
     });
     Route::prefix('/wash')->group(function () {
-        Route::get('/excel', [QueriesExportApi::class, 'get_export_wash_excel']);
+        Route::get('/excel', [QueriesExportApi::class, 'getExportWashExcel']);
     });
     Route::prefix('/history')->group(function () {
-        Route::get('/excel', [QueriesExportApi::class, 'get_export_history_excel']);
+        Route::get('/excel', [QueriesExportApi::class, 'getExportHistoryExcel']);
     });
 });

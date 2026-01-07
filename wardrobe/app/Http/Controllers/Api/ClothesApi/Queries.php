@@ -105,7 +105,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_all_clothes_header(Request $request, $category, $order)
+    public function getAllClothesHeader(Request $request, $category, $order)
     {
         try{
             $user_id = $request->user()->id;
@@ -190,7 +190,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_deleted_clothes(Request $request)
+    public function getDeletedClothes(Request $request)
     {
         try{
             $user_id = $request->user()->id;
@@ -266,7 +266,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_clothes_similiar_by(Request $request, $ctx, $val, $exc)
+    public function getClothesSimiliarBy(Request $request, $ctx, $val, $exc)
     {
         try{
             $user_id = $request->user()->id;
@@ -379,7 +379,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_all_clothes_detail(Request $request, $category, $order)
+    public function getAllClothesDetail(Request $request, $category, $order)
     {
         try{
             $user_id = $request->user()->id;
@@ -474,7 +474,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_clothes_used_history(Request $request, $clothes_id, $order)
+    public function getClothesUsedHistory(Request $request, $clothes_id, $order)
     {
         try{
             $user_id = $request->user()->id;
@@ -552,7 +552,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_clothes_wash_status_by_clothes_id(Request $request, $clothes_id)
+    public function getClothesWashStatusByClothesID(Request $request, $clothes_id)
     {
         try{
             $user_id = $request->user()->id;
@@ -697,7 +697,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_clothes_detail_by_id(Request $request, $clothes_id)
+    public function getClothesDetailByID(Request $request, $clothes_id)
     {
         try{
             $user_id = $request->user()->id;
@@ -802,7 +802,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_wash_checkpoint_by_clothes_id(Request $request, $clothes_id)
+    public function getWashCheckpointByClothesID(Request $request, $clothes_id)
     {
         try{
             $user_id = $request->user()->id;
@@ -890,7 +890,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_all_outfit(Request $request)
+    public function getAllOutfit(Request $request)
     {
         try{
             $user_id = $request->user()->id;
@@ -982,7 +982,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_last_outfit(Request $request)
+    public function getLastOutfit(Request $request)
     {
         try { 
             $user_id = $request->user()->id;
@@ -1086,7 +1086,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_outfit_by_id(Request $request, $id)
+    public function getOutfitByID(Request $request, $id)
     {
         try { 
             $user_id = $request->user()->id;
@@ -1170,7 +1170,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_history_outfit_by_id(Request $request, $id){
+    public function getHistoryOutfitByID(Request $request, $id){
         try { 
             $user_id = $request->user()->id;
 
@@ -1253,7 +1253,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_schedule_by_day(Request $request, $day){
+    public function getScheduleByDay(Request $request, $day){
         try { 
             $user_id = $request->user()->id;
 
@@ -1331,7 +1331,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_all_wash_history(Request $request){
+    public function getAllWashHistory(Request $request){
         try { 
             $user_id = $request->user()->id;
             $perPage = request()->input('per_page', 14);
@@ -1435,7 +1435,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_unfinished_wash(Request $request){
+    public function getUnfinishedWash(Request $request){
         try { 
             $user_id = $request->user()->id;
             $page = request()->query('page',1);  
@@ -1527,7 +1527,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_schedule_tomorrow(Request $request, $day){
+    public function getScheduleTomorrow(Request $request, $day){
         try { 
             $user_id = $request->user()->id;
             $tomorrow = date('D', strtotime("next $day +1 day"));
@@ -1603,7 +1603,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_last_history(Request $request){
+    public function getLastHistory(Request $request){
         try { 
             $user_id = $request->user()->id;
 
@@ -1687,7 +1687,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_outfit_summary(Request $request){
+    public function getOutfitSummary(Request $request){
         try { 
             $user_id = $request->user()->id;
 

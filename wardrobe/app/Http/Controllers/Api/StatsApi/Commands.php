@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 
 // Models
 use App\Models\ClothesModel;
-
 // Helpers
 use App\Helpers\Generator;
 use App\Helpers\Validation;
@@ -16,6 +15,7 @@ use App\Helpers\Validation;
 class Commands extends Controller
 {
     private $module;
+    
     public function __construct()
     {
         $this->module = "stats";
@@ -76,7 +76,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function get_stats_clothes_most_context(Request $request, $ctx)
+    public function getStatsClothesMostContext(Request $request, $ctx)
     {
         try {
             // Define user ID if token attached

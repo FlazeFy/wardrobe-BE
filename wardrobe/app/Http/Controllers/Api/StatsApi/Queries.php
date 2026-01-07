@@ -18,7 +18,6 @@ use App\Models\ScheduleModel;
 use App\Models\OutfitModel;
 use App\Models\OutfitUsedModel;
 use App\Models\FeedbackModel;
-
 // Helpers
 use App\Helpers\Generator;
 use App\Helpers\Validation;
@@ -37,8 +36,8 @@ class Queries extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/stats/clothes/summary",
-     *     summary="Get stats summary",
-     *     description="This request is used to get summary stats. This request is using MySql database, have a protected routes",
+     *     summary="Get Clothes Summary",
+     *     description="This request is used to get clothes summary. This request interacts with the MySQL database, has a protected routes",
      *     tags={"Stats"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
@@ -81,9 +80,10 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_stats_summary(Request $request)
+    public function getStatsSummary(Request $request)
     {
         try{
+            // Define user ID if token attached
             if ($request->hasHeader('Authorization')) {
                 $user = Auth::guard('sanctum')->user(); 
                 $user_id = $user ? $user->id : null;
@@ -91,9 +91,10 @@ class Queries extends Controller
                 $user_id = null;
             }
             
+            // Get clothes summary
             $res = ClothesModel::getStatsSummary($user_id);
-            
             if ($res) {
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", 'stats'),
@@ -116,8 +117,8 @@ class Queries extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/stats/all",
-     *     summary="Get stats summary",
-     *     description="This request is used to get all summary. This request is using MySql database",
+     *     summary="Get Apps Summary",
+     *     description="This request is used to get apps summary. This request interacts with the MySQL database",
      *     tags={"Stats"},
      *     @OA\Response(
      *         response=200,
@@ -145,7 +146,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_all_stats()
+    public function getAppsSummary()
     {
         try{
             $total_clothes = ClothesModel::whereNull('deleted_at')->count();
@@ -153,6 +154,7 @@ class Queries extends Controller
             $total_schedule = ScheduleModel::count();
             $total_outfit_decision = OutfitModel::where('is_auto',1)->count();
             
+            // Return success response
             return response()->json([
                 'status' => 'success',
                 'message' => Generator::getMessageTemplate("fetch", 'stats'),
@@ -175,7 +177,7 @@ class Queries extends Controller
      * @OA\GET(
      *     path="/api/v1/stats/feedback/top",
      *     summary="Get Top Feedback",
-     *     description="This request is used to get top 4 feedback by rate. This request is using MySql database",
+     *     description="This request is used to get top 4 feedback by rate. This request interacts with the MySQL database",
      *     tags={"Stats"},
      *     @OA\Response(
      *         response=200,
@@ -213,16 +215,18 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_top_feedback()
+    public function getTopFeedback()
     {
         try{
+            // Get feedback with highest rating
             $res = FeedbackModel::getTopFeedback();
-
             if ($res) {
+                // Count feedback total and feedback rate average
                 $total = FeedbackModel::count();
                 $average = FeedbackModel::avg('feedback_rate');
                 $average = ceil($average * 100) / 100;
 
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", 'stats'),
@@ -248,7 +252,7 @@ class Queries extends Controller
      * @OA\GET(
      *     path="/api/v1/stats/clothes/yearly/{ctx}",
      *     summary="Get yearly stats activity",
-     *     description="This request is used to get yearly stats activity. This request is using MySql database, have a protected routes",
+     *     description="This request is used to get yearly stats activity using given `ctx`. This request interacts with the MySQL database, has a protected routes",
      *     tags={"Stats"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
@@ -292,10 +296,12 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_stats_yearly_context(Request $request, $ctx)
+    public function getStatsYearlyContext(Request $request, $ctx)
     {
         try{
             $request->merge(['context' => $ctx]);
+
+            // Validate context
             $validator = Validation::getValidateStats($request, 'yearly_context');
             if ($validator->fails()) {
                 return response()->json([
@@ -306,6 +312,7 @@ class Queries extends Controller
                 $date_now = new DateTime();            
                 $list_date = [];
 
+                // Define user ID if token attached
                 if ($request->hasHeader('Authorization')) {
                     $user = Auth::guard('sanctum')->user(); 
                     $user_id = $user ? $user->id : null;
@@ -318,6 +325,7 @@ class Queries extends Controller
                     $date_now->modify('-1 day');
                 }
 
+                // Get clothes, wash, clothes used history monthly context total
                 if($ctx == "clothes_buy_at" || $ctx == "clothes_created_at"){
                     $target = $ctx == "clothes_created_at" ? "created_at" : "clothes_buy_at";
                     $res = ClothesModel::getYearlyClothesCreatedBuyed($user_id, $target);
@@ -356,6 +364,7 @@ class Queries extends Controller
                         }
                     }
 
+                    // Return success response
                     return response()->json([
                         'status' => 'success',
                         'message' => Generator::getMessageTemplate("fetch", 'stats'),
@@ -382,7 +391,7 @@ class Queries extends Controller
      * @OA\GET(
      *     path="/api/v1/stats/clothes/monthly/created_buyed/{year}",
      *     summary="Get Clothes Monthly Created Buyed",
-     *     description="This request is used to get yearly stats activity. This request is using MySql database, have a protected routes",
+     *     description="This request is used to get yearly stats activity using given `year`. This request interacts with the MySQL database, has a protected routes",
      *     tags={"Stats"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -434,10 +443,12 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_stats_clothes_monthly_created_buyed(Request $request, $year) {
+    public function getStatsClothesMonthlyCreatedBuyed(Request $request, $year) {
         try {
             $date_now = new DateTime();
             $list_date = [];
+
+            // Define user ID if token attached
             if ($request->hasHeader('Authorization')) {
                 $user = Auth::guard('sanctum')->user(); 
                 $user_id = $user ? $user->id : null;
@@ -445,12 +456,14 @@ class Queries extends Controller
                 $user_id = null;
             }
     
+            // Get clothes monthly context total
             $res_created = ClothesModel::getMonthlyClothesCreatedBuyed($user_id, $year, 'created_at');
             $res_buyed = ClothesModel::getMonthlyClothesCreatedBuyed($user_id, $year, 'clothes_buy_at');
     
             if ($res_created->isNotEmpty() || $res_buyed->isNotEmpty()) {
                 $final_res = [];
     
+                // Iterate to find stats every month
                 foreach ($this->months as $month_number => $month_name) {
                     $found_created = $res_created->firstWhere('context', $month_number);
                     $found_buyed = $res_buyed->firstWhere('context', $month_number);
@@ -462,6 +475,7 @@ class Queries extends Controller
                     ];
                 }
     
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", 'stats'),
@@ -484,8 +498,8 @@ class Queries extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/stats/clothes/monthly/used/{year}",
-     *     summary="Get Clothes Monthly Used",
-     *     description="This request is used to get total used clothes per month. This request is using MySql database, have a protected routes",
+     *     summary="Get Clothes Monthly Used By Year",
+     *     description="This request is used to get total used clothes per month by given `year`. This request interacts with the MySQL database, has a protected routes",
      *     tags={"Stats"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -536,14 +550,16 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_stats_clothes_monthly_used(Request $request, $year) {
+    public function getStatsClothesMonthlyUsed(Request $request, $year) {
         try {
             $user_id = $request->user()->id;    
+
+            // Get clothes used monhtly total
             $res = ClothesModel::getMonthlyClothesUsed($user_id, $year);
-    
             if ($res->isNotEmpty()) {
-                $final_res = [];
     
+                // Iterate to find stats every month
+                $final_res = [];
                 foreach ($this->months as $month_number => $month_name) {
                     $found = $res->firstWhere('context', $month_number);
     
@@ -553,6 +569,7 @@ class Queries extends Controller
                     ];
                 }
     
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", 'stats'),
@@ -576,8 +593,8 @@ class Queries extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/stats/calendar/{month}/{year}",
-     *     summary="Get calendar history for used history, weekly schedule, wash history, buyed history, and add to wardrobe",
-     *     description="This request is used to get calendar history for used history, weekly schedule, wash history, buyed history, and add to wardrobe. This request is using MySql database, have a protected routes",
+     *     summary="Get Calendar By Month Year",
+     *     description="This request is used to get calendar history for used history, weekly schedule, wash history, buyed history, and add to wardrobe using given `month` and `year`. This request interacts with the MySQL database, has a protected routes",
      *     tags={"Stats"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
@@ -664,8 +681,9 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_stats_calendar(Request $request, $month, $year){
+    public function getStatsCalendar(Request $request, $month, $year){
         try{
+            // Validate month number
             if ($month < 1 || $month > 12) {
                 return response()->json([
                     'status' => 'error',
@@ -679,6 +697,7 @@ class Queries extends Controller
                 $interval = new DateInterval('P1D'); // End date is first day of next month
                 $datePeriod = new DatePeriod($startDate, $interval, $endDate);       
 
+                // Get dataset monthly stats
                 $res_used_history = ClothesUsedModel::getClothesUsedHistoryCalendar($user_id, $year, $month);
                 $res_wash_schedule = WashModel::getWashCalendar($user_id, $year, $month);
                 $res_weekly_schedule = ScheduleModel::getWeeklyScheduleCalendar($user_id);
@@ -687,11 +706,11 @@ class Queries extends Controller
 
                 $final_res = [];
                 $format_date = 'd M Y';
-
                 foreach ($datePeriod as $date) {
                     $dateDt = clone $date;
                     $date = $date->format($format_date);
 
+                    // Iterate to find stats by date
                     $curr_res_used_history = [];
                     foreach ($res_used_history as $dt) {
                         if(date($format_date,strtotime($dt->created_at)) == $date){
@@ -733,6 +752,7 @@ class Queries extends Controller
                     ];
                 }   
 
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", 'stats'),
@@ -750,8 +770,8 @@ class Queries extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/stats/calendar/detail/date/{date}",
-     *     summary="Get calendar history for used history, weekly schedule, wash history, buyed history, and add to wardrobe for a specific date",
-     *     description="This request is used to get calendar history for used history, weekly schedule, wash history, buyed history, and add to wardrobe for a specific date. This request is using MySql database, have a protected routes",
+     *     summary="Get Calendar By Date",
+     *     description="This request is used to get calendar history for used history, weekly schedule, wash history, buyed history, and add to wardrobe using given `date`. This request interacts with the MySQL database, has a protected routes",
      *     tags={"Stats"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
@@ -825,10 +845,11 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_stats_calendar_by_date(Request $request, $date){
+    public function getStatsCalendarByDate(Request $request, $date){
         try{
             $date_check = DateTime::createFromFormat('Y-m-d', $date);
 
+            // Validate date
             if ($date_check && $date_check->format('Y-m-d') !== $date) {
                 return response()->json([
                     'status' => 'error',
@@ -838,6 +859,7 @@ class Queries extends Controller
                 $user_id = $request->user()->id;
                 $date = new DateTime($date);
 
+                // Get dataset daily stats
                 $res_used_history = ClothesUsedModel::getClothesUsedHistoryCalendar($user_id, null, null, $date);
                 $res_wash_schedule = WashModel::getWashCalendar($user_id, null, null, $date);
                 $res_weekly_schedule = ScheduleModel::getWeeklyScheduleCalendar($user_id);
@@ -872,18 +894,17 @@ class Queries extends Controller
                     $curr_res_add_wardrobe[] = $dt;
                 }
 
-                $final_res = [
-                    'used_history' => count($curr_res_used_history) > 0 ? $curr_res_used_history : null,
-                    'weekly_schedule' => count($curr_res_weekly_schedule) > 0 ? $curr_res_weekly_schedule : null,
-                    'wash_schedule' => count($curr_res_wash_schedule) > 0 ? $curr_res_wash_schedule : null,
-                    'buyed_history' => count($curr_res_buyed_history) > 0 ? $curr_res_buyed_history : null,
-                    'add_wardrobe' => count($curr_res_add_wardrobe) > 0 ? $curr_res_add_wardrobe : null,
-                ];
-
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", 'stats'),
-                    'data' => $final_res,
+                    'data' => [
+                        'used_history' => count($curr_res_used_history) > 0 ? $curr_res_used_history : null,
+                        'weekly_schedule' => count($curr_res_weekly_schedule) > 0 ? $curr_res_weekly_schedule : null,
+                        'wash_schedule' => count($curr_res_wash_schedule) > 0 ? $curr_res_wash_schedule : null,
+                        'buyed_history' => count($curr_res_buyed_history) > 0 ? $curr_res_buyed_history : null,
+                        'add_wardrobe' => count($curr_res_add_wardrobe) > 0 ? $curr_res_add_wardrobe : null,
+                    ],
                 ], Response::HTTP_OK);
             }
         } catch(\Exception $e) {
@@ -898,7 +919,7 @@ class Queries extends Controller
      * @OA\GET(
      *     path="/api/v1/stats/outfit/monthly/by_outfit/{year}/{outfit_id}",
      *     summary="Get Outfit Monthly Total Used",
-     *     description="This request is used to get yearly stats outfit used. This request is using MySql database, have a protected routes",
+     *     description="This request is used to get yearly stats outfit used using given `year` and `outfit_id`. This request interacts with the MySQL database, has a protected routes",
      *     tags={"Stats"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -957,8 +978,9 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_stats_outfit_monthly_by_outfit_id(Request $request, $year, $outfit_id){
+    public function getStatsOutfitMonthlyByOutfitID(Request $request, $year, $outfit_id){
         try {
+            // Define user ID if token attached
             if ($request->hasHeader('Authorization')) {
                 $user = Auth::guard('sanctum')->user(); 
                 $user_id = $user ? $user->id : null;
@@ -968,11 +990,12 @@ class Queries extends Controller
             $date_now = new DateTime();
             $list_date = [];
     
+            // Get outfit used monthly by outfit ID
             $res = OutfitUsedModel::getMonthlyUsedOutfitByOutfitID($year, $outfit_id, $user_id);
-    
             if ($res->isNotEmpty()) {
                 $final_res = [];
     
+                // Iterate to find stats every month
                 foreach ($this->months as $month_number => $month_name) {
                     $found = $res->firstWhere('context', $month_number);
     
@@ -982,6 +1005,7 @@ class Queries extends Controller
                     ];
                 }
     
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", 'stats'),
@@ -1006,7 +1030,7 @@ class Queries extends Controller
      * @OA\GET(
      *     path="/api/v1/stats/outfit/most/used/{year}",
      *     summary="Get Yearly Most Used Outfit",
-     *     description="This request is used to get yearly most used outfit. This request is using MySql database, have a protected routes",
+     *     description="This request is used to get yearly most used outfit. This request interacts with the MySQL database, has a protected routes",
      *     tags={"Stats"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -1057,8 +1081,9 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_stats_outfit_yearly_most_used(Request $request,$year){
+    public function getStatsOutfitYearlyMostUsed(Request $request,$year){
         try {
+            // Define user ID if token attached
             if ($request->hasHeader('Authorization')) {
                 $user = Auth::guard('sanctum')->user(); 
                 $user_id = $user ? $user->id : null;
@@ -1067,9 +1092,10 @@ class Queries extends Controller
             }
             $limit = request()->query('limit');
 
+            // Get most used outfit in a year
             $res = OutfitUsedModel::getOutfitMostUsed($year, $user_id, $limit);
-    
             if (count($res) > 0) {
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", 'stats'),
@@ -1093,7 +1119,7 @@ class Queries extends Controller
      * @OA\GET(
      *     path="/api/v1/stats/wash/summary",
      *     summary="Get Wash Summary",
-     *     description="This request is used to get wash summary. This request is using MySql database, have a protected routes",
+     *     description="This request is used to get wash summary. This request interacts with the MySQL database, has a protected routes",
      *     tags={"Stats"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
@@ -1140,27 +1166,28 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_stats_wash_summary(Request $request){
+    public function getStatsWashSummary(Request $request){
         try {
             $user_id = $request->user()->id;
 
+            // Get last wash history
             $res_last_wash = WashModel::getLastWash($user_id);
             if ($res_last_wash) {
+                // Get wash summary
                 $res_summary = WashModel::getWashSummary($user_id);
 
-                $res = [
-                    'last_wash_clothes' => $res_last_wash->clothes_name,
-                    'last_wash_date' => $res_last_wash->wash_at,
-                    'total_wash' => $res_summary->total_wash,
-                    'most_wash' => $res_summary->most_wash,
-                    'avg_wash_dur_per_clothes' => round($res_summary->avg_wash_dur_per_clothes),
-                    'avg_wash_per_week' => round($res_summary->avg_wash_per_week)
-                ];
-
+                // Return success response
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", 'stats'),
-                    'data' => $res,
+                    'data' => [
+                        'last_wash_clothes' => $res_last_wash->clothes_name,
+                        'last_wash_date' => $res_last_wash->wash_at,
+                        'total_wash' => $res_summary->total_wash,
+                        'most_wash' => $res_summary->most_wash,
+                        'avg_wash_dur_per_clothes' => round($res_summary->avg_wash_dur_per_clothes),
+                        'avg_wash_per_week' => round($res_summary->avg_wash_per_week)
+                    ]
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
@@ -1180,8 +1207,8 @@ class Queries extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/stats/clothes/most/used/daily",
-     *     summary="Get Most Used Daily Clothes By Type",
-     *     description="This request is used to get most used daily clothes by type. This request is using MySql database, have a protected routes",
+     *     summary="Get Most Used Daily Clothes Per Type",
+     *     description="This request is used to get most used daily clothes per type. This request interacts with the MySQL database, has a protected routes",
      *     tags={"Stats"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
@@ -1250,13 +1277,15 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_stats_most_used_clothes_daily(Request $request){
+    public function getStatsMostUsedClothesDaily(Request $request){
         try {
             $user_id = $request->user()->id;
+            $days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
             $res = [];
-            $days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            // Iterate to find stats for every day
             foreach ($days as $dt) {
+                // Get most used clothes per day and type
                 $res_day = ClothesModel::getMostUsedClothesByDayAndType($user_id, $dt);
                 $res[] = [
                     'day' => $dt,
@@ -1264,6 +1293,7 @@ class Queries extends Controller
                 ];
             }
             
+            // Return success response
             return response()->json([
                 'status' => 'success',
                 'message' => Generator::getMessageTemplate("fetch", 'stats'),

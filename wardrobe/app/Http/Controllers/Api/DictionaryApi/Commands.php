@@ -15,6 +15,7 @@ use App\Helpers\Generator;
 class Commands extends Controller
 {
     private $module;
+    
     public function __construct()
     {
         $this->module = "dictionary";
@@ -69,7 +70,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function hard_delete_dct_by_id(Request $request, $id)
+    public function hardDeleteDctByID(Request $request, $id)
     {
         try{
             $user_id = $request->user()->id;
@@ -182,7 +183,7 @@ class Commands extends Controller
      * )
      */
 
-    public function post_dct(Request $request)
+    public function postDct(Request $request)
     {
         try{
             // Validate request body

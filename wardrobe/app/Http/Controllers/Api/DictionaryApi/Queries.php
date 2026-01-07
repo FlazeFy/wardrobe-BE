@@ -14,6 +14,7 @@ use App\Helpers\Generator;
 class Queries extends Controller
 {
     private $module;
+    
     public function __construct()
     {
         $this->module = "dictionary";
@@ -73,7 +74,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_dct_by_type(Request $request, $type)
+    public function getDctByType(Request $request, $type)
     {
         try{
             // Get dictionary by type
@@ -147,7 +148,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_category_type_clothes(Request $request)
+    public function getCategoryTypeClothes(Request $request)
     {
         try{
             $user_id = $request->user()->id;

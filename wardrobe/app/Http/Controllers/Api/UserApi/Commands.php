@@ -79,7 +79,7 @@ class Commands extends Controller
      * )
      */
 
-    public function update_user_fcm(Request $request)
+    public function updateUserFcm(Request $request)
     {
         try{
             $user_id = $request->user()->id;

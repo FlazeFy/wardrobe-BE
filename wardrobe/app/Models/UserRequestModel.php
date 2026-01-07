@@ -4,6 +4,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// Helper
+use App\Helpers\Generator;
+
 /**
  * @OA\Schema(
  *     schema="UserRequest",
@@ -37,5 +40,18 @@ class UserRequestModel extends Model
             ->where('request_context',$context)
             ->whereNull('validated_at')
             ->first();
+    }
+
+    public static function createUserRequest($data, $user_id){
+        $data['id'] = Generator::getUUID();
+        $data['created_at'] = date('Y-m-d H:i:s');
+        $data['created_by'] = $user_id;
+        $data['validated_at'] = null;
+
+        return UserRequestModel::create($data);
+    }
+
+    public static function updateUserRequestById($data,$id){
+        return UserRequestModel::where('id',$id)->update($data);
     }
 }

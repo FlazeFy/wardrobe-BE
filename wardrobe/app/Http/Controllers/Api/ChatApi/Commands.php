@@ -12,7 +12,6 @@ use App\Models\UserModel;
 use App\Models\ClothesUsedModel;
 use App\Models\WashModel;
 use App\Models\ScheduleModel;
-
 // Helpers
 use App\Helpers\Generator;
 use App\Helpers\Validation;
@@ -21,7 +20,7 @@ use App\Helpers\Firebase;
 
 class Commands extends Controller
 {
-    public function post_chat(Request $request)
+    public function postChat(Request $request)
     {
         try{
             $user_id = $request->user()->id;

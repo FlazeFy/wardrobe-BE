@@ -10,12 +10,12 @@ use App\Models\FeedbackModel;
 use App\Models\UserModel;
 // Helpers
 use App\Helpers\Generator;
-use App\Helpers\Firebase;
 use App\Helpers\Validation;
 
 class Commands extends Controller
 {
     private $module;
+    
     public function __construct()
     {
         $this->module = "feedback";
@@ -25,6 +25,7 @@ class Commands extends Controller
      * @OA\POST(
      *     path="/api/v1/feedback",
      *     summary="Post Create Feedback",
+     *     description="This request is used to create feedback. This request interacts with the MySQL database, and has a protected routes",
      *     tags={"Feedback"},
      *     @OA\RequestBody(
      *         required=true,
@@ -89,15 +90,6 @@ class Commands extends Controller
                 // Create feedback
                 $res = FeedbackModel::createFeedback(['feedback_rate' => $request->feedback_rate, 'feedback_body' => $request->feedback_body], $user_id);
                 if($res){
-                    // Get user social data by id
-                    $user = UserModel::getSocial($user_id);
-
-                    if($user->firebase_fcm_token){
-                        // Broadcast firebase notification
-                        $msg_body = "Thank you for your feedback! We appreciate your time and effort in helping us improve. Your thoughts is valuable, and we'll use it to make things even better!";
-                        Firebase::sendNotif($user->firebase_fcm_token, $msg_body, $user->username, $res->id);
-                    }
-
                     // Return success response
                     return response()->json([
                         'status' => 'success',

@@ -14,6 +14,7 @@ use App\Helpers\Generator;
 class Queries extends Controller
 {
     private $module;
+    
     public function __construct()
     {
         $this->module = "feedback";
@@ -71,7 +72,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_all_feedback(Request $request)
+    public function getAllFeedback(Request $request)
     {
         try{
             $user_id = $request->user()->id;

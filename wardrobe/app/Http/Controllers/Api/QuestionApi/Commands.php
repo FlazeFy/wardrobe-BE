@@ -14,6 +14,7 @@ use App\Helpers\Generator;
 class Commands extends Controller
 {
     private $module;
+    
     public function __construct()
     {
         $this->module = "question";
@@ -23,7 +24,7 @@ class Commands extends Controller
      * @OA\POST(
      *     path="/api/v1/question",
      *     summary="Post Create Question",
-     *     description="Create a new question. This request is using MySQL database.",
+     *     description="This request is used to create question. This request interacts with the MySQL database, and has a protected routes",
      *     tags={"Question"},
      *     @OA\RequestBody(
      *         required=true,
@@ -77,7 +78,7 @@ class Commands extends Controller
      * )
      */
 
-    public function post_question(Request $request)
+    public function postQuestion(Request $request)
     {
         try{
             // Validator request body

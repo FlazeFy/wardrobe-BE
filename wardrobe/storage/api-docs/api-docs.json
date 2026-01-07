@@ -161,8 +161,9 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Register to the Apps",
-                "operationId": "06be8aeac0568d6da099bf9de9631bec",
+                "summary": "Post Register Apps",
+                "description": "This authentication request is used to register / sign up new account. This request interacts with the MySQL database and broadcast with mailer.",
+                "operationId": "103d036911061d4d4fc637e06f0db18f",
                 "responses": {
                     "201": {
                         "description": "login successfully",
@@ -274,8 +275,9 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Validate the registered account",
-                "operationId": "325b5ef485ca0b33ecf7aad93c7f8e82",
+                "summary": "Post Validate Registered Account",
+                "description": "This authentication request is used to validate request token for newly created account. This request interacts with the MySQL database.",
+                "operationId": "caea16e73864dd39b2edfa46cca3aed6",
                 "responses": {
                     "201": {
                         "description": "validate token successfully",
@@ -439,7 +441,7 @@
                 ],
                 "summary": "Permanently Delete Clothes By ID",
                 "description": "This request is used to delete a clothes by using given `ID`. This request interacts with the MySQL database, firebase storage, has a protected routes, broadcast message with Firebase FCM, and audited activity (history).",
-                "operationId": "0be4ac99b269208881a230fccce5939a",
+                "operationId": "23f010fd6df70a145be91ca6f78f6e20",
                 "parameters": [
                     {
                         "name": "id",
@@ -543,7 +545,7 @@
                 ],
                 "summary": "Soft Delete Clothes By ID",
                 "description": "This request is used to delete a clothes by using given `ID`. This request interacts with the MySQL database, broadcast message with Firebase FCM, has a protected routes, and audited activity (history).",
-                "operationId": "109f395a456cc540a30c9f11f01dae16",
+                "operationId": "c7f634c2e76677f1fa28c12aea94b956",
                 "parameters": [
                     {
                         "name": "id",
@@ -647,7 +649,7 @@
                 ],
                 "summary": "Post Create Clothes History",
                 "description": "This request is used to create clothes history record by giving `clothes_id`, `clothes_note`, and `used_context`. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "a2ffabca51f9768a1b5dac23d6e802d3",
+                "operationId": "fc34d7686f0e85f3b9bdf9c1d5087def",
                 "responses": {
                     "201": {
                         "description": "clothes created",
@@ -739,7 +741,7 @@
                 ],
                 "summary": "Post Create Schedule",
                 "description": "This request is used to create schedule of clothes that will be used in the future by giving `clothes_id`, `schedule_note`, `day`, and `is_remind`. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "43c581f78d2ae2c1cda31f08961820d8",
+                "operationId": "e15c4f7559d930264ace051656f9f5e9",
                 "responses": {
                     "201": {
                         "description": "clothes created",
@@ -829,8 +831,9 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Put Update Clothes Wash By ID",
-                "operationId": "d5bc63b91213ee363af934498d26679a",
+                "summary": "Put Update Clothes Wash Checkpoint By ID",
+                "description": "This request is used to update clothes wash checkpoint by given `id`. This request interacts with the MySQL database, and has a protected routes.",
+                "operationId": "403b45984895f77b3f64ee2a7d2ca2d9",
                 "parameters": [
                     {
                         "name": "id",
@@ -934,7 +937,7 @@
                 ],
                 "summary": "Permanently Delete Wash By ID",
                 "description": "This request is used to permanently delete wash history by given `id`. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "e20b948df0f84e247e136a5b2441e4eb",
+                "operationId": "c51494785205d349b8dcef7ebd9b52c7",
                 "parameters": [
                     {
                         "name": "id",
@@ -1038,7 +1041,7 @@
                 ],
                 "summary": "Permanently Delete Clothes Used By ID",
                 "description": "This request is used to permanently delete clothes used history by given `id`. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "17068b2f02994a621aba37e53c5e00e2",
+                "operationId": "a5f6f9bfb81f80937140935314b38d90",
                 "parameters": [
                     {
                         "name": "id",
@@ -1142,7 +1145,7 @@
                 ],
                 "summary": "Post Create Clothes",
                 "description": "This request is used to create a clothes. This request interacts with the MySQL database, firebase storage, broadcast message with Telegram and Firebase FCM, using mailer, has a protected routes, and audited activity (history)",
-                "operationId": "6a7705d55be10eb564e2fce0002fa9ac",
+                "operationId": "d37ba73787d90f15b38a8080fc0a650e",
                 "responses": {
                     "201": {
                         "description": "clothes created",
@@ -1259,7 +1262,7 @@
                 ],
                 "summary": "Put Recover Clothes By ID",
                 "description": "This request is used to recover deleted clothes by given `id`. This request interacts with the MySQL database, broadcast with Firebase FCM, has a protected routes, and audited activity (history).",
-                "operationId": "3bd6bab97556b216074c1e9d6fec105c",
+                "operationId": "4196f28e3560a315a81922ececd78a47",
                 "parameters": [
                     {
                         "name": "id",
@@ -1368,7 +1371,7 @@
                 ],
                 "summary": "Permanently Delete Schedule By ID",
                 "description": "This request is used to permanently delete schedule by given `id`. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "00fdd9dbd5d743962258fab7d3666b8b",
+                "operationId": "fa6367748c54c285075495075d13501d",
                 "parameters": [
                     {
                         "name": "id",
@@ -1472,7 +1475,7 @@
                 ],
                 "summary": "Post Create (Generate) Random Outfit",
                 "description": "This request is used to create (generate) random set of clothes to make an outfit. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "90aec27a13929aa40782787b9e543038",
+                "operationId": "fa47dde94b7eec3bfb708f91d35dc22e",
                 "responses": {
                     "201": {
                         "description": "outfit generated",
@@ -1608,7 +1611,7 @@
                 ],
                 "summary": "Post Create Outfit",
                 "description": "This request is used to create an outfit that will contain multiple set of clothes. This request interacts with the MySQL database, broadcast with Firebase FCM & Telegram, has a protected routes, and audited activity (history).",
-                "operationId": "d69c88c2577c8c22bec1ecc8c85873b5",
+                "operationId": "ce4f65445753b7d05c9f03f1258f4e22",
                 "responses": {
                     "201": {
                         "description": "outfit created",
@@ -1725,7 +1728,7 @@
                 ],
                 "summary": "Permanently Delete Outfit Used History By ID",
                 "description": "This request is used to permanently delete outfit used history by given `id`. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "35ff7ca826d9d9edb9f6f498f3fe126f",
+                "operationId": "18cabb01a90537625d12f17b3f4dea37",
                 "parameters": [
                     {
                         "name": "id",
@@ -1829,7 +1832,7 @@
                 ],
                 "summary": "Post Create Outfit Used History",
                 "description": "This request is used to create outfit used history. This request interacts with the MySQL database, broadcast with Firebase FCM, and has a protected routes.",
-                "operationId": "a0cbd5a1e5f062e367b19ee0ee7d2db3",
+                "operationId": "2b529cd0271ae6fee7c3359a785745b5",
                 "responses": {
                     "201": {
                         "description": "outfit history created",
@@ -1921,7 +1924,7 @@
                 ],
                 "summary": "Post Create Clothes Relation With Outfit",
                 "description": "This request is used to create clothes relation with the outfit. This request interacts with the MySQL database, broadcast with Firebase FCM, and has a protected routes.",
-                "operationId": "8677edd26ca1f003543c6642a142b8f2",
+                "operationId": "0c307df6d6c65388051eb867ba222fdb",
                 "responses": {
                     "201": {
                         "description": "outfit created",
@@ -2058,7 +2061,7 @@
                 ],
                 "summary": "Permanently Delete (Remove) Clothes From Outfit Relation By Clothes ID",
                 "description": "This request is used to delete (remove) clothes from outfit relation by given `clothes_id`. This request interacts with the MySQL database, broadcast with Firebase FCM, and has a protected routes.",
-                "operationId": "0b11e09739a06e35a4870c3ec7928655",
+                "operationId": "3910971e460d187935ea86d99d1702af",
                 "parameters": [
                     {
                         "name": "clothes_id",
@@ -2162,7 +2165,7 @@
                 ],
                 "summary": "Post Create Clothes Wash",
                 "description": "This request is used to create wash history. This request interacts with the MySQL database, has a protected routes, and audited activity (history).",
-                "operationId": "5ac0afec805377af5a2e23bf03a78f5b",
+                "operationId": "cfdf37837f49bb21a28ef4f771d72a8d",
                 "responses": {
                     "201": {
                         "description": "clothes wash created",
@@ -2279,7 +2282,7 @@
                 ],
                 "summary": "Get All Clothes (Header)",
                 "description": "This request is used to get all clothes (header information) by given `category` and `order`. This request interacts with the MySQL database, has a protected routes, and a pagination.",
-                "operationId": "209636ff5dbe8b35e433b43170b08d1d",
+                "operationId": "83e5117ecfdca2532671ad0ebcecdd72",
                 "parameters": [
                     {
                         "name": "category",
@@ -2462,7 +2465,7 @@
                 ],
                 "summary": "Get Deleted Clothes",
                 "description": "This request is used to get all deleted clothes. This request interacts with the MySQL database, has a protected routes, and a pagination.",
-                "operationId": "e31d8b235de54aafd87dc70e888acf71",
+                "operationId": "06ae564a6ce74b8b79fa2d61b990e701",
                 "responses": {
                     "200": {
                         "description": "clothes found",
@@ -2608,7 +2611,7 @@
                 ],
                 "summary": "Get Similar Clothes By Context",
                 "description": "This request is used to get all deleted clothes. This request interacts with the MySQL database, has a protected routes, and a pagination.",
-                "operationId": "299297db15a3e9926ba3fe8ae892dda1",
+                "operationId": "df8faf8884259e6e0a27881a2a832777",
                 "responses": {
                     "200": {
                         "description": "clothes found",
@@ -2724,7 +2727,7 @@
                 ],
                 "summary": "Get Clothes Detail By Category",
                 "description": "This request is used to get all clothes detail by given `category` and `order`. This request interacts with the MySQL database, has a protected routes, and a pagination.",
-                "operationId": "e4448ea35cc8c45b2d767640b0f9d1c9",
+                "operationId": "0024c055a08d41c24e1fe664f2819714",
                 "parameters": [
                     {
                         "name": "order",
@@ -2950,7 +2953,7 @@
                 ],
                 "summary": "Get Clothes Used History",
                 "description": "This request is used to get clothes used history by given `clothes_id` and `order`. This request interacts with the MySQL database, has a protected routes, and a pagination.",
-                "operationId": "55864516c737c97943acb74f110fd2e8",
+                "operationId": "a55334b3dbec44c48954a97eab73ef5a",
                 "parameters": [
                     {
                         "name": "order",
@@ -3097,7 +3100,7 @@
                 ],
                 "summary": "Get Clothes Wash Status By ID",
                 "description": "This request is used to get clothes wash status by given `clothes_id`. This request interacts with the MySQL database, has a protected routes, and a pagination.",
-                "operationId": "d6ae1e3fc93572167d31e754b12adee0",
+                "operationId": "99e57d571974d0d7391c00db90f8df6f",
                 "parameters": [
                     {
                         "name": "clothes_id",
@@ -3205,7 +3208,7 @@
                 ],
                 "summary": "Get Clothes Detail By ID",
                 "description": "This request is used to get clothes detail by given `clothes_id`. This request interacts with the MySQL database, has a protected routes, and a pagination.",
-                "operationId": "dba738aef10bb7566b6c9058fcd313b0",
+                "operationId": "6b204106581cce277999ce567c246ce5",
                 "parameters": [
                     {
                         "name": "clothes_id",
@@ -3534,7 +3537,7 @@
                 ],
                 "summary": "Get Clothes Wash Checkpoint",
                 "description": "This request is used to get clothes wash checkpoint by given `clothes_id`. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "63951ee6b54193436cb3bbca2470f79d",
+                "operationId": "6b4b1e233805eed6fcec872855c44451",
                 "parameters": [
                     {
                         "name": "clothes_id",
@@ -3674,7 +3677,7 @@
                 ],
                 "summary": "Get All Outfit",
                 "description": "This request is used to get all outfit. This request interacts with the MySQL database, has a protected routes, and a pagination.",
-                "operationId": "ccab11df3d49e18227841f9873f3718d",
+                "operationId": "d468aec02cba360dbb6b796a5cd88013",
                 "responses": {
                     "200": {
                         "description": "outfit found",
@@ -3830,7 +3833,7 @@
                 ],
                 "summary": "Get Last Created Outfit",
                 "description": "This request is used to get last created outfit and its clothes. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "43bba2e46c0e856b1347d52f43587dfe",
+                "operationId": "8511f5ddeacf4073eac4b2bf62e49a47",
                 "responses": {
                     "200": {
                         "description": "outfit found",
@@ -3967,7 +3970,7 @@
                 ],
                 "summary": "Get Outfit And Its Clothes By Outfit ID",
                 "description": "This request is used to get an outfit and its clothes by using given outfit's `ID`. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "f9a15d3ed33b0d2c2d27a5d3697836c1",
+                "operationId": "52d346a96eed5392b4a87fc68138fef6",
                 "parameters": [
                     {
                         "name": "id",
@@ -4140,7 +4143,7 @@
                 ],
                 "summary": "Get Outfit Used History By ID",
                 "description": "This request is used to get an outfit used history by using given `ID`. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "2b2d017b2831a5159cba55054e06b187",
+                "operationId": "464d590d0ce8bf79d67e5a7fc7589dd6",
                 "parameters": [
                     {
                         "name": "id",
@@ -4257,7 +4260,7 @@
                 ],
                 "summary": "Get Clothes Schedule By Day",
                 "description": "This request is used to get schedule by given `day` name. This request interacts with the MySQL database, and has a protected routes",
-                "operationId": "c0fb27fd3af8322bd1bf53a754183957",
+                "operationId": "0bb8f631519e46a134edaebf6003a230",
                 "parameters": [
                     {
                         "name": "day",
@@ -4385,7 +4388,7 @@
                 ],
                 "summary": "Get Clothes Wash History",
                 "description": "This request is used to get all clothes wash history. This request interacts with the MySQL database, has a protected routes, and a pagination.",
-                "operationId": "87e4abac31d2f96a4ef6cbc10d14b555",
+                "operationId": "19b2100e38d4e7a9b640a3de5ad58fca",
                 "responses": {
                     "200": {
                         "description": "wash history found",
@@ -4513,7 +4516,7 @@
                 ],
                 "summary": "Get Unfinished Wash Clothes",
                 "description": "This request is used to get clothes who is still at wash. This request interacts with the MySQL database, and has a protected routes",
-                "operationId": "87156461bd2b4cf7e9d68fc61f5143e6",
+                "operationId": "26d7650fa86847a5d72c8bb1f576d839",
                 "responses": {
                     "200": {
                         "description": "unfinished wash found",
@@ -4649,7 +4652,7 @@
                 ],
                 "summary": "Get Tomorrow Schedule",
                 "description": "This request is used to get the schedule for tomorrow and two days later from the outfit and clothes schedule. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "bdeebe1e4a15cbc38e791a949e5f18f0",
+                "operationId": "6ce0622043fe0ef9f919809dec50bffb",
                 "parameters": [
                     {
                         "name": "day",
@@ -4809,7 +4812,7 @@
                 ],
                 "summary": "Get Last History",
                 "description": "This request is used to get the last history (summary). This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "6a07261ab56165652bcf6f625fb92a46",
+                "operationId": "e8f6f60ba6e533466a099e46cdeb59a4",
                 "responses": {
                     "200": {
                         "description": "clothes last history fetched successfully",
@@ -4927,7 +4930,7 @@
                 ],
                 "summary": "Get Outfit Summary",
                 "description": "This request is used to get the outfit summary. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "4eb70b37cf996273731078fb8e90eb05",
+                "operationId": "72d93dd1b569f34dd1a00e08f6dbe70f",
                 "responses": {
                     "200": {
                         "description": "outfit summary fetched successfully",
@@ -5050,7 +5053,7 @@
                 ],
                 "summary": "Hard Delete Dictionary By ID",
                 "description": "This request is used to permanently delete a dictionary entry based on the provided `ID`. This request interacts with the MySQL database, and has a protected routes",
-                "operationId": "3d4883ecd167298247ae2a1ebb7f65cf",
+                "operationId": "78fb95aac2d492c529b49105673d6dd8",
                 "parameters": [
                     {
                         "name": "id",
@@ -5159,7 +5162,7 @@
                 ],
                 "summary": "Post Create Dictionary",
                 "description": "This request is used to create a new dictionary using the given `dictionary_type` and `dictionary_name`. This request interacts with the MySQL database.",
-                "operationId": "4351a4a30e558c17f9b0c59424325998",
+                "operationId": "8d228580fc57cec06281fbda7c515dd3",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -5324,7 +5327,7 @@
                 ],
                 "summary": "Get Dictionary By Type",
                 "description": "This request is used to get dictionary by its `dictionary_type`, that can be clothes_category, clothes_gender, clothes_made_from, clothes_size, clothes_type, day_name, track_source, used_context, wash_type, weather_hit_from. This request interacts with the MySQL database.",
-                "operationId": "0635b54e376376f26f000098c180b486",
+                "operationId": "f8d32f643ad0db06b97ee8b064048d28",
                 "parameters": [
                     {
                         "name": "type",
@@ -5444,7 +5447,7 @@
                 ],
                 "summary": "Get Clothes Category And Type",
                 "description": "This request is used to get list of clothes's category and type from existed clothes. This request interacts with the MySQL database and has protected route.",
-                "operationId": "71f36cb325267706f4188af6a6bb295e",
+                "operationId": "7b129684578646c273ac7810140b24d2",
                 "responses": {
                     "200": {
                         "description": "clothes category fetched successfully",
@@ -5561,7 +5564,7 @@
                 ],
                 "summary": "Get All Error",
                 "description": "This request is used to get all error audit. This request interacts with the MySQL database, has a protected routes (Admin only), and a pagination.",
-                "operationId": "bf33aba81463d0c5fa3c23cfacc409aa",
+                "operationId": "febe4acefbf67eaa9f1333612bd1863f",
                 "responses": {
                     "200": {
                         "description": "Error fetched successfully. Ordered in ascending order by `created_at`",
@@ -5704,7 +5707,7 @@
                 ],
                 "summary": "Get All Feedback",
                 "description": "This request is used to get all feedback when user use the App. This request is using MySql database, have a protected routes, and has a pagination.",
-                "operationId": "9e7da59d4a99f1d7e2bd0abecf8df5c5",
+                "operationId": "7c65a8f12cb05aa4fb88c22c68c51e5f",
                 "responses": {
                     "200": {
                         "description": "Feedback fetched successfully. Ordered in descending order by `created_at`",
@@ -5832,6 +5835,7 @@
                     "Feedback"
                 ],
                 "summary": "Post Create Feedback",
+                "description": "This request is used to create feedback. This request interacts with the MySQL database, and has a protected routes",
                 "operationId": "4b1acf5b4cc7619aeeef87997f381397",
                 "requestBody": {
                     "required": true,
@@ -5953,7 +5957,7 @@
                 ],
                 "summary": "Hard Delete History By ID",
                 "description": "This request is used to permanently delete a system history based on the provided `ID`. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "b777472bb6f3263bd117c26cfecd4dd4",
+                "operationId": "424444d2473083403c76cc1151454a0e",
                 "parameters": [
                     {
                         "name": "id",
@@ -6062,7 +6066,7 @@
                 ],
                 "summary": "Get All History",
                 "description": "This request is used to get all history when user use the App. This request interacts with the MySQL database, has a protected routes, and has a pagination.",
-                "operationId": "0f4b533e7eecea6a89a6388545c72dd8",
+                "operationId": "b51b619e3c45ec6458bcca590a3a70e8",
                 "responses": {
                     "200": {
                         "description": "History fetched successfully. Ordered in descending order by `created_at`",
@@ -6192,8 +6196,8 @@
                     "Question"
                 ],
                 "summary": "Post Create Question",
-                "description": "Create a new question. This request is using MySQL database.",
-                "operationId": "ea075b478e97878daa3cc257293b7d9e",
+                "description": "This request is used to create question. This request interacts with the MySQL database, and has a protected routes",
+                "operationId": "a17de36ed36d2f20dc24dccfccbadf80",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -6322,7 +6326,7 @@
                 ],
                 "summary": "Get Showing FAQ",
                 "description": "This request is used to get showing FAQ in the welcome page (Maximum to fetch 8 item). This request interacts with the MySQL database.",
-                "operationId": "8549f87126ed724637ebc9fa77019c94",
+                "operationId": "3492c9fa28e148ed5c1ea8a618607aa1",
                 "responses": {
                     "200": {
                         "description": "FAQ fetched successfully. Ordered in descending order by `created_at`",
@@ -6420,7 +6424,7 @@
                 ],
                 "summary": "Get Stats Clothes By Context",
                 "description": "This request is used to get summary stats. This request is using MySql database, have a protected routes",
-                "operationId": "7cae097e48f0a012ef67dc3e0e71bf1c",
+                "operationId": "bf5224a8ac385989d05e542b1bc8bc67",
                 "parameters": [
                     {
                         "name": "ctx",
@@ -6543,9 +6547,9 @@
                 "tags": [
                     "Stats"
                 ],
-                "summary": "Get stats summary",
-                "description": "This request is used to get summary stats. This request is using MySql database, have a protected routes",
-                "operationId": "305f52f8bcaed6ceccf36748e0c90c4e",
+                "summary": "Get Clothes Summary",
+                "description": "This request is used to get clothes summary. This request interacts with the MySQL database, has a protected routes",
+                "operationId": "63c4563caf460acab4f066fa5179b282",
                 "responses": {
                     "200": {
                         "description": "stats fetched",
@@ -6661,9 +6665,9 @@
                 "tags": [
                     "Stats"
                 ],
-                "summary": "Get stats summary",
-                "description": "This request is used to get all summary. This request is using MySql database",
-                "operationId": "e1047691d52b5734daa8bf383dc1fdbd",
+                "summary": "Get Apps Summary",
+                "description": "This request is used to get apps summary. This request interacts with the MySQL database",
+                "operationId": "4d74d8eb3869c1bd40a6708205157ed2",
                 "responses": {
                     "200": {
                         "description": "stats fetched",
@@ -6738,8 +6742,8 @@
                     "Stats"
                 ],
                 "summary": "Get Top Feedback",
-                "description": "This request is used to get top 4 feedback by rate. This request is using MySql database",
-                "operationId": "3ed018cffbb13d1cf2f581fcf6247b50",
+                "description": "This request is used to get top 4 feedback by rate. This request interacts with the MySQL database",
+                "operationId": "a6031b675af1a28824b5b82b55a6c380",
                 "responses": {
                     "200": {
                         "description": "stats fetched",
@@ -6842,8 +6846,8 @@
                     "Stats"
                 ],
                 "summary": "Get yearly stats activity",
-                "description": "This request is used to get yearly stats activity. This request is using MySql database, have a protected routes",
-                "operationId": "c427bd1ae3892db11935f69e256f8a34",
+                "description": "This request is used to get yearly stats activity using given `ctx`. This request interacts with the MySQL database, has a protected routes",
+                "operationId": "f9ef47bf9bac2f186930ba012e099b1c",
                 "responses": {
                     "200": {
                         "description": "stats fetched",
@@ -6959,8 +6963,8 @@
                     "Stats"
                 ],
                 "summary": "Get Clothes Monthly Created Buyed",
-                "description": "This request is used to get yearly stats activity. This request is using MySql database, have a protected routes",
-                "operationId": "3b9037d27782f330fce5d8b73fc44ede",
+                "description": "This request is used to get yearly stats activity using given `year`. This request interacts with the MySQL database, has a protected routes",
+                "operationId": "8506831fe3e35fd1f9ec115329ffbab7",
                 "parameters": [
                     {
                         "name": "year",
@@ -7087,9 +7091,9 @@
                 "tags": [
                     "Stats"
                 ],
-                "summary": "Get Clothes Monthly Used",
-                "description": "This request is used to get total used clothes per month. This request is using MySql database, have a protected routes",
-                "operationId": "adac2036f66046dffbd60272d485ff6c",
+                "summary": "Get Clothes Monthly Used By Year",
+                "description": "This request is used to get total used clothes per month by given `year`. This request interacts with the MySQL database, has a protected routes",
+                "operationId": "85ff5e1fa7ed0ed50553c1f801877e85",
                 "parameters": [
                     {
                         "name": "year",
@@ -7212,9 +7216,9 @@
                 "tags": [
                     "Stats"
                 ],
-                "summary": "Get calendar history for used history, weekly schedule, wash history, buyed history, and add to wardrobe",
-                "description": "This request is used to get calendar history for used history, weekly schedule, wash history, buyed history, and add to wardrobe. This request is using MySql database, have a protected routes",
-                "operationId": "c23887dd1cf6f1669b4ff770d6e5a1de",
+                "summary": "Get Calendar By Month Year",
+                "description": "This request is used to get calendar history for used history, weekly schedule, wash history, buyed history, and add to wardrobe using given `month` and `year`. This request interacts with the MySQL database, has a protected routes",
+                "operationId": "db78f1c6289b8d25645119f3b8028358",
                 "responses": {
                     "200": {
                         "description": "stats fetched",
@@ -7461,9 +7465,9 @@
                 "tags": [
                     "Stats"
                 ],
-                "summary": "Get calendar history for used history, weekly schedule, wash history, buyed history, and add to wardrobe for a specific date",
-                "description": "This request is used to get calendar history for used history, weekly schedule, wash history, buyed history, and add to wardrobe for a specific date. This request is using MySql database, have a protected routes",
-                "operationId": "70bc391d3f6b80745a8b8488be4c6f0b",
+                "summary": "Get Calendar By Date",
+                "description": "This request is used to get calendar history for used history, weekly schedule, wash history, buyed history, and add to wardrobe using given `date`. This request interacts with the MySQL database, has a protected routes",
+                "operationId": "a79a9be90ffcd2438dba8b3fe8288331",
                 "responses": {
                     "200": {
                         "description": "stats fetched",
@@ -7689,8 +7693,8 @@
                     "Stats"
                 ],
                 "summary": "Get Outfit Monthly Total Used",
-                "description": "This request is used to get yearly stats outfit used. This request is using MySql database, have a protected routes",
-                "operationId": "2d4fe758c02f70ffad19ef59551d86c8",
+                "description": "This request is used to get yearly stats outfit used using given `year` and `outfit_id`. This request interacts with the MySQL database, has a protected routes",
+                "operationId": "7b1d526f05f5093988f222c1ab7ea1aa",
                 "parameters": [
                     {
                         "name": "year",
@@ -7824,8 +7828,8 @@
                     "Stats"
                 ],
                 "summary": "Get Yearly Most Used Outfit",
-                "description": "This request is used to get yearly most used outfit. This request is using MySql database, have a protected routes",
-                "operationId": "da0f5f95bc43283483740750869068af",
+                "description": "This request is used to get yearly most used outfit. This request interacts with the MySQL database, has a protected routes",
+                "operationId": "bd93453aa18987b807cebd33eb61ecc9",
                 "parameters": [
                     {
                         "name": "year",
@@ -7949,8 +7953,8 @@
                     "Stats"
                 ],
                 "summary": "Get Wash Summary",
-                "description": "This request is used to get wash summary. This request is using MySql database, have a protected routes",
-                "operationId": "77c005f6e05b9843cfe0181f325b8465",
+                "description": "This request is used to get wash summary. This request interacts with the MySQL database, has a protected routes",
+                "operationId": "0cf8809b73f2e80dd841731fb5e36dc8",
                 "responses": {
                     "200": {
                         "description": "stats fetched",
@@ -8077,9 +8081,9 @@
                 "tags": [
                     "Stats"
                 ],
-                "summary": "Get Most Used Daily Clothes By Type",
-                "description": "This request is used to get most used daily clothes by type. This request is using MySql database, have a protected routes",
-                "operationId": "0c90592ef5b65bd768b0b00f308e9eea",
+                "summary": "Get Most Used Daily Clothes Per Type",
+                "description": "This request is used to get most used daily clothes per type. This request interacts with the MySQL database, has a protected routes",
+                "operationId": "a36f4cb685ecb92bf795791ceeb25f2b",
                 "responses": {
                     "200": {
                         "description": "stats fetched",
@@ -8205,7 +8209,7 @@
                 ],
                 "summary": "Put Update User FCM Token",
                 "description": "This request is used to update user's Firebase Cloud Messaging token from mobile. This request interacts with the MySQL database, and has a protected routes",
-                "operationId": "d1a3e00f356a22524d3de3dacdf7b52b",
+                "operationId": "928e6ccbbd07b42c178964ab8ca60105",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -8339,7 +8343,7 @@
                 ],
                 "summary": "Get My Profile",
                 "description": "This request is used to get user profile. This request interacts with the MySQL database, and has a protected routes",
-                "operationId": "60423d8d351a2477044d5e3c53cb3407",
+                "operationId": "29fe3a43d51035c82629e46efb3d5e30",
                 "responses": {
                     "200": {
                         "description": "Profile fetched successfully",
@@ -8467,7 +8471,7 @@
                 ],
                 "summary": "Get Available Year",
                 "description": "This request is used to get all year found on content (clothes, outfit, wash, schedule). This request interacts with the MySQL database, and has a protected routes",
-                "operationId": "2369941ef05fcb04e02c1716b91c9cdf",
+                "operationId": "680146b426aa564b64960d4f5aa90da1",
                 "responses": {
                     "200": {
                         "description": "Year filter fetched successfully. Ordered in descending order by `year`",

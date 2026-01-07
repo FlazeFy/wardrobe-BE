@@ -14,6 +14,7 @@ use App\Models\AdminModel;
 class Queries extends Controller
 {
     private $module;
+    
     public function __construct()
     {
         $this->module = "error";
@@ -74,7 +75,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function get_all_error(Request $request)
+    public function getAllError(Request $request)
     {
         try{
             $user_id = $request->user()->id;

@@ -33,6 +33,7 @@ class Queries extends Controller
      * @OA\GET(
      *     path="/api/v1/clothes/header/{category}/{order}",
      *     summary="Get All Clothes (Header)",
+     *     description="This request is used to get all clothes (header information) by given `category` and `order`. This request interacts with the MySQL database, has a protected routes, and a pagination.",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="category",
@@ -136,7 +137,8 @@ class Queries extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/clothes/trash",
-     *     summary="Show all deleted clothes",
+     *     summary="Get Deleted Clothes",
+     *     description="This request is used to get all deleted clothes. This request interacts with the MySQL database, has a protected routes, and a pagination.",
      *     tags={"Clothes"},
      *     @OA\Response(
      *         response=200,
@@ -219,7 +221,8 @@ class Queries extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/clothes/similiar/{ctx}/{val}/{exc}",
-     *     summary="Show similiar clothes by context",
+     *     summary="Get Similar Clothes By Context",
+     *     description="This request is used to get all deleted clothes. This request interacts with the MySQL database, has a protected routes, and a pagination.",
      *     tags={"Clothes"},
      *     @OA\Response(
      *         response=200,
@@ -294,7 +297,8 @@ class Queries extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/clothes/detail/{category}/{order}",
-     *     summary="Show clothes detail",
+     *     summary="Get Clothes Detail By Category",
+     *     description="This request is used to get all clothes detail by given `category` and `order`. This request interacts with the MySQL database, has a protected routes, and a pagination.",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="order",
@@ -407,6 +411,7 @@ class Queries extends Controller
      * @OA\GET(
      *     path="/api/v1/clothes/history/{clothes_id}/{order}",
      *     summary="Get Clothes Used History",
+     *     description="This request is used to get clothes used history by given `clothes_id` and `order`. This request interacts with the MySQL database, has a protected routes, and a pagination.",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="order",
@@ -475,23 +480,8 @@ class Queries extends Controller
             $user_id = $request->user()->id;
             $page = request()->query('page');  
 
-            $res = ClothesUsedModel::select('clothes_used.id','clothes_name','clothes_type','clothes_note','used_context','clothes.created_at')
-                ->join('clothes','clothes.id','=','clothes_used.clothes_id');
-
-            if($clothes_id != "all"){
-                $res = $res->where('clothes_id',$clothes_id);
-            } 
-            
-            $res = $res->where('clothes_used.created_by',$user_id)
-                ->orderBy('clothes_used.created_at', $order)
-                ->orderBy('clothes_name', $order);
-
-            if($clothes_id != "all" || $page != "all"){
-                $res = $res->paginate(14);
-            } else {
-                $res = $res->get();
-            }
-            
+            // Get clothes used history (detail)
+            $res = ClothesUsedModel::getClothesUsedHistoryDetail($clothes_id, $user_id, $order, $page);
             if ($res && count($res) > 0) {
                 // Return success response
                 return response()->json([
@@ -516,7 +506,8 @@ class Queries extends Controller
      /**
      * @OA\GET(
      *     path="/api/v1/clothes/check_wash/{clothes_id}",
-     *     summary="Show clothes wash status",
+     *     summary="Get Clothes Wash Status By ID",
+     *     description="This request is used to get clothes wash status by given `clothes_id`. This request interacts with the MySQL database, has a protected routes, and a pagination.",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="clothes_id",
@@ -593,7 +584,8 @@ class Queries extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/clothes/detail/{clothes_id}",
-     *     summary="Show clothes detail by clothes id",
+     *     summary="Get Clothes Detail By ID",
+     *     description="This request is used to get clothes detail by given `clothes_id`. This request interacts with the MySQL database, has a protected routes, and a pagination.",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="clothes_id",
@@ -752,7 +744,8 @@ class Queries extends Controller
      /**
      * @OA\GET(
      *     path="/api/v1/clothes/wash_checkpoint/{clothes_id}",
-     *     summary="Show clothes wash checkpoint",
+     *     summary="Get Clothes Wash Checkpoint",
+     *     description="This request is used to get clothes wash checkpoint by given `clothes_id`. This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="clothes_id",
@@ -814,6 +807,7 @@ class Queries extends Controller
         try{
             $user_id = $request->user()->id;
 
+            // Get wash by clothes ID
             $res = WashModel::getActiveWash($clothes_id,$user_id);
             if ($res) {
                 // Return success response
@@ -839,7 +833,8 @@ class Queries extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/clothes/outfit",
-     *     summary="Show all outfit",
+     *     summary="Get All Outfit",
+     *     description="This request is used to get all outfit. This request interacts with the MySQL database, has a protected routes, and a pagination.",
      *     tags={"Clothes"},
      *     @OA\Response(
      *         response=200,
@@ -901,11 +896,12 @@ class Queries extends Controller
             $user_id = $request->user()->id;
             $limit = $request->limit ?? 8;
 
-            $res = OutfitModel::getAllOutfit($limit,$user_id);
-
+            // Get all outfit
+            $res = OutfitModel::getAllOutfit($limit, $user_id);
             if ($res->count() > 0) {                
                 $data = $res->getCollection()->map(function ($dt) {
-                    $clothes = OutfitRelModel::getClothesByOutfit($dt->id, "full");
+                    // Get clothes in an outfit
+                    $clothes = OutfitRelModel::getClothesByOutfitID($dt->id, $user_id);
                     $dt->clothes = $clothes;
                     return $dt;
                 });
@@ -935,7 +931,8 @@ class Queries extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/clothes/outfit/last",
-     *     summary="Get Last Outfit",
+     *     summary="Get Last Created Outfit",
+     *     description="This request is used to get last created outfit and its clothes. This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Clothes"},
      *     @OA\Response(
      *         response=200,
@@ -990,10 +987,15 @@ class Queries extends Controller
         try { 
             $user_id = $request->user()->id;
 
+            // Get outfit by ID
             $res = OutfitModel::getOneOutfit('last',null,$user_id);
-
             if ($res) {                
-                $clothes = OutfitRelModel::getClothesByOutfit($res->id, "header");
+                // Get clothes in an outfit
+                $clothes = OutfitRelModel::getClothesByOutfitID($res->id, $user_id);
+                $clothes = $clothes->map(function ($item) {
+                    return collect($item)->only(['clothes_name', 'clothes_type', 'clothes_image']);
+                });
+
                 $res->clothes = $clothes;
 
                 // Return success response
@@ -1019,7 +1021,8 @@ class Queries extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/clothes/outfit/by/{id}",
-     *     summary="Show outfit by id",
+     *     summary="Get Outfit And Its Clothes By Outfit ID",
+     *     description="This request is used to get an outfit and its clothes by using given outfit's `ID`. This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="id",
@@ -1088,14 +1091,11 @@ class Queries extends Controller
         try { 
             $user_id = $request->user()->id;
 
+            // Get outfit by ID
             $res = OutfitModel::getOneOutfit('direct',$id,$user_id);
-
-            if ($res) {                
-                $clothes = OutfitRelModel::select('clothes.id as id','clothes_name','clothes_type','clothes_image','is_favorite','has_washed','has_ironed','is_faded','clothes_merk')
-                    ->join('clothes', 'clothes.id', '=', 'outfit_relation.clothes_id')
-                    ->where('outfit_id', $res->id)
-                    ->get();
-                    
+            if ($res) {  
+                // Get clothes in an outfit              
+                $clothes = OutfitRelModel::getClothesByOutfitID($id, $user_id);
                 $res->clothes = $clothes;
 
                 // Return success response
@@ -1121,7 +1121,8 @@ class Queries extends Controller
      /**
      * @OA\GET(
      *     path="/api/v1/clothes/outfit/history/{id}",
-     *     summary="Show outfit history by id",
+     *     summary="Get Outfit Used History By ID",
+     *     description="This request is used to get an outfit used history by using given `ID`. This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="id",
@@ -1175,7 +1176,8 @@ class Queries extends Controller
 
             // Get outfit history
             $res = OutfitUsedModel::getOutfitHistory($id,$user_id);
-            if($res && count($res) > 0) {            
+            if($res && count($res) > 0) {
+                // Return success response            
                 return response()->json([
                     'status' => 'success',
                     'message' => Generator::getMessageTemplate("fetch", "history outfit"),
@@ -1198,7 +1200,8 @@ class Queries extends Controller
      /**
      * @OA\GET(
      *     path="/api/v1/clothes/schedule/{day}",
-     *     summary="Show founded clothes in schedule by day",
+     *     summary="Get Clothes Schedule By Day",
+     *     description="This request is used to get schedule by given `day` name. This request interacts with the MySQL database, and has a protected routes",
      *     tags={"Clothes"},
      *     @OA\Parameter(
      *         name="day",
@@ -1280,7 +1283,8 @@ class Queries extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/clothes/wash_history",
-     *     summary="Show all clothes wash history",
+     *     summary="Get Clothes Wash History",
+     *     description="This request is used to get all clothes wash history. This request interacts with the MySQL database, has a protected routes, and a pagination.",
      *     tags={"Clothes"},
      *     @OA\Response(
      *         response=200,
@@ -1334,6 +1338,7 @@ class Queries extends Controller
             $page = request()->input('page', 1);
             $is_detailed = request()->input('is_detailed', false);
 
+            // Get wash history
             $res = $is_detailed ? 
                 WashModel::getWashExport($user_id, false) : 
                 WashModel::getWashExport($user_id)->map(function ($col) {
@@ -1341,6 +1346,7 @@ class Queries extends Controller
                     return $col;
                 });
 
+            // Convert to pagination
             $collection = collect($res);
             $collection = $collection->sortBy('wash_at')->values();
             $page = request()->input('page', 1);
@@ -1377,7 +1383,8 @@ class Queries extends Controller
     /**
      * @OA\GET(
      *     path="/api/v1/clothes/wash_unfinished",
-     *     summary="Show unfinished wash clothes",
+     *     summary="Get Unfinished Wash Clothes",
+     *     description="This request is used to get clothes who is still at wash. This request interacts with the MySQL database, and has a protected routes",
      *     tags={"Clothes"},
      *     @OA\Response(
      *         response=200,
@@ -1438,13 +1445,13 @@ class Queries extends Controller
             if ($res->isEmpty()) {         
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", "unfinished wash"),
+                    'message' => Generator::getMessageTemplate("not_found", "$this->module unfinished wash"),
                 ], Response::HTTP_NOT_FOUND);
             } else {
                 // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", "unfinished wash"),
+                    'message' => Generator::getMessageTemplate("fetch", "$this->module unfinished wash"),
                     'data' => $res
                 ], Response::HTTP_OK);
             }
@@ -1460,7 +1467,7 @@ class Queries extends Controller
      * @OA\GET(
      *     path="/api/v1/clothes/schedule/tomorrow/{day}",
      *     summary="Get Tomorrow Schedule",
-     *     description="This request fetches the schedule for tomorrow and two days later from the outfit and clothes schedule. It uses a MySQL database and is protected by authentication.",
+     *     description="This request is used to get the schedule for tomorrow and two days later from the outfit and clothes schedule. This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Clothes"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -1553,7 +1560,7 @@ class Queries extends Controller
      * @OA\GET(
      *     path="/api/v1/clothes/last_history",
      *     summary="Get Last History",
-     *     description="This request fetches the last history from clothes. It uses a MySQL database and is protected by authentication.",
+     *     description="This request is used to get the last history (summary). This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Clothes"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
@@ -1600,14 +1607,16 @@ class Queries extends Controller
         try { 
             $user_id = $request->user()->id;
 
+            // Get last clothes (created)
             $res_last_added = ClothesModel::getLast('created_at',$user_id);
             if($res_last_added){
+                // Get last clothes (deleted)
                 $res_last_deleted = ClothesModel::getLast('deleted_at',$user_id);
                 
                 // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", "clothes last history"),
+                    'message' => Generator::getMessageTemplate("fetch", $this->module),
                     'data' => [
                         'last_added_clothes' => $res_last_added->clothes_name,
                         'last_added_date' => $res_last_added->created_at,
@@ -1618,7 +1627,7 @@ class Queries extends Controller
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", "clothes last history"),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -1633,7 +1642,7 @@ class Queries extends Controller
      * @OA\GET(
      *     path="/api/v1/clothes/outfit/summary",
      *     summary="Get Outfit Summary",
-     *     description="This request fetches the outfit summary. It uses a MySQL database and is protected by authentication.",
+     *     description="This request is used to get the outfit summary. This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Clothes"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
@@ -1682,15 +1691,18 @@ class Queries extends Controller
         try { 
             $user_id = $request->user()->id;
 
+            // Get last clothes (created)
             $res_last_added = ClothesModel::getLast('created_at',$user_id);
             if($res_last_added){
-                $res_total_outfit = OutfitModel::where('created_by',$user_id)->count();
+                // Get total outfit
+                $res_total_outfit = OutfitModel::countOutfit($user_id);
+                // Get last used outfit
                 $res_last_used = OutfitUsedModel::getLastUsed($user_id);
                 
                 // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", "clothes last history"),
+                    'message' => Generator::getMessageTemplate("fetch", "outfit"),
                     'data' => [
                         'total_outfit' => $res_total_outfit,
                         'last_used' => $res_last_used,
@@ -1700,7 +1712,7 @@ class Queries extends Controller
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", "clothes last history"),
+                    'message' => Generator::getMessageTemplate("not_found", "outfit"),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {

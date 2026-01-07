@@ -1491,7 +1491,7 @@ class Commands extends Controller
                     $message_clothes = "";
 
                     // Get outfit relation with clothes
-                    $list_clothes = OutfitRelModel::getClothes($outfit_id, $user_id);
+                    $list_clothes = OutfitRelModel::getClothesByOutfitID($outfit_id, $user_id);
                     foreach ($list_clothes as $dt) {
                         // Create clothes used
                         $clothes_history = ClothesUsedModel::createClothesUsed([

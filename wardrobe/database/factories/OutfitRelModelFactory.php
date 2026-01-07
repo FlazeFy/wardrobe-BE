@@ -17,7 +17,7 @@ class OutfitRelModelFactory extends Factory
     {
         $user_id = UserModel::getRandomWithClothesOutfit(0);
         $outfit_id = OutfitModel::getRandom(0, $user_id);
-        $clothes_attached = OutfitRelModel::getClothes($outfit_id, $user_id);
+        $clothes_attached = OutfitRelModel::getClothesByOutfitID($outfit_id, $user_id);
 
         // If outfit already have a clothes. Make sure to add new outfit relation with unique clothes type
         // So each outfit doesnt have multiple clothes with same clothes type

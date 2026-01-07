@@ -30,7 +30,7 @@ class Commands extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"feedback_rate", "feedback_body"},
-     *             @OA\Property(property="feedback_rate", type="integer", example=4)
+     *             @OA\Property(property="feedback_rate", type="integer", example=4),
      *             @OA\Property(property="feedback_body", type="string", example="cool apps")
      *         )
      *     ),

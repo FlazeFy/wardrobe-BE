@@ -41,6 +41,25 @@ class ClothesUsedModel extends Model
             ->get();
     }
 
+    public static function getClothesUsedHistoryDetail($clothes_id, $user_id, $order = 'desc', $page){
+        $res = ClothesUsedModel::select('clothes_used.id','clothes_name','clothes_type','clothes_note','used_context','clothes.created_at')
+            ->join('clothes','clothes.id','=','clothes_used.clothes_id');
+
+        if($clothes_id != "all"){
+            $res = $res->where('clothes_id',$clothes_id);
+        } 
+        
+        $res = $res->where('clothes_used.created_by',$user_id)
+            ->orderBy('clothes_used.created_at', $order)
+            ->orderBy('clothes_name', $order);
+
+        if($clothes_id != "all" || $page != "all"){
+            return $res->paginate(14);
+        } else {
+            return $res->get();
+        }
+    }
+
     public static function getLastUsed($user_id){
         return ClothesUsedModel::select('created_at')
             ->where('created_by',$user_id)

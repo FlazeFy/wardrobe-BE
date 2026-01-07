@@ -437,7 +437,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Permanently delete clothes by id",
+                "summary": "Permanently Delete Clothes By ID",
+                "description": "This request is used to delete a clothes by using given `ID`. This request interacts with the MySQL database, firebase storage, has a protected routes, broadcast message with Firebase FCM, and audited activity (history).",
                 "operationId": "0be4ac99b269208881a230fccce5939a",
                 "parameters": [
                     {
@@ -540,7 +541,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Delete clothes by id",
+                "summary": "Soft Delete Clothes By ID",
+                "description": "This request is used to delete a clothes by using given `ID`. This request interacts with the MySQL database, broadcast message with Firebase FCM, has a protected routes, and audited activity (history).",
                 "operationId": "109f395a456cc540a30c9f11f01dae16",
                 "parameters": [
                     {
@@ -643,7 +645,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Add clothes history",
+                "summary": "Post Create Clothes History",
+                "description": "This request is used to create clothes history record by giving `clothes_id`, `clothes_note`, and `used_context`. This request interacts with the MySQL database, and has a protected routes.",
                 "operationId": "a2ffabca51f9768a1b5dac23d6e802d3",
                 "responses": {
                     "201": {
@@ -686,6 +689,26 @@
                             }
                         }
                     },
+                    "422": {
+                        "description": "clothes history failed to validated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "[failed validation message]"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
@@ -714,7 +737,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Add schedule",
+                "summary": "Post Create Schedule",
+                "description": "This request is used to create schedule of clothes that will be used in the future by giving `clothes_id`, `schedule_note`, `day`, and `is_remind`. This request interacts with the MySQL database, and has a protected routes.",
                 "operationId": "43c581f78d2ae2c1cda31f08961820d8",
                 "responses": {
                     "201": {
@@ -757,6 +781,26 @@
                             }
                         }
                     },
+                    "422": {
+                        "description": "schedule failed to validated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "[failed validation message]"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
@@ -785,7 +829,7 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Update clothes wash by id",
+                "summary": "Put Update Clothes Wash By ID",
                 "operationId": "d5bc63b91213ee363af934498d26679a",
                 "parameters": [
                     {
@@ -888,7 +932,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Permanently delete wash by id",
+                "summary": "Permanently Delete Wash By ID",
+                "description": "This request is used to permanently delete wash history by given `id`. This request interacts with the MySQL database, and has a protected routes.",
                 "operationId": "e20b948df0f84e247e136a5b2441e4eb",
                 "parameters": [
                     {
@@ -991,7 +1036,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Permanently delete clothes used by id",
+                "summary": "Permanently Delete Clothes Used By ID",
+                "description": "This request is used to permanently delete clothes used history by given `id`. This request interacts with the MySQL database, and has a protected routes.",
                 "operationId": "17068b2f02994a621aba37e53c5e00e2",
                 "parameters": [
                     {
@@ -1094,7 +1140,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Create clothes",
+                "summary": "Post Create Clothes",
+                "description": "This request is used to create a clothes. This request interacts with the MySQL database, firebase storage, broadcast message with Telegram and Firebase FCM, using mailer, has a protected routes, and audited activity (history)",
                 "operationId": "6a7705d55be10eb564e2fce0002fa9ac",
                 "responses": {
                     "201": {
@@ -1137,26 +1184,6 @@
                             }
                         }
                     },
-                    "422": {
-                        "description": "{validation_msg}",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "{field validation message}"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
                     "401": {
                         "description": "protected route need to include sign in token as authorization bearer",
                         "content": {
@@ -1170,6 +1197,26 @@
                                         "message": {
                                             "type": "string",
                                             "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "clothes failed to validated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "[failed validation message]"
                                         }
                                     },
                                     "type": "object"
@@ -1210,7 +1257,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Recover clothes by id",
+                "summary": "Put Recover Clothes By ID",
+                "description": "This request is used to recover deleted clothes by given `id`. This request interacts with the MySQL database, broadcast with Firebase FCM, has a protected routes, and audited activity (history).",
                 "operationId": "3bd6bab97556b216074c1e9d6fec105c",
                 "parameters": [
                     {
@@ -1318,7 +1366,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Permanently delete schedule by id",
+                "summary": "Permanently Delete Schedule By ID",
+                "description": "This request is used to permanently delete schedule by given `id`. This request interacts with the MySQL database, and has a protected routes.",
                 "operationId": "00fdd9dbd5d743962258fab7d3666b8b",
                 "parameters": [
                     {
@@ -1421,7 +1470,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Show clothes used history",
+                "summary": "Post Create (Generate) Random Outfit",
+                "description": "This request is used to create (generate) random set of clothes to make an outfit. This request interacts with the MySQL database, and has a protected routes.",
                 "operationId": "90aec27a13929aa40782787b9e543038",
                 "responses": {
                     "201": {
@@ -1556,7 +1606,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Create outfit",
+                "summary": "Post Create Outfit",
+                "description": "This request is used to create an outfit that will contain multiple set of clothes. This request interacts with the MySQL database, broadcast with Firebase FCM & Telegram, has a protected routes, and audited activity (history).",
                 "operationId": "d69c88c2577c8c22bec1ecc8c85873b5",
                 "responses": {
                     "201": {
@@ -1672,7 +1723,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Permanently delete outfit history by id",
+                "summary": "Permanently Delete Outfit Used History By ID",
+                "description": "This request is used to permanently delete outfit used history by given `id`. This request interacts with the MySQL database, and has a protected routes.",
                 "operationId": "35ff7ca826d9d9edb9f6f498f3fe126f",
                 "parameters": [
                     {
@@ -1775,7 +1827,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Add outfit used history",
+                "summary": "Post Create Outfit Used History",
+                "description": "This request is used to create outfit used history. This request interacts with the MySQL database, broadcast with Firebase FCM, and has a protected routes.",
                 "operationId": "a0cbd5a1e5f062e367b19ee0ee7d2db3",
                 "responses": {
                     "201": {
@@ -1866,7 +1919,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Add Clothes to outfit",
+                "summary": "Post Create Clothes Relation With Outfit",
+                "description": "This request is used to create clothes relation with the outfit. This request interacts with the MySQL database, broadcast with Firebase FCM, and has a protected routes.",
                 "operationId": "8677edd26ca1f003543c6642a142b8f2",
                 "responses": {
                     "201": {
@@ -1929,26 +1983,6 @@
                             }
                         }
                     },
-                    "422": {
-                        "description": "{validation_msg}",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "{field validation message}"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
                     "401": {
                         "description": "protected route need to include sign in token as authorization bearer",
                         "content": {
@@ -1962,6 +1996,26 @@
                                         "message": {
                                             "type": "string",
                                             "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "clothes outfit failed to validated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "[failed validation message]"
                                         }
                                     },
                                     "type": "object"
@@ -2002,7 +2056,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Permanently remove clothes by id",
+                "summary": "Permanently Delete (Remove) Clothes From Outfit Relation By Clothes ID",
+                "description": "This request is used to delete (remove) clothes from outfit relation by given `clothes_id`. This request interacts with the MySQL database, broadcast with Firebase FCM, and has a protected routes.",
                 "operationId": "0b11e09739a06e35a4870c3ec7928655",
                 "parameters": [
                     {
@@ -2105,7 +2160,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Create clothes wash history",
+                "summary": "Post Create Clothes Wash",
+                "description": "This request is used to create wash history. This request interacts with the MySQL database, has a protected routes, and audited activity (history).",
                 "operationId": "5ac0afec805377af5a2e23bf03a78f5b",
                 "responses": {
                     "201": {
@@ -2221,7 +2277,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Show all clothes (header)",
+                "summary": "Get All Clothes (Header)",
+                "description": "This request is used to get all clothes (header information) by given `category` and `order`. This request interacts with the MySQL database, has a protected routes, and a pagination.",
                 "operationId": "209636ff5dbe8b35e433b43170b08d1d",
                 "parameters": [
                     {
@@ -2403,7 +2460,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Show all deleted clothes",
+                "summary": "Get Deleted Clothes",
+                "description": "This request is used to get all deleted clothes. This request interacts with the MySQL database, has a protected routes, and a pagination.",
                 "operationId": "e31d8b235de54aafd87dc70e888acf71",
                 "responses": {
                     "200": {
@@ -2548,7 +2606,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Show similiar clothes by context",
+                "summary": "Get Similar Clothes By Context",
+                "description": "This request is used to get all deleted clothes. This request interacts with the MySQL database, has a protected routes, and a pagination.",
                 "operationId": "299297db15a3e9926ba3fe8ae892dda1",
                 "responses": {
                     "200": {
@@ -2663,7 +2722,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Show clothes detail",
+                "summary": "Get Clothes Detail By Category",
+                "description": "This request is used to get all clothes detail by given `category` and `order`. This request interacts with the MySQL database, has a protected routes, and a pagination.",
                 "operationId": "e4448ea35cc8c45b2d767640b0f9d1c9",
                 "parameters": [
                     {
@@ -2888,7 +2948,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Show clothes used history",
+                "summary": "Get Clothes Used History",
+                "description": "This request is used to get clothes used history by given `clothes_id` and `order`. This request interacts with the MySQL database, has a protected routes, and a pagination.",
                 "operationId": "55864516c737c97943acb74f110fd2e8",
                 "parameters": [
                     {
@@ -3034,7 +3095,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Show clothes wash status",
+                "summary": "Get Clothes Wash Status By ID",
+                "description": "This request is used to get clothes wash status by given `clothes_id`. This request interacts with the MySQL database, has a protected routes, and a pagination.",
                 "operationId": "d6ae1e3fc93572167d31e754b12adee0",
                 "parameters": [
                     {
@@ -3141,7 +3203,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Show clothes detail by clothes id",
+                "summary": "Get Clothes Detail By ID",
+                "description": "This request is used to get clothes detail by given `clothes_id`. This request interacts with the MySQL database, has a protected routes, and a pagination.",
                 "operationId": "dba738aef10bb7566b6c9058fcd313b0",
                 "parameters": [
                     {
@@ -3469,7 +3532,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Show clothes wash checkpoint",
+                "summary": "Get Clothes Wash Checkpoint",
+                "description": "This request is used to get clothes wash checkpoint by given `clothes_id`. This request interacts with the MySQL database, and has a protected routes.",
                 "operationId": "63951ee6b54193436cb3bbca2470f79d",
                 "parameters": [
                     {
@@ -3608,7 +3672,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Show all outfit",
+                "summary": "Get All Outfit",
+                "description": "This request is used to get all outfit. This request interacts with the MySQL database, has a protected routes, and a pagination.",
                 "operationId": "ccab11df3d49e18227841f9873f3718d",
                 "responses": {
                     "200": {
@@ -3763,7 +3828,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Show last outfit",
+                "summary": "Get Last Created Outfit",
+                "description": "This request is used to get last created outfit and its clothes. This request interacts with the MySQL database, and has a protected routes.",
                 "operationId": "43bba2e46c0e856b1347d52f43587dfe",
                 "responses": {
                     "200": {
@@ -3899,7 +3965,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Show outfit by id",
+                "summary": "Get Outfit And Its Clothes By Outfit ID",
+                "description": "This request is used to get an outfit and its clothes by using given outfit's `ID`. This request interacts with the MySQL database, and has a protected routes.",
                 "operationId": "f9a15d3ed33b0d2c2d27a5d3697836c1",
                 "parameters": [
                     {
@@ -4071,7 +4138,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Show outfit history by id",
+                "summary": "Get Outfit Used History By ID",
+                "description": "This request is used to get an outfit used history by using given `ID`. This request interacts with the MySQL database, and has a protected routes.",
                 "operationId": "2b2d017b2831a5159cba55054e06b187",
                 "parameters": [
                     {
@@ -4187,7 +4255,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Show founded clothes in schedule by day",
+                "summary": "Get Clothes Schedule By Day",
+                "description": "This request is used to get schedule by given `day` name. This request interacts with the MySQL database, and has a protected routes",
                 "operationId": "c0fb27fd3af8322bd1bf53a754183957",
                 "parameters": [
                     {
@@ -4314,7 +4383,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Show all clothes wash history",
+                "summary": "Get Clothes Wash History",
+                "description": "This request is used to get all clothes wash history. This request interacts with the MySQL database, has a protected routes, and a pagination.",
                 "operationId": "87e4abac31d2f96a4ef6cbc10d14b555",
                 "responses": {
                     "200": {
@@ -4441,7 +4511,8 @@
                 "tags": [
                     "Clothes"
                 ],
-                "summary": "Show unfinished wash clothes",
+                "summary": "Get Unfinished Wash Clothes",
+                "description": "This request is used to get clothes who is still at wash. This request interacts with the MySQL database, and has a protected routes",
                 "operationId": "87156461bd2b4cf7e9d68fc61f5143e6",
                 "responses": {
                     "200": {
@@ -4577,7 +4648,7 @@
                     "Clothes"
                 ],
                 "summary": "Get Tomorrow Schedule",
-                "description": "This request fetches the schedule for tomorrow and two days later from the outfit and clothes schedule. It uses a MySQL database and is protected by authentication.",
+                "description": "This request is used to get the schedule for tomorrow and two days later from the outfit and clothes schedule. This request interacts with the MySQL database, and has a protected routes.",
                 "operationId": "bdeebe1e4a15cbc38e791a949e5f18f0",
                 "parameters": [
                     {
@@ -4737,7 +4808,7 @@
                     "Clothes"
                 ],
                 "summary": "Get Last History",
-                "description": "This request fetches the last history from clothes. It uses a MySQL database and is protected by authentication.",
+                "description": "This request is used to get the last history (summary). This request interacts with the MySQL database, and has a protected routes.",
                 "operationId": "6a07261ab56165652bcf6f625fb92a46",
                 "responses": {
                     "200": {
@@ -4855,7 +4926,7 @@
                     "Clothes"
                 ],
                 "summary": "Get Outfit Summary",
-                "description": "This request fetches the outfit summary. It uses a MySQL database and is protected by authentication.",
+                "description": "This request is used to get the outfit summary. This request interacts with the MySQL database, and has a protected routes.",
                 "operationId": "4eb70b37cf996273731078fb8e90eb05",
                 "responses": {
                     "200": {
@@ -5268,7 +5339,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "dictionary found",
+                        "description": "dictionary fetched successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5376,7 +5447,7 @@
                 "operationId": "71f36cb325267706f4188af6a6bb295e",
                 "responses": {
                     "200": {
-                        "description": "clothes category type found",
+                        "description": "clothes category fetched successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5762,6 +5833,30 @@
                 ],
                 "summary": "Post Create Feedback",
                 "operationId": "4b1acf5b4cc7619aeeef87997f381397",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "feedback_rate",
+                                    "feedback_body"
+                                ],
+                                "properties": {
+                                    "feedback_rate": {
+                                        "type": "integer",
+                                        "example": 4
+                                    },
+                                    "feedback_body": {
+                                        "type": "string",
+                                        "example": "cool apps"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
                         "description": "feedback created",
@@ -8108,9 +8203,28 @@
                 "tags": [
                     "User"
                 ],
-                "summary": "Update user FCM token",
-                "description": "Update user's Firebase Cloud Messaging token from mobile. This request is using MySQL database.",
+                "summary": "Put Update User FCM Token",
+                "description": "This request is used to update user's Firebase Cloud Messaging token from mobile. This request interacts with the MySQL database, and has a protected routes",
                 "operationId": "d1a3e00f356a22524d3de3dacdf7b52b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "firebase_fcm_token"
+                                ],
+                                "properties": {
+                                    "firebase_fcm_token": {
+                                        "type": "string",
+                                        "example": "123456789"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "fcm updated successfully",
@@ -8125,6 +8239,26 @@
                                         "message": {
                                             "type": "string",
                                             "example": "fcm updated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
                                         }
                                     },
                                     "type": "object"
@@ -8190,7 +8324,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/user/my": {
@@ -8198,12 +8337,12 @@
                 "tags": [
                     "User"
                 ],
-                "summary": "Get my profile",
-                "description": "This request is used to get user profile. This request is using MySql database, and have a protected routes",
+                "summary": "Get My Profile",
+                "description": "This request is used to get user profile. This request interacts with the MySQL database, and has a protected routes",
                 "operationId": "60423d8d351a2477044d5e3c53cb3407",
                 "responses": {
                     "200": {
-                        "description": "profile fetched",
+                        "description": "Profile fetched successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -8326,12 +8465,12 @@
                 "tags": [
                     "User"
                 ],
-                "summary": "Get Available Year for User to Filter",
-                "description": "This request is used to get all year found on content (clothes, outfit, wash, schedule). This request is using MySql database",
+                "summary": "Get Available Year",
+                "description": "This request is used to get all year found on content (clothes, outfit, wash, schedule). This request interacts with the MySQL database, and has a protected routes",
                 "operationId": "2369941ef05fcb04e02c1716b91c9cdf",
                 "responses": {
                     "200": {
-                        "description": "year filter fetched",
+                        "description": "Year filter fetched successfully. Ordered in descending order by `year`",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -8362,6 +8501,46 @@
                             }
                         }
                     },
+                    "404": {
+                        "description": "year failed to fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "year filter not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
@@ -8382,7 +8561,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         }
     },

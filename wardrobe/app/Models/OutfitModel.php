@@ -86,6 +86,10 @@ class OutfitModel extends Model
         return OutfitModel::create($data);
     }
 
+    public static function countOutfit($user_id){
+        return OutfitModel::where('created_by',$user_id)->count();
+    }
+
     public static function isExist($id, $user_id){
         return OutfitModel::where('id',$id)->where('created_by',$user_id)->exists();
     }

@@ -70,8 +70,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function hardDeleteDctByID(Request $request, $id)
-    {
+    public function hardDeleteDctByID(Request $request, $id){
         try{
             $user_id = $request->user()->id;
 
@@ -183,8 +182,7 @@ class Commands extends Controller
      * )
      */
 
-    public function postDct(Request $request)
-    {
+    public function postCreateDct(Request $request){
         try{
             // Validate request body
             $validator = Validation::getValidateDictionary($request,'create');

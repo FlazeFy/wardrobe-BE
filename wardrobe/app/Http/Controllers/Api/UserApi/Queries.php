@@ -69,8 +69,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function getMyProfile(Request $request)
-    {
+    public function getMyProfile(Request $request){
         try{
             $user_id = $request->user()->id;
 

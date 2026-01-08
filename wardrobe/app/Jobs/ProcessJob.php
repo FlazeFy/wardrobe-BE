@@ -10,31 +10,34 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 
 // Mail
-use App\Mail\NewUserMail;
+use App\Mail\NewClothesMail;
 // Helper
 use App\Helpers\Generator;
 // Model
 use App\Models\FailedJob;
 
-class WelcomeMailer implements ShouldQueue
+class ProcessJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    protected $context;
+    protected $body;
     protected $username;
     protected $receiver;
-    protected $token;
 
-    public function __construct($username, $receiver, $token)
+    public function __construct($context, $body, $username, $receiver)
     {
+        $this->context = $context;
+        $this->body = $body;
         $this->username = $username;
         $this->receiver = $receiver;
-        $this->token = $token;
     }
 
     public function handle()
     {
         try{
-            $email = new NewUserMail($this->username, $this->token);
+            // Mailer
+            $email = new NewInventoryMail($this->context, $this->body, $this->username);
             Mail::to($this->receiver)->send($email);
         } catch (\Exception $e) {
             $obj = [
@@ -44,7 +47,7 @@ class WelcomeMailer implements ShouldQueue
                 'line' => $e->getLine(), 
             ];
             FailedJob::createFailedJob([
-                'type' => "register", 
+                'type' => "clothes", 
                 'status' => "failed",  
                 'payload' => json_encode($obj),
             ], null);

@@ -318,7 +318,7 @@ class ReminderSchedule
             $list_question = "";
             $audit_tbody = "";
             
-            // Prepare sentece of list question
+            // Build table body (content)
             foreach ($question as $idx => $dt) {
                 $list_question .= "- ".ucfirst($dt->question)."\nNotes: <i>ask at $dt->created_at</i>\n\n";
 
@@ -365,10 +365,10 @@ class ReminderSchedule
                     </body>
                 </html>";
         
+                // Render docs
                 $dompdf->loadHtml($html);
                 $dompdf->setPaper('A4', 'landscape');
                 $dompdf->render();
-        
                 $pdfContent = $dompdf->output();
                 
                 // Create a temporary file

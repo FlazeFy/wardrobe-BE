@@ -28,6 +28,7 @@ class AuditSchedule
             $audit = "";
             $total = count($summary);
 
+            // Build table body (content)
             foreach($summary as $dt){
                 $audit .= "
                     <tr>
@@ -80,10 +81,10 @@ class AuditSchedule
                     </body>
                 </html>";
         
+                // Render docs
                 $dompdf->loadHtml($html);
                 $dompdf->setPaper('A4', 'landscape');
                 $dompdf->render();
-        
                 $pdfContent = $dompdf->output();
 
                 // Create a temporary file

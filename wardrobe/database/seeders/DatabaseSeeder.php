@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 // Models
 use App\Models\AdminModel;
@@ -18,8 +19,6 @@ use App\Models\OutfitRelModel;
 use App\Models\ScheduleModel;
 use App\Models\UserTrackModel;
 use App\Models\UserWeatherModel;
-
-use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {

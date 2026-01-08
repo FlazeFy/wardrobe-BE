@@ -76,8 +76,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function getStatsClothesMostContext(Request $request, $ctx)
-    {
+    public function getStatsClothesMostContext(Request $request, $ctx){
         try {
             // Define user ID if token attached
             if ($request->hasHeader('Authorization')) {

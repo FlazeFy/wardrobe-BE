@@ -3,11 +3,12 @@
 namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
-
-use App\Models\DictionaryModel;
-use App\Helpers\Generator;
-
 use Illuminate\Support\Facades\DB;
+
+// Model
+use App\Models\DictionaryModel;
+// Helper
+use App\Helpers\Generator;
 
 class DictionarySeeder extends Seeder
 {
@@ -38,6 +39,7 @@ class DictionarySeeder extends Seeder
 
         foreach ($dictionaries as $type => $dt) {
             foreach ($dt as $name) {
+                // Create dictionary
                 DictionaryModel::createDictionary([
                     'dictionary_type' => $type,
                     'dictionary_name' => $name,

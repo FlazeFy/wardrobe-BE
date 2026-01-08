@@ -49,10 +49,9 @@ class QuestionModel extends Model
         return count($res) > 0 ? $res : null;
     }
 
-    public static function createQuestion($data, $user_id){
+    public static function createQuestion($data){
         $data["id"] = Generator::getUUID();
         $data["created_at"] = date("Y-m-d H:i:s");
-        $data["created_by"] = $user_id;
         $data["is_show"] = 0;
 
         return QuestionModel::create($data);

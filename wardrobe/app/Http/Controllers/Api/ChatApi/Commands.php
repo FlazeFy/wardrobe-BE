@@ -20,8 +20,14 @@ use App\Helpers\Firebase;
 
 class Commands extends Controller
 {
-    public function postChat(Request $request)
+    private $module;
+
+    public function __construct()
     {
+        $this->module = "chat";
+    }
+
+    public function postCreateChat(Request $request){
         try{
             $user_id = $request->user()->id;
 
@@ -59,9 +65,10 @@ class Commands extends Controller
                 $res = DB::select("$select_query FROM $from_query WHERE created_by = ?", [$user_id]);
         
                 if (count($res) > 0) {
+                    // Return success response
                     return response()->json([
                         'status' => 'success',
-                        'message' => Generator::getMessageTemplate("generate", 'chat'),
+                        'message' => Generator::getMessageTemplate("generate", $this->module),
                         'data' => $res,
                     ], Response::HTTP_CREATED);
                 }
@@ -69,7 +76,7 @@ class Commands extends Controller
         
             return response()->json([
                 'status' => 'failed',
-                'message' => Generator::getMessageTemplate("not_found", "chat"),
+                'message' => Generator::getMessageTemplate("not_found", $this->module),
             ], Response::HTTP_NOT_FOUND);
         } catch(\Exception $e) {
             return response()->json([

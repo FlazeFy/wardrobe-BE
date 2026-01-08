@@ -25,7 +25,6 @@ class WeatherSchedule
         try{
             // Get user who ready to fetch API Weather
             $user = UserTrackModel::getUserReadyFetchWeather();
-
             if($user){
                 $client = new Client();
                 $open_weather_key = env("OPEN_WEATHER_API_KEY");
@@ -41,9 +40,8 @@ class WeatherSchedule
                         ]
                     ]);
                 
-                    $data = json_decode($response->getBody(), true);
-                
                     // Consume weather info from API
+                    $data = json_decode($response->getBody(), true);
                     $weather = (object)[
                         'temp' => $data['main']['temp'],
                         'humidity' => $data['main']['humidity'],

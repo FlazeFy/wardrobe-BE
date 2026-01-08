@@ -74,8 +74,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function getDctByType(Request $request, $type)
-    {
+    public function getDctByType(Request $request, $type){
         try{
             // Get dictionary by type
             $res = DictionaryModel::getDictionaryByType($type);
@@ -148,8 +147,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function getCategoryTypeClothes(Request $request)
-    {
+    public function getCategoryTypeClothes(Request $request){
         try{
             $user_id = $request->user()->id;
 

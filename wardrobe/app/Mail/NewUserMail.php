@@ -22,13 +22,12 @@ class NewUserMail extends Mailable
 
     public function envelope()
     {
-        return new Envelope(
-            subject: '[Account] Welcome to Wardrobe',
-        );
+        return new Envelope(subject: '[Account] Welcome to Wardrobe');
     }
 
     public function build()
     {
+        // Mail layout
         return $this->view('components.email.new_user')
             ->with([
                 'token' => $this->token,

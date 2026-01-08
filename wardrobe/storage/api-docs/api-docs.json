@@ -649,7 +649,7 @@
                 ],
                 "summary": "Post Create Clothes History",
                 "description": "This request is used to create clothes history record by giving `clothes_id`, `clothes_note`, and `used_context`. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "fc34d7686f0e85f3b9bdf9c1d5087def",
+                "operationId": "f9dc1ee499150cd9e231e8db4cf298e1",
                 "responses": {
                     "201": {
                         "description": "clothes created",
@@ -741,7 +741,7 @@
                 ],
                 "summary": "Post Create Schedule",
                 "description": "This request is used to create schedule of clothes that will be used in the future by giving `clothes_id`, `schedule_note`, `day`, and `is_remind`. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "e15c4f7559d930264ace051656f9f5e9",
+                "operationId": "a5a92ee8fb2e7a212f959ae8c6d758c3",
                 "responses": {
                     "201": {
                         "description": "clothes created",
@@ -833,7 +833,7 @@
                 ],
                 "summary": "Put Update Clothes Wash Checkpoint By ID",
                 "description": "This request is used to update clothes wash checkpoint by given `id`. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "403b45984895f77b3f64ee2a7d2ca2d9",
+                "operationId": "ecf2030c1689650545f39ce05d47794b",
                 "parameters": [
                     {
                         "name": "id",
@@ -1145,7 +1145,7 @@
                 ],
                 "summary": "Post Create Clothes",
                 "description": "This request is used to create a clothes. This request interacts with the MySQL database, firebase storage, broadcast message with Telegram and Firebase FCM, using mailer, has a protected routes, and audited activity (history)",
-                "operationId": "d37ba73787d90f15b38a8080fc0a650e",
+                "operationId": "7f83f0ca7e291ea9492bd8f73f35538c",
                 "responses": {
                     "201": {
                         "description": "clothes created",
@@ -1262,7 +1262,7 @@
                 ],
                 "summary": "Put Recover Clothes By ID",
                 "description": "This request is used to recover deleted clothes by given `id`. This request interacts with the MySQL database, broadcast with Firebase FCM, has a protected routes, and audited activity (history).",
-                "operationId": "4196f28e3560a315a81922ececd78a47",
+                "operationId": "77bb55dddaac215c1122ee528fb45c5f",
                 "parameters": [
                     {
                         "name": "id",
@@ -1604,123 +1604,6 @@
                 }
             }
         },
-        "/api/v1/clothes/save/outfit": {
-            "post": {
-                "tags": [
-                    "Clothes"
-                ],
-                "summary": "Post Create Outfit",
-                "description": "This request is used to create an outfit that will contain multiple set of clothes. This request interacts with the MySQL database, broadcast with Firebase FCM & Telegram, has a protected routes, and audited activity (history).",
-                "operationId": "ce4f65445753b7d05c9f03f1258f4e22",
-                "responses": {
-                    "201": {
-                        "description": "outfit created",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "outfit created with 2 clothes attached"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Data is already exist",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "outfit is already exist"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "{validation_msg}",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "{field validation message}"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "protected route need to include sign in token as authorization bearer",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "you need to include the authorization token from login"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "something wrong. please contact admin"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
         "/api/v1/clothes/outfit/history/by/{id}": {
             "delete": {
                 "tags": [
@@ -1825,339 +1708,6 @@
                 }
             }
         },
-        "/api/v1/clothes/outfit/history/save": {
-            "post": {
-                "tags": [
-                    "Clothes"
-                ],
-                "summary": "Post Create Outfit Used History",
-                "description": "This request is used to create outfit used history. This request interacts with the MySQL database, broadcast with Firebase FCM, and has a protected routes.",
-                "operationId": "2b529cd0271ae6fee7c3359a785745b5",
-                "responses": {
-                    "201": {
-                        "description": "outfit history created",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "outfit history created with 2 clothes attached"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "protected route need to include sign in token as authorization bearer",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "you need to include the authorization token from login"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "outfit history not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "outfit not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "something wrong. please contact admin"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/clothes/outfit/save/clothes": {
-            "post": {
-                "tags": [
-                    "Clothes"
-                ],
-                "summary": "Post Create Clothes Relation With Outfit",
-                "description": "This request is used to create clothes relation with the outfit. This request interacts with the MySQL database, broadcast with Firebase FCM, and has a protected routes.",
-                "operationId": "0c307df6d6c65388051eb867ba222fdb",
-                "responses": {
-                    "201": {
-                        "description": "outfit created",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "2 clothes attached"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "outfit not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "outfit not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Data is already exist",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "clothes is already exist"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "protected route need to include sign in token as authorization bearer",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "you need to include the authorization token from login"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "clothes outfit failed to validated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "[failed validation message]"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "something wrong. please contact admin"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/clothes/outfit/remove/{clothes_id}": {
-            "delete": {
-                "tags": [
-                    "Clothes"
-                ],
-                "summary": "Permanently Delete (Remove) Clothes From Outfit Relation By Clothes ID",
-                "description": "This request is used to delete (remove) clothes from outfit relation by given `clothes_id`. This request interacts with the MySQL database, broadcast with Firebase FCM, and has a protected routes.",
-                "operationId": "3910971e460d187935ea86d99d1702af",
-                "parameters": [
-                    {
-                        "name": "clothes_id",
-                        "in": "path",
-                        "description": "outfit history ID",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "clothes remove from outfit",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "clothes removed"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "protected route need to include sign in token as authorization bearer",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "you need to include the authorization token from login"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "clothes not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "clothes not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "something wrong. please contact admin"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/clothes/wash": {
             "post": {
                 "tags": [
@@ -2165,7 +1715,7 @@
                 ],
                 "summary": "Post Create Clothes Wash",
                 "description": "This request is used to create wash history. This request interacts with the MySQL database, has a protected routes, and audited activity (history).",
-                "operationId": "cfdf37837f49bb21a28ef4f771d72a8d",
+                "operationId": "2ae40f6dfb61d23dd34f78ab1d3fed71",
                 "responses": {
                     "201": {
                         "description": "clothes wash created",
@@ -3670,472 +3220,6 @@
                 }
             }
         },
-        "/api/v1/clothes/outfit": {
-            "get": {
-                "tags": [
-                    "Clothes"
-                ],
-                "summary": "Get All Outfit",
-                "description": "This request is used to get all outfit. This request interacts with the MySQL database, has a protected routes, and a pagination.",
-                "operationId": "d468aec02cba360dbb6b796a5cd88013",
-                "responses": {
-                    "200": {
-                        "description": "outfit found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "outfit fetched"
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "string",
-                                                        "example": "05d6fe1d-9041-5673-044b-4d2e7f6f0090"
-                                                    },
-                                                    "outfit_name": {
-                                                        "type": "string",
-                                                        "example": "Outfit Generated 17-Jan-2025 10:28"
-                                                    },
-                                                    "outfit_note": {
-                                                        "type": "string",
-                                                        "example": "Test 123"
-                                                    },
-                                                    "is_favorite": {
-                                                        "type": "integer",
-                                                        "example": 1
-                                                    },
-                                                    "total_used": {
-                                                        "type": "integer",
-                                                        "example": 2
-                                                    },
-                                                    "clothes": {
-                                                        "type": "array",
-                                                        "items": {
-                                                            "properties": {
-                                                                "id": {
-                                                                    "type": "string",
-                                                                    "example": "05d6fe1d-9041-5673-044b-4d2e7f6f0090"
-                                                                },
-                                                                "clothes_name": {
-                                                                    "type": "string",
-                                                                    "example": "shirt A"
-                                                                },
-                                                                "clothes_type": {
-                                                                    "type": "string",
-                                                                    "example": "hat"
-                                                                },
-                                                                "clothes_merk": {
-                                                                    "type": "string",
-                                                                    "example": "nike"
-                                                                },
-                                                                "clothes_image": {
-                                                                    "type": "string",
-                                                                    "example": "https://storage.googleapis.com"
-                                                                },
-                                                                "clothes_color": {
-                                                                    "type": "string",
-                                                                    "example": "black"
-                                                                },
-                                                                "has_washed": {
-                                                                    "type": "integer",
-                                                                    "example": 0
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        }
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "protected route need to include sign in token as authorization bearer",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "you need to include the authorization token from login"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "outfit not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "outfit not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "something wrong. please contact admin"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/clothes/outfit/last": {
-            "get": {
-                "tags": [
-                    "Clothes"
-                ],
-                "summary": "Get Last Created Outfit",
-                "description": "This request is used to get last created outfit and its clothes. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "8511f5ddeacf4073eac4b2bf62e49a47",
-                "responses": {
-                    "200": {
-                        "description": "outfit found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "outfit fetched"
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "string",
-                                                    "example": "05d6fe1d-9041-5673-044b-4d2e7f6f0090"
-                                                },
-                                                "outfit_name": {
-                                                    "type": "string",
-                                                    "example": "Outfit Generated 17-Jan-2025 10:28"
-                                                },
-                                                "is_favorite": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "total_used": {
-                                                    "type": "integer",
-                                                    "example": 2
-                                                },
-                                                "last_used": {
-                                                    "type": "string",
-                                                    "example": "2024-04-10 22:10:56"
-                                                },
-                                                "clothes": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "properties": {
-                                                            "clothes_name": {
-                                                                "type": "string",
-                                                                "example": "shirt A"
-                                                            },
-                                                            "clothes_type": {
-                                                                "type": "string",
-                                                                "example": "hat"
-                                                            },
-                                                            "clothes_image": {
-                                                                "type": "string",
-                                                                "example": "https://storage.googleapis.com"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "protected route need to include sign in token as authorization bearer",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "you need to include the authorization token from login"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "outfit not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "outfit not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "something wrong. please contact admin"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/clothes/outfit/by/{id}": {
-            "get": {
-                "tags": [
-                    "Clothes"
-                ],
-                "summary": "Get Outfit And Its Clothes By Outfit ID",
-                "description": "This request is used to get an outfit and its clothes by using given outfit's `ID`. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "52d346a96eed5392b4a87fc68138fef6",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "outfit ID",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "outfit found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "outfit fetched"
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "string",
-                                                    "example": "05d6fe1d-9041-5673-044b-4d2e7f6f0090"
-                                                },
-                                                "outfit_name": {
-                                                    "type": "string",
-                                                    "example": "Outfit Generated 17-Jan-2025 10:28"
-                                                },
-                                                "is_favorite": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "total_used": {
-                                                    "type": "integer",
-                                                    "example": 2
-                                                },
-                                                "last_used": {
-                                                    "type": "string",
-                                                    "example": "2024-04-10 22:10:56"
-                                                },
-                                                "clothes": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "properties": {
-                                                            "clothes_name": {
-                                                                "type": "string",
-                                                                "example": "shirt A"
-                                                            },
-                                                            "clothes_type": {
-                                                                "type": "string",
-                                                                "example": "hat"
-                                                            },
-                                                            "clothes_image": {
-                                                                "type": "string",
-                                                                "example": "https://storage.googleapis.com"
-                                                            },
-                                                            "clothes_desc": {
-                                                                "type": "string",
-                                                                "example": "lorem ipsum"
-                                                            },
-                                                            "is_favorite": {
-                                                                "type": "boolean",
-                                                                "example": 1
-                                                            },
-                                                            "has_washed": {
-                                                                "type": "boolean",
-                                                                "example": 0
-                                                            },
-                                                            "has_ironed": {
-                                                                "type": "boolean",
-                                                                "example": 0
-                                                            },
-                                                            "is_faded": {
-                                                                "type": "boolean",
-                                                                "example": 1
-                                                            },
-                                                            "clothes_merk": {
-                                                                "type": "string",
-                                                                "example": "nike"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "protected route need to include sign in token as authorization bearer",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "you need to include the authorization token from login"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "outfit not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "outfit not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "something wrong. please contact admin"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/clothes/outfit/history/{id}": {
             "get": {
                 "tags": [
@@ -4923,129 +4007,6 @@
                 ]
             }
         },
-        "/api/v1/clothes/outfit/summary": {
-            "get": {
-                "tags": [
-                    "Clothes"
-                ],
-                "summary": "Get Outfit Summary",
-                "description": "This request is used to get the outfit summary. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "72d93dd1b569f34dd1a00e08f6dbe70f",
-                "responses": {
-                    "200": {
-                        "description": "outfit summary fetched successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "outfit summary fetched"
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "total_outfit": {
-                                                    "type": "integer",
-                                                    "example": 10
-                                                },
-                                                "last_used": {
-                                                    "properties": {
-                                                        "used_at": {
-                                                            "type": "string",
-                                                            "example": "2025-04-16 11:52:25"
-                                                        },
-                                                        "outfit_name": {
-                                                            "type": "string",
-                                                            "example": "Outfit A"
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                },
-                                                "next_suggestion": {
-                                                    "type": "string",
-                                                    "example": "Long Sleeves"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Protected route, requires authentication token",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "you need to include the authorization token from login"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "outfit summary not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "outfit summary not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "something wrong. please contact admin"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
         "/api/v1/dct/{id}": {
             "delete": {
                 "tags": [
@@ -5162,7 +4123,7 @@
                 ],
                 "summary": "Post Create Dictionary",
                 "description": "This request is used to create a new dictionary using the given `dictionary_type` and `dictionary_name`. This request interacts with the MySQL database.",
-                "operationId": "8d228580fc57cec06281fbda7c515dd3",
+                "operationId": "21dffcc9d799b77da5f9316c22f2e91e",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -5564,7 +4525,7 @@
                 ],
                 "summary": "Hard Delete Error By ID",
                 "description": "This request is used to permanently delete an error history based on the provided `ID`. However, it will also search for all errors with the same `message` and delete them. This request interacts with the MySQL database, and has a protected routes (Admin only).",
-                "operationId": "79ffb8a9e5e2cf116445bb978339ab9a",
+                "operationId": "07bdac74275d8385a8122fe93a383af3",
                 "parameters": [
                     {
                         "name": "id",
@@ -5945,7 +4906,7 @@
                 ],
                 "summary": "Post Create Feedback",
                 "description": "This request is used to create feedback. This request interacts with the MySQL database, and has a protected routes",
-                "operationId": "4b1acf5b4cc7619aeeef87997f381397",
+                "operationId": "020d80fc5c6c34792f37e16c409be695",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -6299,6 +5260,1045 @@
                 ]
             }
         },
+        "/api/v1/clothes/save/outfit": {
+            "post": {
+                "tags": [
+                    "Outfit"
+                ],
+                "summary": "Post Create Outfit",
+                "description": "This request is used to create an outfit that will contain multiple set of clothes. This request interacts with the MySQL database, broadcast with Firebase FCM & Telegram, has a protected routes, and audited activity (history).",
+                "operationId": "8458042a636a058ade0529c592fdea5e",
+                "responses": {
+                    "201": {
+                        "description": "outfit created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit created with 2 clothes attached"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Data is already exist",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit is already exist"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "{validation_msg}",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "{field validation message}"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/clothes/outfit/history/save": {
+            "post": {
+                "tags": [
+                    "Outfit"
+                ],
+                "summary": "Post Create Outfit Used History",
+                "description": "This request is used to create outfit used history. This request interacts with the MySQL database, broadcast with Firebase FCM, and has a protected routes.",
+                "operationId": "be34cd59776473f24ba1b55e8b0fb036",
+                "responses": {
+                    "201": {
+                        "description": "outfit history created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit history created with 2 clothes attached"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "outfit history not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/clothes/outfit/save/clothes": {
+            "post": {
+                "tags": [
+                    "Outfit"
+                ],
+                "summary": "Post Create Clothes Relation With Outfit",
+                "description": "This request is used to create clothes relation with the outfit. This request interacts with the MySQL database, broadcast with Firebase FCM, and has a protected routes.",
+                "operationId": "b083457dbe8af59b70bb5cd9ec1f66c0",
+                "responses": {
+                    "201": {
+                        "description": "outfit created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "2 clothes attached"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "outfit not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Data is already exist",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes is already exist"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "clothes outfit failed to validated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "[failed validation message]"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/clothes/outfit/remove/{clothes_id}": {
+            "delete": {
+                "tags": [
+                    "Outfit"
+                ],
+                "summary": "Permanently Delete (Remove) Clothes From Outfit Relation By Clothes ID",
+                "description": "This request is used to delete (remove) clothes from outfit relation by given `clothes_id`. This request interacts with the MySQL database, broadcast with Firebase FCM, and has a protected routes.",
+                "operationId": "6ce3d4c540297536f0d924f5c876c012",
+                "parameters": [
+                    {
+                        "name": "clothes_id",
+                        "in": "path",
+                        "description": "outfit history ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "clothes remove from outfit",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes removed"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "clothes not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/clothes/outfit": {
+            "get": {
+                "tags": [
+                    "Outfit"
+                ],
+                "summary": "Get All Outfit",
+                "description": "This request is used to get all outfit. This request interacts with the MySQL database, has a protected routes, and a pagination.",
+                "operationId": "c17cb135585db1b300ea36ebb8e8d620",
+                "responses": {
+                    "200": {
+                        "description": "outfit found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit fetched"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "05d6fe1d-9041-5673-044b-4d2e7f6f0090"
+                                                    },
+                                                    "outfit_name": {
+                                                        "type": "string",
+                                                        "example": "Outfit Generated 17-Jan-2025 10:28"
+                                                    },
+                                                    "outfit_note": {
+                                                        "type": "string",
+                                                        "example": "Test 123"
+                                                    },
+                                                    "is_favorite": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "total_used": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "clothes": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string",
+                                                                    "example": "05d6fe1d-9041-5673-044b-4d2e7f6f0090"
+                                                                },
+                                                                "clothes_name": {
+                                                                    "type": "string",
+                                                                    "example": "shirt A"
+                                                                },
+                                                                "clothes_type": {
+                                                                    "type": "string",
+                                                                    "example": "hat"
+                                                                },
+                                                                "clothes_merk": {
+                                                                    "type": "string",
+                                                                    "example": "nike"
+                                                                },
+                                                                "clothes_image": {
+                                                                    "type": "string",
+                                                                    "example": "https://storage.googleapis.com"
+                                                                },
+                                                                "clothes_color": {
+                                                                    "type": "string",
+                                                                    "example": "black"
+                                                                },
+                                                                "has_washed": {
+                                                                    "type": "integer",
+                                                                    "example": 0
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "outfit not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/clothes/outfit/last": {
+            "get": {
+                "tags": [
+                    "Outfit"
+                ],
+                "summary": "Get Last Created Outfit",
+                "description": "This request is used to get last created outfit and its clothes. This request interacts with the MySQL database, and has a protected routes.",
+                "operationId": "aad4f56fbd3858f783a444f647732eda",
+                "responses": {
+                    "200": {
+                        "description": "outfit found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit fetched"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "example": "05d6fe1d-9041-5673-044b-4d2e7f6f0090"
+                                                },
+                                                "outfit_name": {
+                                                    "type": "string",
+                                                    "example": "Outfit Generated 17-Jan-2025 10:28"
+                                                },
+                                                "is_favorite": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "total_used": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "last_used": {
+                                                    "type": "string",
+                                                    "example": "2024-04-10 22:10:56"
+                                                },
+                                                "clothes": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "clothes_name": {
+                                                                "type": "string",
+                                                                "example": "shirt A"
+                                                            },
+                                                            "clothes_type": {
+                                                                "type": "string",
+                                                                "example": "hat"
+                                                            },
+                                                            "clothes_image": {
+                                                                "type": "string",
+                                                                "example": "https://storage.googleapis.com"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "outfit not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/clothes/outfit/by/{id}": {
+            "get": {
+                "tags": [
+                    "Outfit"
+                ],
+                "summary": "Get Outfit And Its Clothes By Outfit ID",
+                "description": "This request is used to get an outfit and its clothes by using given outfit's `ID`. This request interacts with the MySQL database, and has a protected routes.",
+                "operationId": "d5ef5b77e4863865dd3b50b1a1f80dbd",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "outfit ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "outfit found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit fetched"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "example": "05d6fe1d-9041-5673-044b-4d2e7f6f0090"
+                                                },
+                                                "outfit_name": {
+                                                    "type": "string",
+                                                    "example": "Outfit Generated 17-Jan-2025 10:28"
+                                                },
+                                                "is_favorite": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "total_used": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "last_used": {
+                                                    "type": "string",
+                                                    "example": "2024-04-10 22:10:56"
+                                                },
+                                                "clothes": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "clothes_name": {
+                                                                "type": "string",
+                                                                "example": "shirt A"
+                                                            },
+                                                            "clothes_type": {
+                                                                "type": "string",
+                                                                "example": "hat"
+                                                            },
+                                                            "clothes_image": {
+                                                                "type": "string",
+                                                                "example": "https://storage.googleapis.com"
+                                                            },
+                                                            "clothes_desc": {
+                                                                "type": "string",
+                                                                "example": "lorem ipsum"
+                                                            },
+                                                            "is_favorite": {
+                                                                "type": "boolean",
+                                                                "example": 1
+                                                            },
+                                                            "has_washed": {
+                                                                "type": "boolean",
+                                                                "example": 0
+                                                            },
+                                                            "has_ironed": {
+                                                                "type": "boolean",
+                                                                "example": 0
+                                                            },
+                                                            "is_faded": {
+                                                                "type": "boolean",
+                                                                "example": 1
+                                                            },
+                                                            "clothes_merk": {
+                                                                "type": "string",
+                                                                "example": "nike"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "outfit not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/clothes/outfit/summary": {
+            "get": {
+                "tags": [
+                    "Outfit"
+                ],
+                "summary": "Get Outfit Summary",
+                "description": "This request is used to get the outfit summary. This request interacts with the MySQL database, and has a protected routes.",
+                "operationId": "fcff07222397d0cafd128b233a763785",
+                "responses": {
+                    "200": {
+                        "description": "outfit summary fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit summary fetched"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "total_outfit": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "last_used": {
+                                                    "properties": {
+                                                        "used_at": {
+                                                            "type": "string",
+                                                            "example": "2025-04-16 11:52:25"
+                                                        },
+                                                        "outfit_name": {
+                                                            "type": "string",
+                                                            "example": "Outfit A"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "next_suggestion": {
+                                                    "type": "string",
+                                                    "example": "Long Sleeves"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Protected route, requires authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "outfit summary not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "outfit summary not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/question": {
             "post": {
                 "tags": [
@@ -6306,7 +6306,7 @@
                 ],
                 "summary": "Post Create Question",
                 "description": "This request is used to create question. This request interacts with the MySQL database, and has a protected routes",
-                "operationId": "a17de36ed36d2f20dc24dccfccbadf80",
+                "operationId": "b02c5b00dea3fed92187df68e06c8108",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -9600,6 +9600,10 @@
         {
             "name": "History",
             "description": "History"
+        },
+        {
+            "name": "Outfit",
+            "description": "Outfit"
         },
         {
             "name": "Question",

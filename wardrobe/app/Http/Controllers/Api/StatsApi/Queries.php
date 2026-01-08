@@ -25,12 +25,14 @@ use App\Helpers\Validation;
 class Queries extends Controller
 {
     private $month;
+    private $module;
 
     public function __construct()
     {
         $this->months = [
             '01' => 'Jan', '02' => 'Feb', '03' => 'Mar', '04' => 'Apr', '05' => 'May', '06' => 'Jun', '07' => 'Jul', '08' => 'Aug', '09' => 'Sep', '10' => 'Oct', '11' => 'Nov', '12' => 'Dec'
         ];
+        $this->module = "stats";
     }
 
     /**
@@ -80,8 +82,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function getStatsSummary(Request $request)
-    {
+    public function getStatsSummary(Request $request){
         try{
             // Define user ID if token attached
             if ($request->hasHeader('Authorization')) {
@@ -97,13 +98,13 @@ class Queries extends Controller
                 // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                    'message' => Generator::getMessageTemplate("fetch", $this->module),
                     'data' => $res
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", 'stats'),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -146,8 +147,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function getAppsSummary()
-    {
+    public function getAppsSummary(){
         try{
             $total_clothes = ClothesModel::whereNull('deleted_at')->count();
             $total_user = UserModel::count();
@@ -157,7 +157,7 @@ class Queries extends Controller
             // Return success response
             return response()->json([
                 'status' => 'success',
-                'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                'message' => Generator::getMessageTemplate("fetch", $this->module),
                 'data' => [
                     'total_clothes' => $total_clothes,
                     'total_user' => $total_user,
@@ -215,8 +215,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function getTopFeedback()
-    {
+    public function getTopFeedback(){
         try{
             // Get feedback with highest rating
             $res = FeedbackModel::getTopFeedback();
@@ -229,7 +228,7 @@ class Queries extends Controller
                 // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                    'message' => Generator::getMessageTemplate("fetch", $this->module),
                     'data' => $res,
                     'total' => $total,
                     'average' => $average
@@ -237,7 +236,7 @@ class Queries extends Controller
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", 'stats'),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch(\Exception $e) {
@@ -296,8 +295,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function getStatsYearlyContext(Request $request, $ctx)
-    {
+    public function getStatsYearlyContext(Request $request, $ctx){
         try{
             $request->merge(['context' => $ctx]);
 
@@ -367,14 +365,14 @@ class Queries extends Controller
                     // Return success response
                     return response()->json([
                         'status' => 'success',
-                        'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                        'message' => Generator::getMessageTemplate("fetch", $this->module),
                         'data' => $final_res,
                         'total_all' => $total_all
                     ], Response::HTTP_OK);
                 } else {
                     return response()->json([
                         'status' => 'failed',
-                        'message' => Generator::getMessageTemplate("not_found", 'stats'),
+                        'message' => Generator::getMessageTemplate("not_found", $this->module),
                         'data' => $list_date
                     ], Response::HTTP_NOT_FOUND);
                 }
@@ -478,13 +476,13 @@ class Queries extends Controller
                 // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                    'message' => Generator::getMessageTemplate("fetch", $this->module),
                     'data' => $final_res,
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", 'stats'),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch (\Exception $e) {
@@ -572,13 +570,13 @@ class Queries extends Controller
                 // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                    'message' => Generator::getMessageTemplate("fetch", $this->module),
                     'data' => $final_res,
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", 'stats'),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch (\Exception $e) {
@@ -755,7 +753,7 @@ class Queries extends Controller
                 // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                    'message' => Generator::getMessageTemplate("fetch", $this->module),
                     'data' => $final_res,
                 ], Response::HTTP_OK);
             }
@@ -897,7 +895,7 @@ class Queries extends Controller
                 // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                    'message' => Generator::getMessageTemplate("fetch", $this->module),
                     'data' => [
                         'used_history' => count($curr_res_used_history) > 0 ? $curr_res_used_history : null,
                         'weekly_schedule' => count($curr_res_weekly_schedule) > 0 ? $curr_res_weekly_schedule : null,
@@ -1008,13 +1006,13 @@ class Queries extends Controller
                 // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                    'message' => Generator::getMessageTemplate("fetch", $this->module),
                     'data' => $final_res,
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", 'stats'),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                     'data' => $list_date
                 ], Response::HTTP_NOT_FOUND);
             }
@@ -1098,13 +1096,13 @@ class Queries extends Controller
                 // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                    'message' => Generator::getMessageTemplate("fetch", $this->module),
                     'data' => $res,
                 ], Response::HTTP_OK);
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", 'stats'),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch (\Exception $e) {
@@ -1179,7 +1177,7 @@ class Queries extends Controller
                 // Return success response
                 return response()->json([
                     'status' => 'success',
-                    'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                    'message' => Generator::getMessageTemplate("fetch", $this->module),
                     'data' => [
                         'last_wash_clothes' => $res_last_wash->clothes_name,
                         'last_wash_date' => $res_last_wash->wash_at,
@@ -1192,7 +1190,7 @@ class Queries extends Controller
             } else {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", 'stats'),
+                    'message' => Generator::getMessageTemplate("not_found", $this->module),
                     'data' => null
                 ], Response::HTTP_NOT_FOUND);
             }
@@ -1296,7 +1294,7 @@ class Queries extends Controller
             // Return success response
             return response()->json([
                 'status' => 'success',
-                'message' => Generator::getMessageTemplate("fetch", 'stats'),
+                'message' => Generator::getMessageTemplate("fetch", $this->module),
                 'data' => $res,
             ], Response::HTTP_OK);
         } catch (\Exception $e) {

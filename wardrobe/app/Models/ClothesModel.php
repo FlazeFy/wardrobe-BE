@@ -362,20 +362,22 @@ class ClothesModel extends Model
         return count($res) > 0 ? $res : null;
     }
 
-    public static function getClothesForOutfit($type, $user_id){
-        $res = ClothesModel::selectRaw('clothes.id, clothes_name, clothes_category, clothes_type, clothes_merk, clothes_made_from, clothes_color, clothes_image,
-            MAX(clothes_used.created_at) as last_used,
-            CAST(SUM(CASE WHEN clothes_used.id IS NOT NULL THEN 1 ELSE 0 END) as UNSIGNED) as total_used')
+    public static function getClothesForOutfit($type = null, $user_id){
+        $res = ClothesModel::selectRaw('clothes.id, clothes_name, clothes_category, clothes_type, clothes_merk, clothes_made_from, clothes_color, 
+            clothes_image, MAX(clothes_used.created_at) as last_used, CAST(SUM(CASE WHEN clothes_used.id IS NOT NULL THEN 1 ELSE 0 END) as UNSIGNED) as total_used')
             ->leftJoin('clothes_used', 'clothes_used.clothes_id', '=', 'clothes.id')
             ->whereNotIn('clothes_type', ['swimsuit', 'underwear', 'tie', 'belt'])
+            ->whereIn('clothes_category', ['upper_body', 'bottom_body', 'foot', 'head'])
             ->where('clothes.created_by', $user_id)
             ->where('has_washed', 1);
 
-        if (strpos($type, ',')) {
-            $types = explode(",", $type);
-            $res->whereIn('clothes_type', $types);
-        } else {
-            $res->where('clothes_type', $type);
+        if($type){
+            if (strpos($type, ',')) {
+                $types = explode(",", $type);
+                $res->whereIn('clothes_type', $types);
+            } else {
+                $res->where('clothes_type', $type);
+            }
         }
         
         return $res->groupBy('clothes.id')->get();

@@ -16,7 +16,7 @@ use App\Models\UserRequestModel;
 use App\Helpers\Generator;
 use App\Helpers\Validation;
 // Jobs
-use App\Jobs\WelcomeMailer;
+use App\Jobs\WelcomeJob;
 
 /**
  * @OA\Info(
@@ -94,8 +94,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function postLogin(Request $request)
-    {
+    public function postLogin(Request $request){
         try {
             // Validate request body
             $validator = Validation::getValidateLogin($request);
@@ -188,8 +187,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function postRegister(Request $request)
-    {
+    public function postRegister(Request $request){
         try {
             // Validate request body
             $validator = Validation::getValidateRegister($request);
@@ -230,7 +228,7 @@ class Commands extends Controller
                             UserRequestModel::createUserRequest(['request_token' => $token, 'request_context' => 'register'], $user_id);
 
                             // Broadcast email
-                            dispatch(new WelcomeMailer($user->username, $user->email, $token));
+                            dispatch(new WelcomeJob($user->username, $user->email, $token));
 
                             // Return success response
                             return response()->json([
@@ -300,8 +298,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function postValidateRegister(Request $request)
-    {
+    public function postValidateRegister(Request $request){
         try {
             // Validate request body
             $validator = Validation::getValidateRegisterToken($request);
@@ -387,8 +384,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function postLogout(Request $request)
-    {
+    public function postLogout(Request $request){
         try {
             $user_id = $request->user()->id;
             

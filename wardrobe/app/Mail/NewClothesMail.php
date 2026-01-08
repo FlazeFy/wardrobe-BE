@@ -24,13 +24,12 @@ class NewClothesMail extends Mailable
 
     public function envelope()
     {
-        return new Envelope(
-            subject: '[Clothes] New Item has added',
-        );
+        return new Envelope(subject: '[Clothes] New Item has added');
     }
 
     public function build()
     {
+        // Mail layout
         return $this->view('components.email.new_clothes')
             ->with([
                 'context' => $this->context,

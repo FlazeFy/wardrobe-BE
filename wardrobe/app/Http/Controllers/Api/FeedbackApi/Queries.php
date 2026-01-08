@@ -72,8 +72,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function getAllFeedback(Request $request)
-    {
+    public function getAllFeedback(Request $request){
         try{
             $user_id = $request->user()->id;
             $paginate = $request->query('per_page_key') ?? 14;

@@ -60,8 +60,7 @@ class Queries extends Controller
      *     ),
      * )
      */
-    public function getQuestionFAQ()
-    {
+    public function getQuestionFAQ(){
         try{
             // Get FAQ (question)
             $res = QuestionModel::getFAQ();

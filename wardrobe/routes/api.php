@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthApi\Commands as CommandAuthController;
 use App\Http\Controllers\Api\ClothesApi\Commands as CommandClothesController;
 use App\Http\Controllers\Api\ClothesApi\Queries as QueriesClothesController;
+use App\Http\Controllers\Api\OutfitApi\Commands as CommandOutfitController;
+use App\Http\Controllers\Api\OutfitApi\Queries as QueriesOutfitController;
 use App\Http\Controllers\Api\FeedbackApi\Commands as CommandFeedbackController;
 use App\Http\Controllers\Api\FeedbackApi\Queries as QueriesFeedbackController;
 use App\Http\Controllers\Api\DictionaryApi\Queries as QueriesDictionaryController;
@@ -35,7 +37,7 @@ Route::prefix('/v1/register')->group(function () {
 
 Route::prefix('/v1/question')->group(function () {
     Route::get('/faq', [QueriesQuestionController::class, 'getQuestionFAQ']);
-    Route::post('/', [CommandQuestionController::class, 'postQuestion']);
+    Route::post('/', [CommandQuestionController::class, 'postCreateQuestion']);
 });
 
 Route::prefix('/v1/stats')->group(function () {
@@ -62,14 +64,14 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/detail/{category}/{order}', [QueriesClothesController::class, 'getAllClothesDetail']);
     Route::get('/detail/{clothes_id}', [QueriesClothesController::class, 'getClothesDetailByID']);
     Route::get('/trash', [QueriesClothesController::class, 'getDeletedClothes']);
-    Route::post('/', [CommandClothesController::class, 'postClothes']);
-    Route::put('/recover/{id}', [CommandClothesController::class, 'recoverClothes_by_id']);
+    Route::post('/', [CommandClothesController::class, 'postCreateClothes']);
+    Route::put('/recover/{id}', [CommandClothesController::class, 'putRecoverClothesByID']);
     Route::delete('/delete/{id}', [CommandClothesController::class, 'softDeleteClothesByID']);
     Route::delete('/destroy/{id}', [CommandClothesController::class, 'hardDeleteClothesByID']);
     Route::prefix('/history')->group(function () {
         Route::get('/{clothes_id}/{order}', [QueriesClothesController::class, 'getClothesUsedHistory']);
         Route::get('/last', [QueriesClothesController::class, 'getLastHistory']);
-        Route::post('/', [CommandClothesController::class, 'postHistoryClothes']);
+        Route::post('/', [CommandClothesController::class, 'postCreateHistoryClothes']);
         Route::delete('/used/{id}', [CommandClothesController::class, 'hardDeleteClothesUsedByID']);
     });
     Route::prefix('/wash')->group(function () {
@@ -77,27 +79,27 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
         Route::get('/history', [QueriesClothesController::class, 'getAllWashHistory']);
         Route::get('/unfinished', [QueriesClothesController::class, 'getUnfinishedWash']);
         Route::get('/check/{clothes_id}', [QueriesClothesController::class, 'getClothesWashStatusByClothesID']);
-        Route::post('/', [CommandClothesController::class, 'postWashClothes']);
-        Route::put('/update_checkpoint/{id}', [CommandClothesController::class, 'updateWashByClothesID']);
+        Route::post('/', [CommandClothesController::class, 'postCreateWash']);
+        Route::put('/update_checkpoint/{id}', [CommandClothesController::class, 'putUpdateWashByClothesID']);
         Route::delete('/destroy/{id}', [CommandClothesController::class, 'hardDeleteWashByID']);
     });
     Route::prefix('/schedule')->group(function () {
         Route::get('/{day}', [QueriesClothesController::class, 'getScheduleByDay']);
         Route::get('/tomorrow/{day}', [QueriesClothesController::class, 'getScheduleTomorrow']);
-        Route::post('/', [CommandClothesController::class, 'postSchedule']);
+        Route::post('/', [CommandClothesController::class, 'postCreateSchedule']);
         Route::delete('/destroy/{id}', [CommandClothesController::class, 'hardDeleteScheduleByID']);
     });
     Route::prefix('/outfit')->group(function () {
-        Route::get('/', [QueriesClothesController::class, 'getAllOutfit']);
-        Route::get('/last', [QueriesClothesController::class, 'getLastOutfit']);
-        Route::get('/summary', [QueriesClothesController::class, 'getOutfitSummary']);
+        Route::get('/', [QueriesOutfitController::class, 'getAllOutfit']);
+        Route::get('/last', [QueriesOutfitController::class, 'getLastOutfit']);
+        Route::get('/summary', [QueriesOutfitController::class, 'getOutfitSummary']);
         Route::get('/history/{id}', [QueriesClothesController::class, 'getHistoryOutfitByID']);
-        Route::get('/by/{id}', [QueriesClothesController::class, 'getOutfitByID']);
+        Route::get('/by/{id}', [QueriesOutfitController::class, 'getOutfitByID']);
         Route::post('/generate', [CommandClothesController::class, 'postGeneratedOutfit']);
-        Route::post('/save', [CommandClothesController::class, 'postSaveOutfit']);
-        Route::post('/save/clothes', [CommandClothesController::class, 'postSaveClothesOutfit']);
-        Route::post('/history/save', [CommandClothesController::class, 'postSaveOutfitHistory']);
-        Route::delete('/remove/{clothes_id}/{outfit_id}', [CommandClothesController::class, 'hardDeleteClothesOutfitByID']);
+        Route::post('/save', [CommandOutfitController::class, 'postCreateOutfit']);
+        Route::post('/save/clothes', [CommandOutfitController::class, 'postCreateClothesOutfit']);
+        Route::post('/history/save', [CommandOutfitController::class, 'postCreateOutfitHistory']);
+        Route::delete('/remove/{clothes_id}/{outfit_id}', [CommandOutfitController::class, 'hardDeleteClothesOutfitByID']);
         Route::delete('/history/by/{id}', [CommandClothesController::class, 'hardDeleteUsedOutfitByID']);
     });
     Route::get('/similiar/{ctx}/{val}/{exc}', [QueriesClothesController::class, 'getClothesSimiliarBy']);
@@ -114,7 +116,7 @@ Route::prefix('/v1/stats')->middleware(['auth:sanctum'])->group(function () {
 });
 
 Route::prefix('/v1/chat')->middleware(['auth:sanctum'])->group(function () {
-    Route::post('/', [CommandChatController::class, 'postChat']);
+    Route::post('/', [CommandChatController::class, 'postCreateChat']);
 });
 
 Route::prefix('/v1/error')->middleware(['auth:sanctum'])->group(function () {
@@ -130,19 +132,19 @@ Route::prefix('/v1/history')->middleware(['auth:sanctum'])->group(function () {
 Route::prefix('/v1/dct')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/{type}', [QueriesDictionaryController::class, 'getDctByType']);
     Route::get('/clothes/category_type', [QueriesDictionaryController::class, 'getCategoryTypeClothes']);
-    Route::post('/', [CommandDictionaryController::class, 'postDct']);
+    Route::post('/', [CommandDictionaryController::class, 'postCreateDct']);
     Route::delete('/{id}', [CommandDictionaryController::class, 'hardDeleteDctByID']);
 });
 
 Route::prefix('/v1/feedback')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/', [QueriesFeedbackController::class, 'getAllFeedback']);
-    Route::post('/', [CommandFeedbackController::class, 'postFeedback']);
+    Route::post('/', [CommandFeedbackController::class, 'postCreateFeedback']);
 });
 
 Route::prefix('/v1/user')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/my', [QueriesUserController::class, 'getMyProfile']);
     Route::get('/my_year', [QueriesUserController::class, 'getMyAvailableYearFilter']);
-    Route::put('/fcm', [CommandUserController::class, 'updateUserFcm']);
+    Route::put('/fcm', [CommandUserController::class, 'putUpdateUserFcm']);
 });
 
 Route::prefix('/v1/export')->middleware(['auth:sanctum'])->group(function () {

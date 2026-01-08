@@ -34,8 +34,7 @@ use App\Helpers\Broadcast;
 
 class Queries extends Controller
 {
-    public function getExportClothesExcel(Request $request)
-    {
+    public function getExportClothesExcel(Request $request){
         try {
             $user_id = $request->user()->id;
             $datetime = date('Y-m-d_H-i-s');
@@ -130,8 +129,7 @@ class Queries extends Controller
         }
     }
 
-    public function getExportClothesUsedExcel(Request $request)
-    {
+    public function getExportClothesUsedExcel(Request $request){
         try {
             $user_id = $request->user()->id;
             $datetime = date('Y-m-d_H-i-s');
@@ -203,8 +201,7 @@ class Queries extends Controller
         }
     }
 
-    public function getExportWashExcel(Request $request)
-    {
+    public function getExportWashExcel(Request $request){
         try {
             $user_id = $request->user()->id;
             $datetime = date('Y-m-d_H-i-s');
@@ -279,8 +276,7 @@ class Queries extends Controller
         }
     }
 
-    public function getExportHistoryExcel(Request $request)
-    {
+    public function getExportHistoryExcel(Request $request){
         try {
             $user_id = $request->user()->id;
             $datetime = date('Y-m-d_H-i-s');
@@ -462,6 +458,8 @@ class Queries extends Controller
             $options->set('defaultFont', 'Helvetica');
             $dompdf = new Dompdf($options);
             $dompdf->loadHtml($html);
+            
+            // Render docs
             $dompdf->setPaper('A4', 'portrait');
             $dompdf->render();
             $pdfContent = $dompdf->output();
@@ -518,6 +516,8 @@ class Queries extends Controller
                 $options->set('defaultFont', 'Helvetica');
                 $dompdf = new Dompdf($options);
                 $dompdf->loadHtml($html);
+
+                // Render docs
                 $dompdf->setPaper('A4', 'portrait');
                 $dompdf->render();
                 $pdfContent = $dompdf->output();

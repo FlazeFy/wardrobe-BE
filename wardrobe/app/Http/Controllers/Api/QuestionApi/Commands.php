@@ -77,9 +77,7 @@ class Commands extends Controller
      *     )
      * )
      */
-
-    public function postQuestion(Request $request)
-    {
+    public function postCreateQuestion(Request $request){
         try{
             // Validator request body
             $validator = Validation::getValidateQuestion($request,'create');
@@ -89,10 +87,8 @@ class Commands extends Controller
                     'message' => $validator->errors()
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             } else {
-                $user_id = $request->user()->id;
-                
                 // Create question
-                $rows = QuestionModel::createQuestion(['question' => $request->question, 'answer' => null], $user_id);
+                $rows = QuestionModel::createQuestion(['question' => $request->question, 'answer' => null]);
                 if($rows){
                     // Return success response
                     return response()->json([

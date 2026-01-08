@@ -10,43 +10,45 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 
 // Mail
-use App\Mail\NewClothesMail;
+use App\Mail\NewUserMail;
 // Helper
 use App\Helpers\Generator;
 // Model
 use App\Models\FailedJob;
 
-class ProcessMailer implements ShouldQueue
+class WelcomeJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $context;
-    protected $body;
     protected $username;
     protected $receiver;
+    protected $token;
 
-    public function __construct($context, $body, $username, $receiver)
+    public function __construct($username, $receiver, $token)
     {
-        $this->context = $context;
-        $this->body = $body;
         $this->username = $username;
         $this->receiver = $receiver;
+        $this->token = $token;
     }
 
     public function handle()
     {
         try{
-            $email = new NewInventoryMail($this->context, $this->body, $this->username);
+            // Mailer
+            $email = new NewUserMail($this->username, $this->token);
             Mail::to($this->receiver)->send($email);
         } catch (\Exception $e) {
+            // Consume error
             $obj = [
                 'message' => Generator::getMessageTemplate("unknown_error", null), 
                 'stack_trace' => $e->getTraceAsString(), 
                 'file' => $e->getFile(), 
                 'line' => $e->getLine(), 
             ];
+
+            // Create failed job
             FailedJob::createFailedJob([
-                'type' => "clothes", 
+                'type' => "register", 
                 'status' => "failed",  
                 'payload' => json_encode($obj),
             ], null);

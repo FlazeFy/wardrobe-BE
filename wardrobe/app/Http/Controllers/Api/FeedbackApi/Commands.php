@@ -74,8 +74,7 @@ class Commands extends Controller
      *     ),
      * )
      */
-    public function post_feedback(Request $request)
-    {
+    public function postCreateFeedback(Request $request){
         try{
             // Validate request body
             $validator = Validation::getValidateFeedback($request);

@@ -30,24 +30,16 @@ class GeneratorSchedule
         $weather = null;
         $day = date('l', strtotime('tomorrow'));
 
+        // Get users to generate outfit
         $users = UserModel::getUserReadyGeneratedOutfit();
-
         if($users){
             foreach ($users as $user) {                
                 if($user->telegram_is_valid == 1 && $user->telegram_user_id){
-                    // Schedule Fetch
+                    // Get schedule by day
                     $scheduleIds = ScheduleModel::where('day', substr($day, 0, 3))->pluck('clothes_id')->toArray();
 
-                    // Clothes Fetch
-                    $query = ClothesModel::selectRaw('clothes_name, clothes_type, clothes_color, clothes_image,
-                        MAX(clothes_used.created_at) as last_used,clothes_category,
-                        CAST(SUM(CASE WHEN clothes_used.id IS NOT NULL THEN 1 ELSE 0 END) as UNSIGNED) as total_used')
-                        ->leftJoin('clothes_used', 'clothes_used.clothes_id', '=', 'clothes.id')
-                        ->whereNotIn('clothes_type', ['swimsuit', 'underwear', 'tie', 'belt'])
-                        ->whereIn('clothes_category', ['upper_body', 'bottom_body', 'foot'])
-                        ->where('clothes.created_by', $user->id)
-                        ->where('has_washed', 1);
-                    $clothes = $query->groupBy('clothes.id')->get();
+                    // Get clothes for outfit
+                    $clothes = ClothesModel::getClothesForOutfit(null, $user->id);
 
                     $scored = [];
                     foreach ($clothes as $dt) {

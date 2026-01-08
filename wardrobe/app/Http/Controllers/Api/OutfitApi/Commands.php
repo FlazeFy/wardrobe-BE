@@ -38,6 +38,28 @@ class Commands extends Controller
      *     description="This request is used to create an outfit that will contain multiple set of clothes. This request interacts with the MySQL database, broadcast with Firebase FCM & Telegram, has a protected routes, and audited activity (history).",
      *     tags={"Outfit"},
      *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"list_outfit"},
+     *             @OA\Property(
+     *                 property="list_outfit", type="array",
+     *                 description="List of outfits to be created along with their clothes",
+     *                 @OA\Items(
+     *                     type="object", required={"outfit_name","data"},
+     *                     @OA\Property(property="outfit_name", type="string", example="Daily Office Outfit"),
+     *                     @OA\Property(
+     *                         property="data", type="array", description="List of clothes attached to the outfit",
+     *                         @OA\Items(
+     *                             type="object", required={"id","clothes_name"},
+     *                             @OA\Property(property="id", type="string", example="e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"),
+     *                             @OA\Property(property="clothes_name", type="string", example="Black Pants")
+     *                         )
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=201,
      *         description="outfit created",
@@ -174,6 +196,15 @@ class Commands extends Controller
      *     summary="Post Create Outfit Used History",
      *     description="This request is used to create outfit used history. This request interacts with the MySQL database, broadcast with Firebase FCM, and has a protected routes.",
      *     tags={"Outfit"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"outfit_id","used_context"},
+     *             @OA\Property(property="outfit_id", type="string", example="e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"),
+     *             @OA\Property(property="used_context", type="string", example="work")
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=201,
      *         description="outfit history created",
@@ -296,6 +327,22 @@ class Commands extends Controller
      *     description="This request is used to create clothes relation with the outfit. This request interacts with the MySQL database, broadcast with Firebase FCM, and has a protected routes.",
      *     tags={"Outfit"},
      *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"outfit_id","clothes"},
+     *             @OA\Property(property="outfit_id", type="string", example="e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"),
+     *             @OA\Property(
+     *                 property="clothes", type="array",
+     *                 @OA\Items(
+     *                     type="object", required={"clothes_id","clothes_name","clothes_type"},
+     *                     @OA\Property(property="clothes_id", type="string", example="uuid-clothes-1"),
+     *                     @OA\Property(property="clothes_name", type="string", example="Black Pants"),
+     *                     @OA\Property(property="clothes_type", type="string", example="pants")
+     *                 )
+     *             )
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=201,
      *         description="outfit created",
@@ -444,6 +491,7 @@ class Commands extends Controller
      *     summary="Permanently Delete (Remove) Clothes From Outfit Relation By Clothes ID",
      *     description="This request is used to delete (remove) clothes from outfit relation by given `clothes_id`. This request interacts with the MySQL database, broadcast with Firebase FCM, and has a protected routes.",
      *     tags={"Outfit"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="clothes_id",
      *         in="path",

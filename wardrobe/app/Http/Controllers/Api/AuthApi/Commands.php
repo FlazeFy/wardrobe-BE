@@ -147,6 +147,16 @@ class Commands extends Controller
      *     summary="Post Register Apps",
      *     description="This authentication request is used to register / sign up new account. This request interacts with the MySQL database and broadcast with mailer.",
      *     tags={"Auth"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"username", "password", "email"},
+     *             @OA\Property(property="username", type="string", example="flazefy"),
+     *             @OA\Property(property="password", type="string", example="nopass123"),
+     *             @OA\Property(property="email", type="string", example="flazen.work@gmail.com"),
+     *             @OA\Property(property="firebase_fcm_token", type="string", nullable=true, example="1a2b3c4d5e6f")
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=201,
      *         description="login successfully",
@@ -264,6 +274,14 @@ class Commands extends Controller
      *     summary="Post Validate Registered Account",
      *     description="This authentication request is used to validate request token for newly created account. This request interacts with the MySQL database.",
      *     tags={"Auth"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"username", "token"},
+     *             @OA\Property(property="username", type="string", example="flazefy"),
+     *             @OA\Property(property="token", type="string", example="ABC123")
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=201,
      *         description="validate token successfully",
@@ -358,6 +376,7 @@ class Commands extends Controller
      *     summary="Post Log Out",
      *     description="This authentication request is used to sign out from application or reset current session. This request interacts with the MySQL database.",
      *     tags={"Auth"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
      *         description="Logout success",

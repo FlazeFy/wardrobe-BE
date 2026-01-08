@@ -9,6 +9,10 @@ use App\Http\Controllers\Api\ClothesApi\Commands as CommandClothesController;
 use App\Http\Controllers\Api\ClothesApi\Queries as QueriesClothesController;
 use App\Http\Controllers\Api\OutfitApi\Commands as CommandOutfitController;
 use App\Http\Controllers\Api\OutfitApi\Queries as QueriesOutfitController;
+use App\Http\Controllers\Api\ScheduleApi\Commands as CommandScheduleController;
+use App\Http\Controllers\Api\ScheduleApi\Queries as QueriesScheduleController;
+use App\Http\Controllers\Api\WashApi\Commands as CommandWashController;
+use App\Http\Controllers\Api\WashApi\Queries as QueriesWashController;
 use App\Http\Controllers\Api\FeedbackApi\Commands as CommandFeedbackController;
 use App\Http\Controllers\Api\FeedbackApi\Queries as QueriesFeedbackController;
 use App\Http\Controllers\Api\DictionaryApi\Queries as QueriesDictionaryController;
@@ -75,19 +79,19 @@ Route::prefix('/v1/clothes')->middleware(['auth:sanctum'])->group(function () {
         Route::delete('/used/{id}', [CommandClothesController::class, 'hardDeleteClothesUsedByID']);
     });
     Route::prefix('/wash')->group(function () {
-        Route::get('/checkpoint/{clothes_id}', [QueriesClothesController::class, 'getWashCheckpointByClothesID']);
-        Route::get('/history', [QueriesClothesController::class, 'getAllWashHistory']);
-        Route::get('/unfinished', [QueriesClothesController::class, 'getUnfinishedWash']);
-        Route::get('/check/{clothes_id}', [QueriesClothesController::class, 'getClothesWashStatusByClothesID']);
-        Route::post('/', [CommandClothesController::class, 'postCreateWash']);
-        Route::put('/update_checkpoint/{id}', [CommandClothesController::class, 'putUpdateWashByClothesID']);
-        Route::delete('/destroy/{id}', [CommandClothesController::class, 'hardDeleteWashByID']);
+        Route::get('/checkpoint/{clothes_id}', [QueriesWashController::class, 'getWashCheckpointByClothesID']);
+        Route::get('/history', [QueriesWashController::class, 'getAllWashHistory']);
+        Route::get('/unfinished', [QueriesWashController::class, 'getUnfinishedWash']);
+        Route::get('/check/{clothes_id}', [QueriesWashController::class, 'getClothesWashStatusByClothesID']);
+        Route::post('/', [CommandWashController::class, 'postCreateWash']);
+        Route::put('/update_checkpoint/{id}', [CommandWashController::class, 'putUpdateWashByClothesID']);
+        Route::delete('/destroy/{id}', [CommandWashController::class, 'hardDeleteWashByID']);
     });
     Route::prefix('/schedule')->group(function () {
-        Route::get('/{day}', [QueriesClothesController::class, 'getScheduleByDay']);
-        Route::get('/tomorrow/{day}', [QueriesClothesController::class, 'getScheduleTomorrow']);
-        Route::post('/', [CommandClothesController::class, 'postCreateSchedule']);
-        Route::delete('/destroy/{id}', [CommandClothesController::class, 'hardDeleteScheduleByID']);
+        Route::get('/{day}', [QueriesScheduleController::class, 'getScheduleByDay']);
+        Route::get('/tomorrow/{day}', [QueriesScheduleController::class, 'getScheduleTomorrow']);
+        Route::post('/', [CommandScheduleController::class, 'postCreateSchedule']);
+        Route::delete('/destroy/{id}', [CommandScheduleController::class, 'hardDeleteScheduleByID']);
     });
     Route::prefix('/outfit')->group(function () {
         Route::get('/', [QueriesOutfitController::class, 'getAllOutfit']);
@@ -121,7 +125,7 @@ Route::prefix('/v1/chat')->middleware(['auth:sanctum'])->group(function () {
 
 Route::prefix('/v1/error')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/', [QueriesErrorController::class, 'getAllError']);
-    Route::delete('/destroy/{id}', [CommandsErrorController::class, 'hardDeleteErrorById']);
+    Route::delete('/destroy/{id}', [CommandsErrorController::class, 'hardDeleteErrorByID']);
 });
 
 Route::prefix('/v1/history')->middleware(['auth:sanctum'])->group(function () {

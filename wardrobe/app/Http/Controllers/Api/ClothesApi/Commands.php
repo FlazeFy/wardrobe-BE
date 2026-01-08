@@ -52,6 +52,7 @@ class Commands extends Controller
      *     summary="Permanently Delete Clothes By ID",
      *     description="This request is used to delete a clothes by using given `ID`. This request interacts with the MySQL database, firebase storage, has a protected routes, broadcast message with Firebase FCM, and audited activity (history).",
      *     tags={"Clothes"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -158,6 +159,7 @@ class Commands extends Controller
      *     summary="Soft Delete Clothes By ID",
      *     description="This request is used to delete a clothes by using given `ID`. This request interacts with the MySQL database, broadcast message with Firebase FCM, has a protected routes, and audited activity (history).",
      *     tags={"Clothes"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -237,6 +239,16 @@ class Commands extends Controller
      *     summary="Post Create Clothes History",
      *     description="This request is used to create clothes history record by giving `clothes_id`, `clothes_note`, and `used_context`. This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Clothes"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"clothes_id", "used_context"},
+     *             @OA\Property(property="clothes_id", type="string", example="e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"),
+     *             @OA\Property(property="clothes_note", type="string", nullable=true, example="daily uniform"),
+     *             @OA\Property(property="used_context", type="string", example="work")
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=201,
      *         description="clothes created",
@@ -312,262 +324,12 @@ class Commands extends Controller
     }
 
     /**
-     * @OA\POST(
-     *     path="/api/v1/clothes/schedule",
-     *     summary="Post Create Schedule",
-     *     description="This request is used to create schedule of clothes that will be used in the future by giving `clothes_id`, `schedule_note`, `day`, and `is_remind`. This request interacts with the MySQL database, and has a protected routes.",
-     *     tags={"Clothes"},
-     *     @OA\Response(
-     *         response=201,
-     *         description="clothes created",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="message", type="string", example="schedule created")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="protected route need to include sign in token as authorization bearer",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="failed"),
-     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="schedule failed to validated",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="failed"),
-     *             @OA\Property(property="message", type="string", example="[failed validation message]")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=500,
-     *         description="Internal Server Error",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
-     *         )
-     *     ),
-     * )
-     */
-    public function postCreateSchedule(Request $request){
-        try{
-            // Validate request body
-            $validator = Validation::getValidateSchedule($request,'create');
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => $validator->errors()
-                ], Response::HTTP_UNPROCESSABLE_ENTITY);
-            } else {
-                $user_id = $request->user()->id;
-                $clothes_id = $request->clothes_id;
-                $day = $request->day;
-
-                // Check schedule day availability for specific clothes
-                $check_availability = ScheduleModel::checkDayAvailability($day, $clothes_id, $user_id);
-                if($check_availability){
-                    // Create schedule
-                    $res = ScheduleModel::createSchedule([
-                        'clothes_id' => $clothes_id,
-                        'day' => $day,
-                        'schedule_note' => $request->schedule_note,
-                        'is_remind' => $request->is_remind
-                    ], $user_id);
-                    if($res){
-                        // Get user social by ID
-                        $user = UserModel::getSocial($user_id);
-                        if($user->firebase_fcm_token){
-                            // Get clothes by ID
-                            $clothes = ClothesModel::getClothesById($clothes_id, $user_id);
-
-                            // Broadcast FCM notification
-                            $msg_body = "Your clothes called '$clothes->clothes_name' has been added to weekly schedule and set to wear on every $day";
-                            Firebase::sendNotif($user->firebase_fcm_token, $msg_body, $user->username, $clothes_id);
-                        }
-
-                        // Return success response
-                        return response()->json([
-                            'status' => 'success',
-                            'message' => Generator::getMessageTemplate("create", "schedule"),
-                            'data' => $res
-                        ], Response::HTTP_CREATED);
-                    } else {
-                        return response()->json([
-                            'status' => 'error',
-                            'message' => Generator::getMessageTemplate("unknown_error", null),
-                        ], Response::HTTP_INTERNAL_SERVER_ERROR);
-                    }  
-                } else {
-                    return response()->json([
-                        'status' => 'failed',
-                        'message' => Generator::getMessageTemplate("conflict", "day"),
-                    ], Response::HTTP_CONFLICT);
-                }
-            } 
-        } catch(\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => Generator::getMessageTemplate("unknown_error", null),
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * @OA\PUT(
-     *     path="/api/v1/clothes/update_checkpoint/{id}",
-     *     summary="Put Update Clothes Wash Checkpoint By ID",
-     *     description="This request is used to update clothes wash checkpoint by given `id`. This request interacts with the MySQL database, and has a protected routes.",
-     *     tags={"Clothes"},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="string"),
-     *         description="clothes ID",
-     *         example="e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9",
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="clothes wash updated",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="message", type="string", example="clothes wash updated")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="protected route need to include sign in token as authorization bearer",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="failed"),
-     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="clothes failed to updated",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="failed"),
-     *             @OA\Property(property="message", type="string", example="clothes wash not found")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=500,
-     *         description="Internal Server Error",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
-     *         )
-     *     ),
-     * )
-     */
-    public function putUpdateWashByClothesID(Request $request, $id){
-        try{
-            $user_id = $request->user()->id;
-
-            // Update wash by ID
-            $res = WashModel::updateWashById(['wash_checkpoint' => $request->wash_checkpoint], $id, $user_id);
-            if($res > 0){ 
-                // Return success response
-                return response()->json([
-                    'status' => 'success',
-                    'message' => Generator::getMessageTemplate("update", 'clothes wash'),
-                ], Response::HTTP_OK);
-            } else {
-                return response()->json([
-                    'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", 'clothes wash'),
-                ], Response::HTTP_NOT_FOUND);
-            }
-        } catch(\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => Generator::getMessageTemplate("unknown_error", null),
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-     /**
-     * @OA\DELETE(
-     *     path="/api/v1/clothes/destroy_wash/{id}",
-     *     summary="Permanently Delete Wash By ID",
-     *     description="This request is used to permanently delete wash history by given `id`. This request interacts with the MySQL database, and has a protected routes.",
-     *     tags={"Clothes"},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="string"),
-     *         description="clothes wash ID",
-     *         example="e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9",
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="clothes wash permanently deleted",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="message", type="string", example="clothes wash permanently deleted")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="protected route need to include sign in token as authorization bearer",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="failed"),
-     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="clothes wash not found",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="failed"),
-     *             @OA\Property(property="message", type="string", example="clothes wash not found")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=500,
-     *         description="Internal Server Error",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
-     *         )
-     *     ),
-     * )
-     */
-    public function hardDeleteWashByID(Request $request, $id){
-        try {
-            $user_id = $request->user()->id;
-
-            // Hard delete wash by ID
-            $rows = WashModel::hardDeleteWashById($id, $user_id);
-            if($rows > 0){
-                // Return success response
-                return response()->json([
-                    'status' => 'success',
-                    'message' => Generator::getMessageTemplate("permanently delete", 'clothes wash'),
-                ], Response::HTTP_OK);
-            } else {
-                return response()->json([
-                    'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", 'clothes wash'),
-                ], Response::HTTP_NOT_FOUND);
-            }
-        } catch(\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => Generator::getMessageTemplate("unknown_error", null),
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
      * @OA\DELETE(
      *     path="/api/v1/clothes/destroy_used/{id}",
      *     summary="Permanently Delete Clothes Used By ID",
      *     description="This request is used to permanently delete clothes used history by given `id`. This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Clothes"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -643,6 +405,32 @@ class Commands extends Controller
      *     description="This request is used to create a clothes. This request interacts with the MySQL database, firebase storage, broadcast message with Telegram and Firebase FCM, using mailer, has a protected routes, and audited activity (history)",
      *     tags={"Clothes"},
      *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 required={"clothes_name","clothes_category","clothes_merk","clothes_color","clothes_price","clothes_size","clothes_gender","clothes_type","clothes_qty"},
+     *                 @OA\Property(property="clothes_name", type="string", example="Casual T-Shirt"),
+     *                 @OA\Property(property="clothes_category", type="string", example="upper_body"),
+     *                 @OA\Property(property="clothes_desc", type="string", example="Soft cotton t-shirt for daily use"),
+     *                 @OA\Property(property="clothes_merk", type="string", example="Uniqlo"),
+     *                 @OA\Property(property="clothes_color", type="string", example="Black"),
+     *                 @OA\Property(property="clothes_price", type="number", example=149000),
+     *                 @OA\Property(property="clothes_image", type="string", format="binary"),
+     *                 @OA\Property(property="clothes_size", type="string", example="L"),
+     *                 @OA\Property(property="clothes_gender", type="string", example="male"),
+     *                 @OA\Property(property="clothes_made_from", type="string", example="cotton"),
+     *                 @OA\Property(property="clothes_type", type="string", example="shirt"),
+     *                 @OA\Property(property="clothes_buy_at", type="string", format="date", example="2025-01-01"),
+     *                 @OA\Property(property="clothes_qty", type="integer", example=2),
+     *                 @OA\Property(property="is_faded", type="boolean", example=false),
+     *                 @OA\Property(property="has_washed", type="boolean", example=true),
+     *                 @OA\Property(property="has_ironed", type="boolean", example=false),
+     *                 @OA\Property(property="is_favorite", type="boolean", example=true)
+     *             )
+     *          )
+     *     ),
      *     @OA\Response(
      *         response=201,
      *         description="clothes created",
@@ -1013,85 +801,23 @@ class Commands extends Controller
     }
 
     /**
-     * @OA\DELETE(
-     *     path="/api/v1/clothes/destroy_schedule/{id}",
-     *     summary="Permanently Delete Schedule By ID",
-     *     description="This request is used to permanently delete schedule by given `id`. This request interacts with the MySQL database, and has a protected routes.",
-     *     tags={"Clothes"},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="string"),
-     *         description="schedule ID",
-     *         example="e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9",
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="schedule permanently deleted",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="message", type="string", example="schedule permanently deleted")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="protected route need to include sign in token as authorization bearer",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="failed"),
-     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="schedule not found",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="failed"),
-     *             @OA\Property(property="message", type="string", example="schedule not found")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=500,
-     *         description="Internal Server Error",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
-     *         )
-     *     ),
-     * )
-     */
-    public function hardDeleteScheduleByID(Request $request, $id){
-        try{
-            $user_id = $request->user()->id;
-
-            // Hard delete schedule by ID
-            $rows = ScheduleModel::hardDeleteScheduleById($id, $user_id);
-            if($rows > 0){
-                // Return success response
-                return response()->json([
-                    'status' => 'success',
-                    'message' => Generator::getMessageTemplate("permanently delete", 'schedule'),
-                ], Response::HTTP_OK);
-            } else {
-                return response()->json([
-                    'status' => 'failed',
-                    'message' => Generator::getMessageTemplate("not_found", 'schedule'),
-                ], Response::HTTP_NOT_FOUND);
-            }
-        } catch(\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => Generator::getMessageTemplate("unknown_error", null),
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * @OA\GET(
+     * @OA\POST(
      *     path="/api/v1/clothes/generate/outfit",
      *     summary="Post Create (Generate) Random Outfit",
      *     description="This request is used to create (generate) random set of clothes to make an outfit. This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Clothes"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"clothes_type"},
+     *             @OA\Property(property="clothes_type", type="string", example="pants"),
+     *             @OA\Property(property="temperature", type="integer", example=24),
+     *             @OA\Property(property="humidity", type="integer", example=80),
+     *             @OA\Property(property="weather", type="string", nullable=true, example="rain"),
+     *             @OA\Property(property="day", type="string", nullable=true, example="sun")
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=201,
      *         description="outfit generated",
@@ -1211,6 +937,7 @@ class Commands extends Controller
      *     summary="Permanently Delete Outfit Used History By ID",
      *     description="This request is used to permanently delete outfit used history by given `id`. This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Clothes"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -1271,118 +998,6 @@ class Commands extends Controller
                     'message' => Generator::getMessageTemplate("not_found", 'outfit history'),
                 ], Response::HTTP_NOT_FOUND);
             }
-        } catch(\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => Generator::getMessageTemplate("unknown_error", null),
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * @OA\POST(
-     *     path="/api/v1/clothes/wash",
-     *     summary="Post Create Clothes Wash",
-     *     description="This request is used to create wash history. This request interacts with the MySQL database, has a protected routes, and audited activity (history).",
-     *     tags={"Clothes"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Response(
-     *         response=201,
-     *         description="clothes wash created",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="message", type="string", example="clothes wash history created")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=409,
-     *         description="Data is already exist",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="failed"),
-     *             @OA\Property(property="message", type="string", example="clothes is already at wash")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="{validation_msg}",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="failed"),
-     *             @OA\Property(property="message", type="string", example="{field validation message}")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="protected route need to include sign in token as authorization bearer",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="failed"),
-     *             @OA\Property(property="message", type="string", example="you need to include the authorization token from login")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=500,
-     *         description="Internal Server Error",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="error"),
-     *             @OA\Property(property="message", type="string", example="something wrong. please contact admin")
-     *         )
-     *     ),
-     * )
-     */
-    public function postCreateWash(Request $request){
-        try{
-            $user_id = $request->user()->id;
-
-            // Validate request body
-            $validator = Validation::getValidateWash($request,'create');
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => $validator->errors()
-                ], Response::HTTP_UNPROCESSABLE_ENTITY);
-            } else {
-                $clothes_id = $request->clothes_id;
-
-                // Get clothes by ID
-                $clothes = ClothesModel::getClothesById($clothes_id, $user_id);
-                if($clothes){
-                    // Check if clothes is on wash or not
-                    $is_exist = WashModel::getActiveWash($clothes_id,$user_id);
-                    if($is_exist){
-                        return response()->json([
-                            'status' => 'failed',
-                            'message' => Generator::getMessageTemplate("custom", "clothes is still at wash"),
-                        ], Response::HTTP_CONFLICT);
-                    } else {
-                        // Create wash
-                        $res = WashModel::createWash([
-                            'wash_note' => $request->wash_note, 
-                            'clothes_id' => $clothes_id, 
-                            'wash_type' => $request->wash_type, 
-                            'wash_checkpoint' => $request->wash_checkpoint
-                        ], $user_id); 
-                        if($res){
-                            // Create history
-                            Audit::createHistory('Wash', $clothes->clothes_name, $user_id);
-    
-                            // Return success response
-                            return response()->json([
-                                'status' => 'success',
-                                'message' => Generator::getMessageTemplate("create", 'clothes wash history'),
-                            ], Response::HTTP_CREATED);
-                        } else {
-                            return response()->json([
-                                'status' => 'error',
-                                'message' => Generator::getMessageTemplate("unknown_error", null),
-                            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-                        }
-                    }
-                } else {
-                    return response()->json([
-                        'status' => 'failed',
-                        'message' => Generator::getMessageTemplate("not_found", $this->module),
-                    ], Response::HTTP_NOT_FOUND);
-                }
-            }           
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'error',

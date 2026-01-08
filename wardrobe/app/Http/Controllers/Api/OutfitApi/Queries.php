@@ -30,6 +30,7 @@ class Queries extends Controller
      *     summary="Get All Outfit",
      *     description="This request is used to get all outfit. This request interacts with the MySQL database, has a protected routes, and a pagination.",
      *     tags={"Outfit"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
      *         description="outfit found",
@@ -127,6 +128,7 @@ class Queries extends Controller
      *     summary="Get Last Created Outfit",
      *     description="This request is used to get last created outfit and its clothes. This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Outfit"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
      *         description="outfit found",
@@ -216,6 +218,7 @@ class Queries extends Controller
      *     summary="Get Outfit And Its Clothes By Outfit ID",
      *     description="This request is used to get an outfit and its clothes by using given outfit's `ID`. This request interacts with the MySQL database, and has a protected routes.",
      *     tags={"Outfit"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",

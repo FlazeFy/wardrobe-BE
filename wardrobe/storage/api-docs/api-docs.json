@@ -164,6 +164,40 @@
                 "summary": "Post Register Apps",
                 "description": "This authentication request is used to register / sign up new account. This request interacts with the MySQL database and broadcast with mailer.",
                 "operationId": "103d036911061d4d4fc637e06f0db18f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "username",
+                                    "password",
+                                    "email"
+                                ],
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "flazefy"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "nopass123"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "flazen.work@gmail.com"
+                                    },
+                                    "firebase_fcm_token": {
+                                        "type": "string",
+                                        "example": "1a2b3c4d5e6f",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
                         "description": "login successfully",
@@ -278,6 +312,30 @@
                 "summary": "Post Validate Registered Account",
                 "description": "This authentication request is used to validate request token for newly created account. This request interacts with the MySQL database.",
                 "operationId": "caea16e73864dd39b2edfa46cca3aed6",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "username",
+                                    "token"
+                                ],
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "flazefy"
+                                    },
+                                    "token": {
+                                        "type": "string",
+                                        "example": "ABC123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
                         "description": "validate token successfully",
@@ -431,7 +489,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/clothes/destroy/{id}": {
@@ -535,7 +598,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/clothes/delete/{id}": {
@@ -639,7 +707,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/clothes/history": {
@@ -650,6 +723,35 @@
                 "summary": "Post Create Clothes History",
                 "description": "This request is used to create clothes history record by giving `clothes_id`, `clothes_note`, and `used_context`. This request interacts with the MySQL database, and has a protected routes.",
                 "operationId": "f9dc1ee499150cd9e231e8db4cf298e1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "clothes_id",
+                                    "used_context"
+                                ],
+                                "properties": {
+                                    "clothes_id": {
+                                        "type": "string",
+                                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                                    },
+                                    "clothes_note": {
+                                        "type": "string",
+                                        "example": "daily uniform",
+                                        "nullable": true
+                                    },
+                                    "used_context": {
+                                        "type": "string",
+                                        "example": "work"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
                         "description": "clothes created",
@@ -731,307 +833,12 @@
                             }
                         }
                     }
-                }
-            }
-        },
-        "/api/v1/clothes/schedule": {
-            "post": {
-                "tags": [
-                    "Clothes"
-                ],
-                "summary": "Post Create Schedule",
-                "description": "This request is used to create schedule of clothes that will be used in the future by giving `clothes_id`, `schedule_note`, `day`, and `is_remind`. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "a5a92ee8fb2e7a212f959ae8c6d758c3",
-                "responses": {
-                    "201": {
-                        "description": "clothes created",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "schedule created"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "protected route need to include sign in token as authorization bearer",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "you need to include the authorization token from login"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "schedule failed to validated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "[failed validation message]"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "something wrong. please contact admin"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/clothes/update_checkpoint/{id}": {
-            "put": {
-                "tags": [
-                    "Clothes"
-                ],
-                "summary": "Put Update Clothes Wash Checkpoint By ID",
-                "description": "This request is used to update clothes wash checkpoint by given `id`. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "ecf2030c1689650545f39ce05d47794b",
-                "parameters": [
+                },
+                "security": [
                     {
-                        "name": "id",
-                        "in": "path",
-                        "description": "clothes ID",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                        "bearerAuth": []
                     }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "clothes wash updated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "clothes wash updated"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "protected route need to include sign in token as authorization bearer",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "you need to include the authorization token from login"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "clothes failed to updated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "clothes wash not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "something wrong. please contact admin"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/clothes/destroy_wash/{id}": {
-            "delete": {
-                "tags": [
-                    "Clothes"
-                ],
-                "summary": "Permanently Delete Wash By ID",
-                "description": "This request is used to permanently delete wash history by given `id`. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "c51494785205d349b8dcef7ebd9b52c7",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "clothes wash ID",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "clothes wash permanently deleted",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "clothes wash permanently deleted"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "protected route need to include sign in token as authorization bearer",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "you need to include the authorization token from login"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "clothes wash not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "clothes wash not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "something wrong. please contact admin"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
+                ]
             }
         },
         "/api/v1/clothes/destroy_used/{id}": {
@@ -1135,7 +942,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/clothes": {
@@ -1146,6 +958,98 @@
                 "summary": "Post Create Clothes",
                 "description": "This request is used to create a clothes. This request interacts with the MySQL database, firebase storage, broadcast message with Telegram and Firebase FCM, using mailer, has a protected routes, and audited activity (history)",
                 "operationId": "7f83f0ca7e291ea9492bd8f73f35538c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "clothes_name",
+                                    "clothes_category",
+                                    "clothes_merk",
+                                    "clothes_color",
+                                    "clothes_price",
+                                    "clothes_size",
+                                    "clothes_gender",
+                                    "clothes_type",
+                                    "clothes_qty"
+                                ],
+                                "properties": {
+                                    "clothes_name": {
+                                        "type": "string",
+                                        "example": "Casual T-Shirt"
+                                    },
+                                    "clothes_category": {
+                                        "type": "string",
+                                        "example": "upper_body"
+                                    },
+                                    "clothes_desc": {
+                                        "type": "string",
+                                        "example": "Soft cotton t-shirt for daily use"
+                                    },
+                                    "clothes_merk": {
+                                        "type": "string",
+                                        "example": "Uniqlo"
+                                    },
+                                    "clothes_color": {
+                                        "type": "string",
+                                        "example": "Black"
+                                    },
+                                    "clothes_price": {
+                                        "type": "number",
+                                        "example": 149000
+                                    },
+                                    "clothes_image": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "clothes_size": {
+                                        "type": "string",
+                                        "example": "L"
+                                    },
+                                    "clothes_gender": {
+                                        "type": "string",
+                                        "example": "male"
+                                    },
+                                    "clothes_made_from": {
+                                        "type": "string",
+                                        "example": "cotton"
+                                    },
+                                    "clothes_type": {
+                                        "type": "string",
+                                        "example": "shirt"
+                                    },
+                                    "clothes_buy_at": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-01-01"
+                                    },
+                                    "clothes_qty": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "is_faded": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "has_washed": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "has_ironed": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "is_favorite": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
                         "description": "clothes created",
@@ -1364,118 +1268,51 @@
                 ]
             }
         },
-        "/api/v1/clothes/destroy_schedule/{id}": {
-            "delete": {
-                "tags": [
-                    "Clothes"
-                ],
-                "summary": "Permanently Delete Schedule By ID",
-                "description": "This request is used to permanently delete schedule by given `id`. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "fa6367748c54c285075495075d13501d",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "schedule ID",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "schedule permanently deleted",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "schedule permanently deleted"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "protected route need to include sign in token as authorization bearer",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "you need to include the authorization token from login"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "schedule not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "schedule not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "something wrong. please contact admin"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/clothes/generate/outfit": {
-            "get": {
+            "post": {
                 "tags": [
                     "Clothes"
                 ],
                 "summary": "Post Create (Generate) Random Outfit",
                 "description": "This request is used to create (generate) random set of clothes to make an outfit. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "fa47dde94b7eec3bfb708f91d35dc22e",
+                "operationId": "c167b7c0b25dd7d49eae5f7128688cc8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "clothes_type"
+                                ],
+                                "properties": {
+                                    "clothes_type": {
+                                        "type": "string",
+                                        "example": "pants"
+                                    },
+                                    "temperature": {
+                                        "type": "integer",
+                                        "example": 24
+                                    },
+                                    "humidity": {
+                                        "type": "integer",
+                                        "example": 80
+                                    },
+                                    "weather": {
+                                        "type": "string",
+                                        "example": "rain",
+                                        "nullable": true
+                                    },
+                                    "day": {
+                                        "type": "string",
+                                        "example": "sun",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
                         "description": "outfit generated",
@@ -1601,7 +1438,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/clothes/outfit/history/by/{id}": {
@@ -1678,118 +1520,6 @@
                                         "message": {
                                             "type": "string",
                                             "example": "outfit history not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "something wrong. please contact admin"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/clothes/wash": {
-            "post": {
-                "tags": [
-                    "Clothes"
-                ],
-                "summary": "Post Create Clothes Wash",
-                "description": "This request is used to create wash history. This request interacts with the MySQL database, has a protected routes, and audited activity (history).",
-                "operationId": "2ae40f6dfb61d23dd34f78ab1d3fed71",
-                "responses": {
-                    "201": {
-                        "description": "clothes wash created",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "clothes wash history created"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Data is already exist",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "clothes is already at wash"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "{validation_msg}",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "{field validation message}"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "protected route need to include sign in token as authorization bearer",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "you need to include the authorization token from login"
                                         }
                                     },
                                     "type": "object"
@@ -2005,7 +1735,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/clothes/trash": {
@@ -2151,7 +1886,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/clothes/similiar/{ctx}/{val}/{exc}": {
@@ -2267,7 +2007,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/clothes/detail/{category}/{order}": {
@@ -2493,7 +2238,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/clothes/history/{clothes_id}/{order}": {
@@ -2640,115 +2390,12 @@
                             }
                         }
                     }
-                }
-            }
-        },
-        "/api/v1/clothes/check_wash/{clothes_id}": {
-            "get": {
-                "tags": [
-                    "Clothes"
-                ],
-                "summary": "Get Clothes Wash Status By ID",
-                "description": "This request is used to get clothes wash status by given `clothes_id`. This request interacts with the MySQL database, has a protected routes, and a pagination.",
-                "operationId": "99e57d571974d0d7391c00db90f8df6f",
-                "parameters": [
+                },
+                "security": [
                     {
-                        "name": "clothes_id",
-                        "in": "path",
-                        "description": "clothes id",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                        "bearerAuth": []
                     }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "clothes found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "This clothes is washed right now | This clothes is ready to use"
-                                        },
-                                        "data": {
-                                            "type": "boolean",
-                                            "example": true
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "protected route need to include sign in token as authorization bearer",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "you need to include the authorization token from login"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "clothes not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "clothes not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "something wrong. please contact admin"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
+                ]
             }
         },
         "/api/v1/clothes/detail/{clothes_id}": {
@@ -3077,147 +2724,12 @@
                             }
                         }
                     }
-                }
-            }
-        },
-        "/api/v1/clothes/wash_checkpoint/{clothes_id}": {
-            "get": {
-                "tags": [
-                    "Clothes"
-                ],
-                "summary": "Get Clothes Wash Checkpoint",
-                "description": "This request is used to get clothes wash checkpoint by given `clothes_id`. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "6b4b1e233805eed6fcec872855c44451",
-                "parameters": [
+                },
+                "security": [
                     {
-                        "name": "clothes_id",
-                        "in": "path",
-                        "description": "clothes id",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                        "bearerAuth": []
                     }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "clothes found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "clothes fetched"
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "wash_note": {
-                                                        "type": "string",
-                                                        "example": "Finish at 18:00"
-                                                    },
-                                                    "wash_type": {
-                                                        "type": "string",
-                                                        "example": "Laundry"
-                                                    },
-                                                    "wash_checkpoint": {
-                                                        "type": "array",
-                                                        "items": {
-                                                            "properties": {
-                                                                "id": {
-                                                                    "type": "string",
-                                                                    "example": "1"
-                                                                },
-                                                                "checkpoint_name": {
-                                                                    "type": "string",
-                                                                    "example": "Rendam"
-                                                                },
-                                                                "is_finished": {
-                                                                    "type": "integer",
-                                                                    "example": 0
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        }
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "protected route need to include sign in token as authorization bearer",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "you need to include the authorization token from login"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "wash checkpoint not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "wash checkpoint not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "something wrong. please contact admin"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
+                ]
             }
         },
         "/api/v1/clothes/outfit/history/{id}": {
@@ -3307,553 +2819,6 @@
                                         "message": {
                                             "type": "string",
                                             "example": "history outfit not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "something wrong. please contact admin"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/clothes/schedule/{day}": {
-            "get": {
-                "tags": [
-                    "Clothes"
-                ],
-                "summary": "Get Clothes Schedule By Day",
-                "description": "This request is used to get schedule by given `day` name. This request interacts with the MySQL database, and has a protected routes",
-                "operationId": "0bb8f631519e46a134edaebf6003a230",
-                "parameters": [
-                    {
-                        "name": "day",
-                        "in": "path",
-                        "description": "Day Name",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "Mon"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "schedule found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "schedule fetched"
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "string",
-                                                        "example": "17963858-9771-11ee-8f4a-321642910r4w"
-                                                    },
-                                                    "clothes_name": {
-                                                        "type": "string",
-                                                        "example": "Shirt ABC"
-                                                    },
-                                                    "clothes_type": {
-                                                        "type": "string",
-                                                        "example": "Shirt"
-                                                    },
-                                                    "clothes_image": {
-                                                        "type": "string",
-                                                        "example": "https://storage.googleapis.com/download/storage/v1/b/wardrobe-26571.firebasestorage.app/o/clothes.png"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "protected route need to include sign in token as authorization bearer",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "you need to include the authorization token from login"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "schedule not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "schedule not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "something wrong. please contact admin"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/clothes/wash_history": {
-            "get": {
-                "tags": [
-                    "Clothes"
-                ],
-                "summary": "Get Clothes Wash History",
-                "description": "This request is used to get all clothes wash history. This request interacts with the MySQL database, has a protected routes, and a pagination.",
-                "operationId": "19b2100e38d4e7a9b640a3de5ad58fca",
-                "responses": {
-                    "200": {
-                        "description": "wash history found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "wash history fetched"
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "clothes_name": {
-                                                        "type": "string",
-                                                        "example": "Shirt ABC"
-                                                    },
-                                                    "wash_type": {
-                                                        "type": "string",
-                                                        "example": "Laundry"
-                                                    },
-                                                    "clothes_made_from": {
-                                                        "type": "string",
-                                                        "example": "cloth"
-                                                    },
-                                                    "clothes_color": {
-                                                        "type": "string",
-                                                        "example": "black, white"
-                                                    },
-                                                    "clothes_type": {
-                                                        "type": "string",
-                                                        "example": "shirt"
-                                                    },
-                                                    "wash_at": {
-                                                        "type": "string",
-                                                        "example": "2024-05-17 04:09:40"
-                                                    },
-                                                    "finished_at": {
-                                                        "type": "string",
-                                                        "example": "2024-06-17 04:09:40"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "protected route need to include sign in token as authorization bearer",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "you need to include the authorization token from login"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "wash history not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "wash history not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "something wrong. please contact admin"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/clothes/wash_unfinished": {
-            "get": {
-                "tags": [
-                    "Clothes"
-                ],
-                "summary": "Get Unfinished Wash Clothes",
-                "description": "This request is used to get clothes who is still at wash. This request interacts with the MySQL database, and has a protected routes",
-                "operationId": "26d7650fa86847a5d72c8bb1f576d839",
-                "responses": {
-                    "200": {
-                        "description": "unfinished wash found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "unfinished wash fetched"
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "clothes_name": {
-                                                        "type": "string",
-                                                        "example": "Shirt ABC"
-                                                    },
-                                                    "wash_type": {
-                                                        "type": "string",
-                                                        "example": "Laundry"
-                                                    },
-                                                    "wash_checkpoint": {
-                                                        "type": "array",
-                                                        "items": {
-                                                            "properties": {
-                                                                "id": {
-                                                                    "type": "string",
-                                                                    "example": "1"
-                                                                },
-                                                                "checkpoint_name": {
-                                                                    "type": "string",
-                                                                    "example": "Rendam"
-                                                                },
-                                                                "is_finished": {
-                                                                    "type": "boolean",
-                                                                    "example": false
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        }
-                                                    },
-                                                    "clothes_type": {
-                                                        "type": "string",
-                                                        "example": "shirt"
-                                                    },
-                                                    "wash_at": {
-                                                        "type": "string",
-                                                        "example": "2024-05-17 04:09:40"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "protected route need to include sign in token as authorization bearer",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "you need to include the authorization token from login"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "unfinished wash not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "unfinished wash not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "something wrong. please contact admin"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/clothes/schedule/tomorrow/{day}": {
-            "get": {
-                "tags": [
-                    "Clothes"
-                ],
-                "summary": "Get Tomorrow Schedule",
-                "description": "This request is used to get the schedule for tomorrow and two days later from the outfit and clothes schedule. This request interacts with the MySQL database, and has a protected routes.",
-                "operationId": "6ce0622043fe0ef9f919809dec50bffb",
-                "parameters": [
-                    {
-                        "name": "day",
-                        "in": "path",
-                        "description": "Day of Today",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "Mon"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Tomorrow schedule fetched successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "tomorrow schedule fetched"
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "tomorrow": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "properties": {
-                                                            "id": {
-                                                                "type": "string",
-                                                                "example": "efbf49d9-78f4-436a-07ef-ca3aa661f9d7"
-                                                            },
-                                                            "clothes_name": {
-                                                                "type": "string",
-                                                                "example": "shirt A"
-                                                            },
-                                                            "clothes_type": {
-                                                                "type": "string",
-                                                                "example": "hat"
-                                                            },
-                                                            "clothes_category": {
-                                                                "type": "string",
-                                                                "example": "Upper Body"
-                                                            },
-                                                            "clothes_image": {
-                                                                "type": "string",
-                                                                "example": "https://image.jpg"
-                                                            },
-                                                            "day": {
-                                                                "type": "string",
-                                                                "example": "Mon"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    }
-                                                },
-                                                "tomorrow_day": {
-                                                    "type": "string",
-                                                    "example": "Mon"
-                                                },
-                                                "two_days_later": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "object"
-                                                    }
-                                                },
-                                                "two_days_later_day": {
-                                                    "type": "string",
-                                                    "example": "Tue"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Protected route, requires authentication token",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "you need to include the authorization token from login"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Tomorrow schedule not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "failed"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "tomorrow schedule not found"
                                         }
                                     },
                                     "type": "object"
@@ -5268,6 +4233,59 @@
                 "summary": "Post Create Outfit",
                 "description": "This request is used to create an outfit that will contain multiple set of clothes. This request interacts with the MySQL database, broadcast with Firebase FCM & Telegram, has a protected routes, and audited activity (history).",
                 "operationId": "8458042a636a058ade0529c592fdea5e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "list_outfit"
+                                ],
+                                "properties": {
+                                    "list_outfit": {
+                                        "description": "List of outfits to be created along with their clothes",
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "outfit_name",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "outfit_name": {
+                                                    "type": "string",
+                                                    "example": "Daily Office Outfit"
+                                                },
+                                                "data": {
+                                                    "description": "List of clothes attached to the outfit",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "required": [
+                                                            "id",
+                                                            "clothes_name"
+                                                        ],
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string",
+                                                                "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                                                            },
+                                                            "clothes_name": {
+                                                                "type": "string",
+                                                                "example": "Black Pants"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
                         "description": "outfit created",
@@ -5385,6 +4403,30 @@
                 "summary": "Post Create Outfit Used History",
                 "description": "This request is used to create outfit used history. This request interacts with the MySQL database, broadcast with Firebase FCM, and has a protected routes.",
                 "operationId": "be34cd59776473f24ba1b55e8b0fb036",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "outfit_id",
+                                    "used_context"
+                                ],
+                                "properties": {
+                                    "outfit_id": {
+                                        "type": "string",
+                                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                                    },
+                                    "used_context": {
+                                        "type": "string",
+                                        "example": "work"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
                         "description": "outfit history created",
@@ -5466,7 +4508,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/clothes/outfit/save/clothes": {
@@ -5477,6 +4524,51 @@
                 "summary": "Post Create Clothes Relation With Outfit",
                 "description": "This request is used to create clothes relation with the outfit. This request interacts with the MySQL database, broadcast with Firebase FCM, and has a protected routes.",
                 "operationId": "b083457dbe8af59b70bb5cd9ec1f66c0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "outfit_id",
+                                    "clothes"
+                                ],
+                                "properties": {
+                                    "outfit_id": {
+                                        "type": "string",
+                                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                                    },
+                                    "clothes": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "clothes_id",
+                                                "clothes_name",
+                                                "clothes_type"
+                                            ],
+                                            "properties": {
+                                                "clothes_id": {
+                                                    "type": "string",
+                                                    "example": "uuid-clothes-1"
+                                                },
+                                                "clothes_name": {
+                                                    "type": "string",
+                                                    "example": "Black Pants"
+                                                },
+                                                "clothes_type": {
+                                                    "type": "string",
+                                                    "example": "pants"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
                         "description": "outfit created",
@@ -5707,7 +4799,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/clothes/outfit": {
@@ -5863,7 +4960,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/clothes/outfit/last": {
@@ -6000,7 +5102,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/clothes/outfit/by/{id}": {
@@ -6173,7 +5280,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/clothes/outfit/summary": {
@@ -6524,6 +5636,539 @@
                         }
                     }
                 }
+            }
+        },
+        "/api/v1/clothes/schedule": {
+            "post": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Post Create Schedule",
+                "description": "This request is used to create schedule of clothes that will be used in the future by giving `clothes_id`, `schedule_note`, `day`, and `is_remind`. This request interacts with the MySQL database, and has a protected routes.",
+                "operationId": "53904b0c8f423b5aa090ac305183f344",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "clothes_id",
+                                    "day",
+                                    "is_remind"
+                                ],
+                                "properties": {
+                                    "clothes_id": {
+                                        "type": "string",
+                                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                                    },
+                                    "schedule_note": {
+                                        "type": "string",
+                                        "example": "daily uniform",
+                                        "nullable": true
+                                    },
+                                    "day": {
+                                        "type": "string",
+                                        "example": "sun"
+                                    },
+                                    "is_remind": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "clothes created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "schedule created"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "schedule failed to validated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "[failed validation message]"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/clothes/destroy_schedule/{id}": {
+            "delete": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Permanently Delete Schedule By ID",
+                "description": "This request is used to permanently delete schedule by given `id`. This request interacts with the MySQL database, and has a protected routes.",
+                "operationId": "3eb4ed9fe44ce0a5e7c349ab80f5e707",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "schedule ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "schedule permanently deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "schedule permanently deleted"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "schedule not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "schedule not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/clothes/schedule/{day}": {
+            "get": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Get Clothes Schedule By Day",
+                "description": "This request is used to get schedule by given `day` name. This request interacts with the MySQL database, and has a protected routes",
+                "operationId": "cb8dcfb1fc1375b4c3d200a10a80a4b8",
+                "parameters": [
+                    {
+                        "name": "day",
+                        "in": "path",
+                        "description": "Day Name",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "Mon"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "schedule found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "schedule fetched"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "17963858-9771-11ee-8f4a-321642910r4w"
+                                                    },
+                                                    "clothes_name": {
+                                                        "type": "string",
+                                                        "example": "Shirt ABC"
+                                                    },
+                                                    "clothes_type": {
+                                                        "type": "string",
+                                                        "example": "Shirt"
+                                                    },
+                                                    "clothes_image": {
+                                                        "type": "string",
+                                                        "example": "https://storage.googleapis.com/download/storage/v1/b/wardrobe-26571.firebasestorage.app/o/clothes.png"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "schedule not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "schedule not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/clothes/schedule/tomorrow/{day}": {
+            "get": {
+                "tags": [
+                    "Clothes"
+                ],
+                "summary": "Get Tomorrow Schedule",
+                "description": "This request is used to get the schedule for tomorrow and two days later from the outfit and clothes schedule. This request interacts with the MySQL database, and has a protected routes.",
+                "operationId": "f1c917c6d5f3df3d3efa2b1ea1144480",
+                "parameters": [
+                    {
+                        "name": "day",
+                        "in": "path",
+                        "description": "Day of Today",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "Mon"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tomorrow schedule fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "tomorrow schedule fetched"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "tomorrow": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string",
+                                                                "example": "efbf49d9-78f4-436a-07ef-ca3aa661f9d7"
+                                                            },
+                                                            "clothes_name": {
+                                                                "type": "string",
+                                                                "example": "shirt A"
+                                                            },
+                                                            "clothes_type": {
+                                                                "type": "string",
+                                                                "example": "hat"
+                                                            },
+                                                            "clothes_category": {
+                                                                "type": "string",
+                                                                "example": "Upper Body"
+                                                            },
+                                                            "clothes_image": {
+                                                                "type": "string",
+                                                                "example": "https://image.jpg"
+                                                            },
+                                                            "day": {
+                                                                "type": "string",
+                                                                "example": "Mon"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "tomorrow_day": {
+                                                    "type": "string",
+                                                    "example": "Mon"
+                                                },
+                                                "two_days_later": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "two_days_later_day": {
+                                                    "type": "string",
+                                                    "example": "Tue"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Protected route, requires authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Tomorrow schedule not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "tomorrow schedule not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/stats/clothes/by/{ctx}": {
@@ -8681,6 +8326,967 @@
                     }
                 ]
             }
+        },
+        "/api/v1/clothes/wash": {
+            "post": {
+                "tags": [
+                    "Wash"
+                ],
+                "summary": "Post Create Clothes Wash",
+                "description": "This request is used to create wash history. This request interacts with the MySQL database, has a protected routes, and audited activity (history).",
+                "operationId": "dc7e4099f38e69aae97e4b9629ef2217",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "wash_checkpoint",
+                                    "clothes_id",
+                                    "wash_type"
+                                ],
+                                "properties": {
+                                    "clothes_id": {
+                                        "type": "string",
+                                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                                    },
+                                    "wash_type": {
+                                        "type": "string",
+                                        "example": "laundry"
+                                    },
+                                    "wash_note": {
+                                        "type": "string",
+                                        "example": "lorem ipsum"
+                                    },
+                                    "wash_checkpoint": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "id",
+                                                "checkpoint_name",
+                                                "is_finished"
+                                            ],
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "checkpoint_name": {
+                                                    "type": "string",
+                                                    "example": "Soak"
+                                                },
+                                                "is_finished": {
+                                                    "type": "boolean",
+                                                    "example": false
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "clothes wash created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes wash history created"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Data is already exist",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes is already at wash"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "{validation_msg}",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "{field validation message}"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/clothes/update_checkpoint/{id}": {
+            "put": {
+                "tags": [
+                    "Wash"
+                ],
+                "summary": "Put Update Clothes Wash Checkpoint By ID",
+                "description": "This request is used to update clothes wash checkpoint by given `id`. This request interacts with the MySQL database, and has a protected routes.",
+                "operationId": "2d57ca65e317bbfb2a81e70eb528c2ba",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "clothes ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "wash_checkpoint"
+                                ],
+                                "properties": {
+                                    "wash_checkpoint": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "id",
+                                                "checkpoint_name",
+                                                "is_finished"
+                                            ],
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "checkpoint_name": {
+                                                    "type": "string",
+                                                    "example": "Soak"
+                                                },
+                                                "is_finished": {
+                                                    "type": "boolean",
+                                                    "example": false
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "clothes wash updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes wash updated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "clothes failed to updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes wash not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/clothes/destroy_wash/{id}": {
+            "delete": {
+                "tags": [
+                    "Wash"
+                ],
+                "summary": "Permanently Delete Wash By ID",
+                "description": "This request is used to permanently delete wash history by given `id`. This request interacts with the MySQL database, and has a protected routes.",
+                "operationId": "9e580bd3b790ddb7f482466794d4089a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "clothes wash ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "clothes wash permanently deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes wash permanently deleted"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "clothes wash not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes wash not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/clothes/check_wash/{clothes_id}": {
+            "get": {
+                "tags": [
+                    "Wash"
+                ],
+                "summary": "Get Clothes Wash Status By ID",
+                "description": "This request is used to get clothes wash status by given `clothes_id`. This request interacts with the MySQL database, has a protected routes, and a pagination.",
+                "operationId": "399768624fd1c82cea872df97bf12d83",
+                "parameters": [
+                    {
+                        "name": "clothes_id",
+                        "in": "path",
+                        "description": "clothes id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "clothes found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "This clothes is washed right now | This clothes is ready to use"
+                                        },
+                                        "data": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "clothes not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/clothes/wash_checkpoint/{clothes_id}": {
+            "get": {
+                "tags": [
+                    "Wash"
+                ],
+                "summary": "Get Clothes Wash Checkpoint",
+                "description": "This request is used to get clothes wash checkpoint by given `clothes_id`. This request interacts with the MySQL database, and has a protected routes.",
+                "operationId": "0dff68c6b28ad6f2a01797f5b12dbf0a",
+                "parameters": [
+                    {
+                        "name": "clothes_id",
+                        "in": "path",
+                        "description": "clothes id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "e1288783-a5d4-1c4c-2cd6-0e92f7cc3bf9"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "clothes found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "clothes fetched"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "wash_note": {
+                                                        "type": "string",
+                                                        "example": "Finish at 18:00"
+                                                    },
+                                                    "wash_type": {
+                                                        "type": "string",
+                                                        "example": "Laundry"
+                                                    },
+                                                    "wash_checkpoint": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string",
+                                                                    "example": "1"
+                                                                },
+                                                                "checkpoint_name": {
+                                                                    "type": "string",
+                                                                    "example": "Rendam"
+                                                                },
+                                                                "is_finished": {
+                                                                    "type": "integer",
+                                                                    "example": 0
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "wash checkpoint not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "wash checkpoint not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/clothes/wash_history": {
+            "get": {
+                "tags": [
+                    "Wash"
+                ],
+                "summary": "Get Clothes Wash History",
+                "description": "This request is used to get all clothes wash history. This request interacts with the MySQL database, has a protected routes, and a pagination.",
+                "operationId": "75f67e5eb8149b31c4c04db9783118f9",
+                "responses": {
+                    "200": {
+                        "description": "wash history found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "wash history fetched"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "clothes_name": {
+                                                        "type": "string",
+                                                        "example": "Shirt ABC"
+                                                    },
+                                                    "wash_type": {
+                                                        "type": "string",
+                                                        "example": "Laundry"
+                                                    },
+                                                    "clothes_made_from": {
+                                                        "type": "string",
+                                                        "example": "cloth"
+                                                    },
+                                                    "clothes_color": {
+                                                        "type": "string",
+                                                        "example": "black, white"
+                                                    },
+                                                    "clothes_type": {
+                                                        "type": "string",
+                                                        "example": "shirt"
+                                                    },
+                                                    "wash_at": {
+                                                        "type": "string",
+                                                        "example": "2024-05-17 04:09:40"
+                                                    },
+                                                    "finished_at": {
+                                                        "type": "string",
+                                                        "example": "2024-06-17 04:09:40"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "wash history not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "wash history not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/clothes/wash_unfinished": {
+            "get": {
+                "tags": [
+                    "Wash"
+                ],
+                "summary": "Get Unfinished Wash Clothes",
+                "description": "This request is used to get clothes who is still at wash. This request interacts with the MySQL database, and has a protected routes",
+                "operationId": "16afeb4afbfbafaa89b20dfef47fdb0f",
+                "responses": {
+                    "200": {
+                        "description": "unfinished wash found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "unfinished wash fetched"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "clothes_name": {
+                                                        "type": "string",
+                                                        "example": "Shirt ABC"
+                                                    },
+                                                    "wash_type": {
+                                                        "type": "string",
+                                                        "example": "Laundry"
+                                                    },
+                                                    "wash_checkpoint": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string",
+                                                                    "example": "1"
+                                                                },
+                                                                "checkpoint_name": {
+                                                                    "type": "string",
+                                                                    "example": "Rendam"
+                                                                },
+                                                                "is_finished": {
+                                                                    "type": "boolean",
+                                                                    "example": false
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "clothes_type": {
+                                                        "type": "string",
+                                                        "example": "shirt"
+                                                    },
+                                                    "wash_at": {
+                                                        "type": "string",
+                                                        "example": "2024-05-17 04:09:40"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "protected route need to include sign in token as authorization bearer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "you need to include the authorization token from login"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "unfinished wash not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "unfinished wash not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "something wrong. please contact admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -9616,6 +10222,10 @@
         {
             "name": "User",
             "description": "User"
+        },
+        {
+            "name": "Wash",
+            "description": "Wash"
         }
     ]
 }

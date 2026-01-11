@@ -60,7 +60,7 @@
                                             "type": "integer",
                                             "example": 1
                                         },
-                                        "result": {
+                                        "message": {
                                             "properties": {
                                                 "id": {
                                                     "type": "string",
@@ -213,7 +213,7 @@
                                             "type": "string",
                                             "example": "AAA123"
                                         },
-                                        "result": {
+                                        "message": {
                                             "properties": {
                                                 "id": {
                                                     "type": "string",

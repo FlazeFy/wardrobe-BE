@@ -39,17 +39,17 @@ class AuthTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertArrayHasKey('token', $data);
         $this->assertArrayHasKey('role', $data);
-        $this->assertArrayHasKey('result', $data);
+        $this->assertArrayHasKey("message", $data);
 
         $check_object = ['id','username','email','created_at','updated_at'];
         foreach ($check_object as $col) {
-            $this->assertArrayHasKey($col, $data['result']);
+            $this->assertArrayHasKey($col, $data["message"]);
         }
 
         $check_not_null_str = ['id','username','email','created_at'];
         foreach ($check_not_null_str as $col) {
-            $this->assertNotNull($col, $data['result'][$col]);
-            $this->assertIsString($col, $data['result'][$col]);
+            $this->assertNotNull($col, $data["message"][$col]);
+            $this->assertIsString($col, $data["message"][$col]);
         }
         
         Audit::auditRecordText("Test - Post Login", "TC-001", "Token : ".$data['token']);
@@ -74,17 +74,17 @@ class AuthTest extends TestCase
         // Test Parameter
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertEquals("account has been registered, check your email to get a token validation",$data['message']);
-        $this->assertArrayHasKey('result', $data);
+        $this->assertArrayHasKey("message", $data);
 
         $check_object = ['id','username','email','created_at'];
         foreach ($check_object as $col) {
-            $this->assertArrayHasKey($col, $data['result']);
+            $this->assertArrayHasKey($col, $data["message"]);
         }
 
         $check_not_null_str = ['id','username','email','created_at'];
         foreach ($check_not_null_str as $col) {
-            $this->assertNotNull($col, $data['result'][$col]);
-            $this->assertIsString($col, $data['result'][$col]);
+            $this->assertNotNull($col, $data["message"][$col]);
+            $this->assertIsString($col, $data["message"][$col]);
         }
         
         Audit::auditRecordText("Test - Post Register", "TC-XXX", "Result : ".json_encode($data));

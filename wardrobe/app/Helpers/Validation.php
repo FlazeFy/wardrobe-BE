@@ -4,17 +4,17 @@ namespace App\Helpers;
 use Illuminate\Support\Facades\Validator;
 
 // Rule
-use App\Rules\DictionaryType;
-use App\Rules\MostUsedContextColumn;
-use App\Rules\YearlyContextColumn;
-use App\Rules\ClothesSize;
-use App\Rules\ClothesGender;
-use App\Rules\ClothesMadeFrom;
-use App\Rules\ClothesCategory;
-use App\Rules\ClothesType;
-use App\Rules\UsedContext;
-use App\Rules\DayName;
-use App\Rules\WashType;
+use App\Rules\DictionaryTypeRule;
+use App\Rules\MostUsedContextColumnRule;
+use App\Rules\YearlyContextColumnRule;
+use App\Rules\ClothesSizeRule;
+use App\Rules\ClothesGenderRule;
+use App\Rules\ClothesMadeFromRule;
+use App\Rules\ClothesCategoryRule;
+use App\Rules\ClothesTypeRule;
+use App\Rules\UsedContextRule;
+use App\Rules\DayNameRule;
+use App\Rules\WashTypeRule;
 
 class Validation
 {
@@ -52,7 +52,7 @@ class Validation
         if($type == 'create'){
             return Validator::make($request->all(), [
                 'dictionary_name' => 'required|string|max:75|min:2',
-                'dictionary_type' => ['required', new DictionaryType],
+                'dictionary_type' => ['required', new DictionaryTypeRule],
             ]);  
         } else if($type == 'delete'){
             return Validator::make($request->all(), [
@@ -75,12 +75,12 @@ class Validation
                 'clothes_name' => 'required|string|max:75|min:2',
                 'clothes_desc' => 'nullable|string|max:500',
                 'clothes_merk' => 'nullable|string|max:75',
-                'clothes_size' => ['required', new ClothesSize],
-                'clothes_gender' => ['required', new ClothesGender],
-                'clothes_made_from' => ['required', new ClothesMadeFrom],
+                'clothes_size' => ['required', new ClothesSizeRule],
+                'clothes_gender' => ['required', new ClothesGenderRule],
+                'clothes_made_from' => ['required', new ClothesMadeFromRule],
                 'clothes_color' => 'required|string|max:36',
-                'clothes_category' => ['required', new ClothesCategory],
-                'clothes_type' => ['required', new ClothesType],
+                'clothes_category' => ['required', new ClothesCategoryRule],
+                'clothes_type' => ['required', new ClothesTypeRule],
                 'clothes_price' => 'required|integer|min:0|max:999999999',
                 'clothes_buy_at' => 'nullable|date_format:Y-m-d',
                 'clothes_qty' => 'required|integer|min:0|max:999',
@@ -92,7 +92,7 @@ class Validation
         } else if($type == 'create_outfit_relation'){
             return Validator::make($request->all(), [
                 'clothes_name' => 'required|string|max:75|min:2',
-                'clothes_type' => ['required', new ClothesType],
+                'clothes_type' => ['required', new ClothesTypeRule],
                 'clothes_id' => 'required|string|min:36|max:36',
             ]); 
         }
@@ -103,7 +103,7 @@ class Validation
             return Validator::make($request->all(), [
                 'wash_note' => 'nullable|string|max:75|min:2', 
                 'clothes_id' => 'required|string|max:36|min:36', 
-                'wash_type' => ['required', new WashType],
+                'wash_type' => ['required', new WashTypeRule],
                 'wash_checkpoint' => ['nullable', 'array'], 
                 'wash_checkpoint.*.id' => ['required_with:wash_checkpoint', 'integer'], 
                 'wash_checkpoint.*.checkpoint_name' => ['required_with:wash_checkpoint', 'string'], 
@@ -116,7 +116,7 @@ class Validation
         if($type == 'create'){
             return Validator::make($request->all(), [
                 'clothes_note' => 'nullable|string|max:144',
-                'used_context' => ['required', new UsedContext],
+                'used_context' => ['required', new UsedContextRule],
             ]); 
         } 
     }
@@ -126,7 +126,7 @@ class Validation
             return Validator::make($request->all(), [
                 'is_remind' => 'required|boolean',
                 'schedule_note' => 'nullable|string|max:255',
-                'day' => ['required', new DayName],
+                'day' => ['required', new DayNameRule],
             ]); 
         } 
     }
@@ -141,11 +141,11 @@ class Validation
     public static function getValidateStats($request,$type){
         if($type == 'most_context'){
             return Validator::make($request->all(), [
-                'context' => ['required', new MostUsedContextColumn],
+                'context' => ['required', new MostUsedContextColumnRule],
             ]);  
         } else if($type == 'yearly_context'){
             return Validator::make($request->all(), [
-                'context' => ['required', new YearlyContextColumn],
+                'context' => ['required', new YearlyContextColumnRule],
             ]); 
         }
     }

@@ -59,7 +59,7 @@ class Commands extends Controller
      *             @OA\Property(property="status", type="string", example="success"),
      *             @OA\Property(property="token", type="string", example="286|L5fqrLCDDCzPRLKngtm2FM9wq1IU2xFZSVAm10yp874a1a85"),
      *             @OA\Property(property="role", type="integer", example=1),
-     *             @OA\Property(property="result", type="object",
+     *             @OA\Property(property="message", type="object",
      *                 @OA\Property(property="id", type="string", example="83ce75db-4016-d87c-2c3c-db1e222d0001"),
      *                 @OA\Property(property="username", type="string", example="flazefy"),
      *                 @OA\Property(property="email", type="string", example="flazen.edu@gmail.com"),
@@ -101,7 +101,7 @@ class Commands extends Controller
             if ($validator->fails()) {
                 return response()->json([
                     'status' => 'failed',
-                    'result' => $validator->messages()
+                    'message' => $validator->messages()
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             } else {
                 // Check for Admin account
@@ -117,7 +117,7 @@ class Commands extends Controller
                 if (!$user || !Hash::check($request->password, $user->password)) {
                     return response()->json([
                         'status' => 'failed',
-                        'result' => Generator::getMessageTemplate("custom", 'wrong password or username'),
+                        "message" => Generator::getMessageTemplate("custom", 'wrong password or username'),
                     ], Response::HTTP_UNAUTHORIZED);
                 } else {
                     // Create Token
@@ -127,7 +127,7 @@ class Commands extends Controller
                     // Return success response
                     return response()->json([
                         'status' => 'success',
-                        'result' => $user,
+                        'message' => $user,
                         'token' => $token,  
                         'role' => $role                  
                     ], Response::HTTP_OK);
@@ -163,7 +163,7 @@ class Commands extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="string", example="success"),
      *             @OA\Property(property="token", type="string", example="AAA123"),
-     *             @OA\Property(property="result", type="object",
+     *             @OA\Property(property="message", type="object",
      *                 @OA\Property(property="id", type="string", example="83ce75db-4016-d87c-2c3c-db1e222d0001"),
      *                 @OA\Property(property="username", type="string", example="flazefy"),
      *                 @OA\Property(property="email", type="string", example="flazen.edu@gmail.com"),
@@ -204,7 +204,7 @@ class Commands extends Controller
             if ($validator->fails()) {
                 return response()->json([
                     'status' => 'failed',
-                    'result' => $validator->messages(),
+                    "message" => $validator->messages(),
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             } else {
                 // Make sure password has number
@@ -215,7 +215,7 @@ class Commands extends Controller
                     if ($is_exist) {
                         return response()->json([
                             'status' => 'failed',
-                            'result' => Generator::getMessageTemplate("custom", 'username or email already been used'),
+                            "message" => Generator::getMessageTemplate("custom", 'username or email already been used'),
                         ], Response::HTTP_CONFLICT);
                     } else {
                         // Create user
@@ -243,7 +243,7 @@ class Commands extends Controller
                             // Return success response
                             return response()->json([
                                 'status' => 'success',
-                                'result' => $user,    
+                                "message" => $user,    
                                 'message' => Generator::getMessageTemplate("custom", "account has been registered, check your email to get a token validation")      
                             ], Response::HTTP_CREATED);
                         } else {
@@ -256,7 +256,7 @@ class Commands extends Controller
                 } else {
                     return response()->json([
                         'status' => 'failed',
-                        'result' => [ "password" => [ "Password must contain number" ]],
+                        "message" => [ "password" => [ "Password must contain number" ]],
                     ], Response::HTTP_UNPROCESSABLE_ENTITY);
                 }
             }
@@ -323,7 +323,7 @@ class Commands extends Controller
             if ($validator->fails()) {
                 return response()->json([
                     'status' => 'failed',
-                    'result' => $validator->messages(),
+                    "message" => $validator->messages(),
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             } else {
                 // Make sure token is exist
@@ -331,7 +331,7 @@ class Commands extends Controller
                 if ($is_exist == null) {
                     return response()->json([
                         'status' => 'failed',
-                        'result' => Generator::getMessageTemplate("custom", 'invalid token'),
+                        "message" => Generator::getMessageTemplate("custom", 'invalid token'),
                     ], Response::HTTP_NOT_FOUND);
                 } else {
                     // Check if token already expired

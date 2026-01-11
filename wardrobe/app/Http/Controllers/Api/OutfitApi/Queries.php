@@ -93,7 +93,7 @@ class Queries extends Controller
             // Get all outfit
             $res = OutfitModel::getAllOutfit($limit, $user_id);
             if ($res->count() > 0) {                
-                $data = $res->getCollection()->map(function ($dt) {
+                $data = $res->getCollection()->map(function ($dt) use ($user_id) {
                     // Get clothes in an outfit
                     $clothes = OutfitRelModel::getClothesByOutfitID($dt->id, $user_id);
                     $dt->clothes = $clothes;

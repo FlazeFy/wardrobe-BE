@@ -111,7 +111,7 @@ class Queries extends Controller
             $page = request()->query('page');  
 
             // Get all clothes header
-            $res = ClothesModel::getAllClothesHeader($page, $category, $order);
+            $res = ClothesModel::getAllClothesHeader($page, $category, $order, false, $user_id);
             if ($res && count($res) > 0) {
                 // Return success response
                 return response()->json([
@@ -382,9 +382,10 @@ class Queries extends Controller
     public function getAllClothesDetail(Request $request, $category, $order){
         try{
             $user_id = $request->user()->id;
+            $page = request()->query('page');  
 
             // Get all clothes (header format)
-            $res = ClothesModel::getAllClothesHeader($page, $category, $order, false);
+            $res = ClothesModel::getAllClothesHeader($page, $category, $order, true, $user_id);
             if ($res && count($res) > 0) {
                 // Return success response
                 return response()->json([

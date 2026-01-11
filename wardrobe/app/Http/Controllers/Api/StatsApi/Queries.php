@@ -1191,7 +1191,6 @@ class Queries extends Controller
                 return response()->json([
                     'status' => 'failed',
                     'message' => Generator::getMessageTemplate("not_found", $this->module),
-                    'data' => null
                 ], Response::HTTP_NOT_FOUND);
             }
         } catch (\Exception $e) {

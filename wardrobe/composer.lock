@@ -1832,7 +1832,7 @@
                 "GrahamCampbell",
                 "Result Type",
                 "Result-Type",
-                "result"
+                "message"
             ],
             "support": {
                 "issues": "https://github.com/GrahamCampbell/Result-Type/issues",

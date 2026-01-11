@@ -46,7 +46,7 @@ class WashModelFactory extends Factory
             ], 
             'created_at' => Generator::getRandomDate(0), 
             'created_by' => $user_id, 
-            'finished_at' => Generator::getRandomDate($ran)
+            'finished_at' => $isFinished1 && $isFinished2 && $isFinished3 ? Generator::getRandomDate($ran) : null
         ];
     }
 }

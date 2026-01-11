@@ -70,7 +70,7 @@ class ClothesModel extends Model
         return $res;
     }
 
-    public static function getAllClothesHeader($page, $category, $order, $is_detail = false){
+    public static function getAllClothesHeader($page, $category, $order, $is_detail = false, $user_id){
         $res = ClothesModel::selectRaw($is_detail ? '*' : 'id, clothes_name, clothes_image, clothes_size, clothes_gender, clothes_color, clothes_category, clothes_type, clothes_qty, is_faded, has_washed, has_ironed, is_favorite, is_scheduled');
             
         if($category != "all"){
@@ -84,7 +84,7 @@ class ClothesModel extends Model
             ->orderBy('created_at', $order);
 
         if($page != "all"){
-            return $res->paginate(14);
+            return $res->paginate($page ?? 14);
         } else {
             return $res->get();
         }
